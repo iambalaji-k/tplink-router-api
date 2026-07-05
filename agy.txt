@@ -1,0 +1,2 @@
+Resume: agy --conversation=4fe700f2-a8e4-4029-93a4-2f9beacfa751 (or -c)
+Resume in the same project: agy --conversation=4fe700f2-a8e4-4029-93a4-2f9beacfa751 --project=default-cli-project

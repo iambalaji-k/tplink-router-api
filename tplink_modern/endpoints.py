@@ -1,0 +1,1 @@
+# Router API endpoints configuration

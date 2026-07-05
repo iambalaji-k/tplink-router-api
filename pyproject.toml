@@ -1,0 +1,18 @@
+[project]
+name = "tplink-modern"
+version = "0.1.0"
+description = "A modern Python SDK for TP-Link Archer AX12 v1 routers."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = [
+    "httpx",
+    "cryptography",
+    "pydantic",
+    "fastapi",
+    "uvicorn"
+]
+
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
