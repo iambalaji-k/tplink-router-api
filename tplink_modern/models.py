@@ -54,6 +54,25 @@ class WirelessClientStats(BaseModel):
 
 
 
+REDACTED_PSK = "***redacted***"
+
+
+def redact_secrets(model: BaseModel) -> BaseModel:
+    """Return a copy of `model` with every pre-shared key replaced by a placeholder.
+
+    Recurses through nested models, so `***` never leaks back into a router write:
+    the SDK keeps operating on the unredacted object and only this copy is exposed.
+    """
+    clone = model.model_copy(deep=True)
+    for name in type(clone).model_fields:
+        value = getattr(clone, name)
+        if isinstance(value, BaseModel):
+            setattr(clone, name, redact_secrets(value))
+        elif name.endswith("psk_key") and value:
+            setattr(clone, name, REDACTED_PSK)
+    return clone
+
+
 class SystemResource(BaseModel):
     """System utilization metrics."""
     cpu_usage: float = Field(default=0.0, description="CPU usage ratio (0.0 to 1.0)")

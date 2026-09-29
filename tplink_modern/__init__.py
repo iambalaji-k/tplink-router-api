@@ -8,6 +8,8 @@ from tplink_modern.models import (
     WanSettings,
     GuestNetworkConfig,
     RouterStatus,
+    redact_secrets,
+    REDACTED_PSK,
 )
 
 __all__ = [
@@ -23,4 +25,6 @@ __all__ = [
     "WanSettings",
     "GuestNetworkConfig",
     "RouterStatus",
+    "redact_secrets",
+    "REDACTED_PSK",
 ]

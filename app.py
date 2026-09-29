@@ -17,6 +17,7 @@ from tplink_modern.models import (
     PptpVpnConfig,
     VpnConnection,
     WirelessClientStats,
+    redact_secrets,
 )
 
 
@@ -93,13 +94,20 @@ app = FastAPI(
 
 
 @app.get("/status", response_model=RouterStatus, summary="Get complete router status")
-async def get_status():
-    """Retrieve system resource usage, LAN, WAN, and Wi-Fi band configurations."""
+async def get_status(include_secrets: bool = False):
+    """Retrieve system resource usage, LAN, WAN, and Wi-Fi band configurations.
+
+    Wi-Fi pre-shared keys are redacted unless `include_secrets=true` is passed.
+    """
     client = get_router()
     try:
-        return await client.status.get()
+        router_status = await client.status.get()
     except RouterError as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+    if include_secrets:
+        return router_status
+    return redact_secrets(router_status)
 
 
 @app.get("/clients", response_model=List[ClientDevice], summary="Get connected client devices")
