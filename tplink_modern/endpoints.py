@@ -27,6 +27,12 @@ NON_JSON = "non-json-or-server-error"
 NOT_SERVED = "not-served-404"
 # Deliberately not probed: the form name is itself an action (`reboot`, `logout`, `cloud_upgrade`).
 NOT_PROBED = "not-probed"
+# The router answered `{"success": false}` with no error field at all, so neither a missing handler
+# nor a missing argument can be attributed to it.
+REFUSED_NO_REASON = "refused-without-reason"
+# The router named a condition (`err_download`, `recovery enable is off`) rather than a missing
+# argument, so the form is reachable only once that condition changes.
+REFUSED_WITH_REASON = "refused-stated-reason"
 
 READ_VERBS = ("read", "load", "list")
 
@@ -90,14 +96,14 @@ ENDPOINTS: tuple[Endpoint, ...] = (
     _e("admin/administration", "remote", ('read', 'write'), ('read',), ANSWERED),
 
     # /admin/cloud_account
-    _e("admin/cloud_account", "auto_update_remind", ('read',), (), NEEDS_PARAMETERS),
+    _e("admin/cloud_account", "auto_update_remind", ('read',), (), REFUSED_NO_REASON),
     _e("admin/cloud_account", "check_device", ('read',), ('read',), ANSWERED),
     _e("admin/cloud_account", "check_internet", ('read',), ('read',), ANSWERED),
     _e("admin/cloud_account", "check_upgrade", ('read',), ('read',), ANSWERED),
     _e("admin/cloud_account", "cloud_bind_status", ('read', 'request'), ('read',), ANSWERED),
     _e("admin/cloud_account", "cloud_unbind", ('write',), (), NOT_IMPLEMENTED),
     _e("admin/cloud_account", "cloud_upgrade", ('read', 'request', 'upgrade'), (), NOT_PROBED),
-    _e("admin/cloud_account", "detect_upgrade_status", ('read',), (), NEEDS_PARAMETERS),
+    _e("admin/cloud_account", "detect_upgrade_status", ('read',), (), REFUSED_WITH_REASON),
     _e("admin/cloud_account", "get_device", ('read',), (), NOT_IMPLEMENTED),
     _e("admin/cloud_account", "get_token", ('read',), ('read',), ANSWERED),
     _e("admin/cloud_account", "remind", ('read', 'write'), ('read',), ANSWERED),
@@ -195,7 +201,7 @@ ENDPOINTS: tuple[Endpoint, ...] = (
     _e("admin/network", "routes_system",
         ('load',), ('load',), ANSWERED, fields=('dest', 'gateway', 'interface', 'mask')),
     _e("admin/network", "status_ipv4", ('read',), ('load', 'list', 'read'), ANSWERED),
-    _e("admin/network", "wan_autodetect", ('detect', 'read', 'request'), (), NEEDS_PARAMETERS),
+    _e("admin/network", "wan_autodetect", ('detect', 'read', 'request'), (), REFUSED_WITH_REASON),
     _e("admin/network", "wan_fc", ('read', 'write'), ('read',), ANSWERED),
     _e("admin/network", "wan_ipv4_bigpond", ('read', 'write'), (), NEEDS_PARAMETERS),
     _e("admin/network", "wan_ipv4_dslite", ('read', 'write'), ('read',), ANSWERED),
@@ -426,7 +432,7 @@ ENDPOINTS: tuple[Endpoint, ...] = (
     _e("login", "password", (), ('read',), ANSWERED),
     _e("login", "sysmode", (), ('load', 'list', 'read'), ANSWERED),
     _e("login", "telemetry", ('request', 'user_action'), (), NOT_IMPLEMENTED),
-    _e("login", "vercode", (), (), NEEDS_PARAMETERS),
+    _e("login", "vercode", (), (), REFUSED_WITH_REASON),
 
     # /upgrade
     _e("upgrade", "info", (), ('read',), ANSWERED),

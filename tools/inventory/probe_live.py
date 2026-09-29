@@ -201,14 +201,25 @@ NEEDS_PARAMETERS = "exists-needs-parameters"
 NON_JSON = "non-json-or-server-error"
 NOT_SERVED = "not-served-404"
 NOT_PROBED = "not-probed"
+# `{"success": false}` and nothing else. The CGI declined; it did not say why, so the reason for
+# the refusal cannot be attributed to a missing parameter or to a missing handler.
+REFUSED_NO_REASON = "refused-without-reason"
+# The router stated why, and the reason is a condition (`err_download`, `recovery enable is off`)
+# rather than an argument this sweep would have to invent.
+REFUSED_WITH_REASON = "refused-stated-reason"
+
+NO_REASON = "no reason given"
+
+# Wording that names a missing argument, as opposed to naming a state.
+PARAMETER_WORDS = ("invalid ", "missing ", "parameter")
 
 
 def verdict_category(record: dict[str, Any]) -> str:
     """One category per probed form, so a generated table cannot drift from the report.
 
-    `no such callback` for every approved verb means this firmware has no handler. Anything else
-    it refuses with (`invalid proto_name`, `invalid parameter vpntype`) means it *does* have one and
-    wants something this read-only sweep will not guess at.
+    `no such callback` for every approved verb means this firmware has no handler. A complaint naming
+    an argument (`invalid proto_name`) means it has one and wants a parameter. A complaint naming a
+    condition (`recovery enable is off`) means neither. An empty `{success: false}` proves nothing.
     """
     if record["verdict"] == "skipped":
         return NOT_PROBED
@@ -223,7 +234,11 @@ def verdict_category(record: dict[str, Any]) -> str:
         return NOT_IMPLEMENTED
     if any(code.startswith("HTTP") or "JSONDecode" in code or "transport" in code for code in codes):
         return NON_JSON
-    return NEEDS_PARAMETERS
+    if any(word in code for code in codes for word in PARAMETER_WORDS):
+        return NEEDS_PARAMETERS
+    if any(code not in ("no such callback", NO_REASON) for code in codes):
+        return REFUSED_WITH_REASON
+    return REFUSED_NO_REASON
 
 
 def describe(response: dict[str, Any]) -> dict[str, Any]:
@@ -257,7 +272,9 @@ async def probe(router: ArcherAX12, module: str, form: str, observed: list[str],
         except RouterError as error:
             code = getattr(error, "errorcode", None)
             record.attempts.append({"operation": op, "ok": False, "errorcode": code})
-            record.failures[op] = str(code) if code is not None else str(error)
+            # An absent errorcode means the envelope carried no reason. Keeping the exception's own
+            # message here would put our wording in the report in place of the router's.
+            record.failures[op] = str(code) if code not in (None, "") else NO_REASON
             continue
         except httpx.HTTPStatusError as error:
             record.attempts.append({"operation": op, "ok": False, "status": error.response.status_code})

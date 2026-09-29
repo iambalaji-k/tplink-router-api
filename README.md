@@ -23,7 +23,23 @@ tplink-router-api/
 │
 ├── tests/                  # Mock-based unit tests (no router required)
 │   ├── test_login.py       # Login handshake, failure and auto-re-auth
-│   └── test_features.py    # DHCP, Wi-Fi, VPN and wireless statistics
+│   ├── test_features.py    # DHCP, Wi-Fi, VPN and wireless statistics
+│   ├── test_api.py         # REST routes and their error mapping
+│   ├── test_error_field.py # The router's four refusal-field spellings
+│   ├── test_inventory_extractor.py  # The URL shapes the bundles build
+│   ├── test_ui_routes.py   # Route table, menu tree, page -> form map
+│   ├── test_endpoints_inventory.py  # Doc, generated table and call sites agree
+│   └── test_live.py        # Opt-in checks against a real router (TPLINK_LIVE=1)
+│
+├── tools/inventory/        # Survey tooling that produced the inventory doc
+│   ├── extract_ui_inventory.py  # Endpoint URLs out of the router's own bundles
+│   ├── jstokens.py      # JS literal/template scanner used by the extractor
+│   ├── ui_routes.py     # Vue router table, menu tree, page-to-form mapping
+│   ├── probe_live.py    # Read-only live probe: read, load and list only
+│   ├── form_models.py   # Row field names out of the UI's table definitions
+│   ├── sdk_calls.py     # Endpoints this package itself addresses
+│   ├── fetch_missing_bundles.py   # Plain-GET audit of never-downloaded chunks
+│   └── gen_endpoints.py # Generates endpoints.py and the doc's table
 │
 └── tplink_modern/          # Python SDK package
     ├── __init__.py         # Package entry point
@@ -54,7 +70,7 @@ tplink-router-api/
 - **Strong Typing**: Strongly typed Pydantic models for responses and settings (LAN, WAN, Wifi, Connected Clients, etc.).
 - **Sub-Resource Client**: Modular layout where router components are accessed intuitively via `router.status`, `router.wifi`, `router.clients`, etc.
 - **REST Wrapper**: Full-featured FastAPI server with lifespan state management and auto-generated OpenAPI documentation.
-- **Surveyed API surface**: [`docs/router-api-inventory.md`](docs/router-api-inventory.md) maps all 226 router endpoints found on firmware 1.10.2 — 225 named by the router's own web bundles plus one the SDK uses that no bundle mentions — and records which of them answer a read-only request: 179 do, 18 have no handler on this firmware, 8 need a parameter, and 13 were deliberately left alone because their name is an action. [`tplink_modern/endpoints.py`](tplink_modern/endpoints.py) is the machine-readable twin of that table, and a test keeps the two in step. The SDK and REST layer model roughly two dozen of them, including device block/allow and guest credentials.
+- **Surveyed API surface**: [`docs/router-api-inventory.md`](docs/router-api-inventory.md) maps all 226 router endpoints found on firmware 1.10.2 — 225 named by the router's own web bundles plus one the SDK uses that no bundle mentions — and records which of them answer a read-only request: 179 do, 18 have no handler on this firmware, 4 want an argument, 3 named a blocking condition, 1 declined without saying why, 4 answer non-JSON, 4 are not served at all, and 13 were deliberately left alone because their form name is itself an action. [`tplink_modern/endpoints.py`](tplink_modern/endpoints.py) is the machine-readable twin of that table, and a test keeps the two in step. The SDK and REST layer model roughly two dozen of them, including device block/allow and guest credentials.
 
 ---
 

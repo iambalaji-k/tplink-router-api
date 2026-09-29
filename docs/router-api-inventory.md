@@ -14,7 +14,9 @@ were probed with `read`, `load` or `list` and nothing else:
 | --- | --- |
 | answered (`read`, `load` or `list` succeeded) | **179** |
 | no handler — every approved verb returned `no such callback` | 18 |
-| handler exists but refuses a parameterless read (`invalid proto_name`, `invalid parameter vpntype`, …) | 8 |
+| handler exists but wants an argument this sweep will not invent | 4 |
+| handler exists and named a blocking condition (`err_download`, `recovery enable is off`) | 3 |
+| declined with `{"success": false}` and no reason at all | 1 |
 | answered with a file or a server error instead of the JSON envelope | 4 |
 | module not served at all (HTTP 404) | 4 |
 | deliberately not probed: the form name is itself an action | 13 |
@@ -46,9 +48,11 @@ operation=<operation>&<field>=<value>&...
 
 - **`stok`** — session token from the RSA login handshake (`login?form=keys` → `form=auth` →
   `form=login`). **The router keeps exactly one admin session**: a new login replaces the previous
-  token, and requests carrying the discarded one answer HTTP 200 with `errorcode: "timeout"`. Verified
-  again during this survey: the probe sweep's logins evicted the browser session each time. Stale or
-  unauthorized tokens otherwise surface as `401`/`403` or `errorcode: "permission denied"`.
+  token, and requests carrying the discarded one answer HTTP 200 with `errorcode: "timeout"`. That
+  was established by logging in three times from separate clients and replaying the older tokens;
+  this survey's sweep kept one client throughout and never saw a `timeout`, so it adds no evidence
+  either way. Stale or unauthorized tokens otherwise surface as `401`/`403` or
+  `errorcode: "permission denied"`.
 - **`operation`** — the action on that form. Verbs seen in the bundles: `read`, `write`, `load`,
   `insert`, `update`, `remove`, `request`, `go`, `set`, `get`, `file`, plus form-specific ones such
   as `connect`, `disconnect`, `renew`, `release`, `reboot`, `start`, `stop`, `wakeup`, `upgrade`,
@@ -163,19 +167,32 @@ The wireless pair among them is the interesting case: `mlo_host` (Wi-Fi 7 multi-
 `ofdma_mimo` are in the bundles because the bundles ship to several models, not because this unit
 has them. Treat "in the UI" as "the UI can ask", never as "the device supports it".
 
-**Implemented but refusing a parameterless read (8)** — a handler exists; it wants an argument this
-sweep will not guess at:
+**A handler exists but wants an argument (4)** — the refusal names what is missing, so the form is
+reachable once it is supplied. This sweep sends no arguments of its own.
 
 | Form | Refusal | What it wants |
 | --- | --- | --- |
-| `admin/vpnconn?form=config` | `invalid parameter vpntype` | a `vpntype` field — the SDK already passes one |
+| `admin/vpnconn?form=config` | `invalid parameter vpntype` | a `vpntype` field — the SDK already passes one, and `/vpn/connections` works |
 | `admin/vpn?form=wireguard` | `invalid vpn_name` | a VPN profile name |
 | `admin/network?form=wan_ipv4_bigpond` | `invalid proto_name` | an interface/proto name |
 | `admin/smart_network?form=patrol_insights` | `invalid args` | unknown; not reachable without writing |
-| `admin/cloud_account?form=detect_upgrade_status` | `err_download` | a check to be started first (`upgrade`, not probed) |
-| `admin/cloud_account?form/auto_update_remind` | refusal naming its own URL | unknown |
-| `admin/network?form=wan_autodetect` | `autodetect failed` | it *runs* a detection on read; treat as an action |
-| `login?form=vercode` | `recovery enable is off` | a firmware state, not a missing argument |
+
+**A handler exists and named a blocking condition (3)** — the refusal is a state, not a missing
+argument, so no parameter would have made these succeed:
+
+| Form | Refusal | Reading |
+| --- | --- | --- |
+| `admin/cloud_account?form=detect_upgrade_status` | `err_download` | it reports the result of an upgrade check that has to be started first (`upgrade` — not probed) |
+| `admin/network?form=wan_autodetect` | `autodetect failed` | `read` *runs* a detection; treat this form as an action, not a query |
+| `login?form=vercode` | `recovery enable is off` | account recovery is disabled on this unit |
+
+**Declined without any reason (1)** — `admin/cloud_account?form=auto_update_remind` answers
+`{"success": false}` with no error field at all, on every verb. Earlier drafts of this document
+printed the SDK's own exception text ("`…/form=auto_update_remind refused by router`") in that cell
+and called it a refusal reason; it was our wording, not the router's. The honest entry is
+"unknown": a form that carries no handler is reported as `no such callback`, so something is
+answering here, but nothing in the response says whether it wants an argument, a different verb or a
+different session state.
 
 **Not JSON (4)** — `admin/openvpn?form=export` answers with the client config as a file body (the UI
 fetches it through the blob client), `admin/status?form=speedtest` and
@@ -240,14 +257,14 @@ firmware" is the live read-only verdict, naming the verbs that answered.
 | `/admin/administration` | `mode` | read, write | answered (read) |
 | `/admin/administration` | `recovery` | read, write | answered (read) |
 | `/admin/administration` | `remote` | read, write | answered (read) |
-| `/admin/cloud_account` | `auto_update_remind` | read | needs a parameter |
+| `/admin/cloud_account` | `auto_update_remind` | read | declined, no reason |
 | `/admin/cloud_account` | `check_device` | read | answered (read) |
 | `/admin/cloud_account` | `check_internet` | read | answered (read) |
 | `/admin/cloud_account` | `check_upgrade` | read | answered (read) |
 | `/admin/cloud_account` | `cloud_bind_status` | read, request | answered (read) |
 | `/admin/cloud_account` | `cloud_unbind` | write | no such callback |
 | `/admin/cloud_account` | `cloud_upgrade` | read, request, upgrade | not probed |
-| `/admin/cloud_account` | `detect_upgrade_status` | read | needs a parameter |
+| `/admin/cloud_account` | `detect_upgrade_status` | read | declined: stated reason |
 | `/admin/cloud_account` | `get_device` | read | no such callback |
 | `/admin/cloud_account` | `get_token` | read | answered (read) |
 | `/admin/cloud_account` | `remind` | read, write | answered (read) |
@@ -302,7 +319,7 @@ firmware" is the live read-only verdict, naming the verbs that answered.
 | `/admin/network` | `routes_static` | insert, load, remove, update | answered (load) |
 | `/admin/network` | `routes_system` | load | answered (load) |
 | `/admin/network` | `status_ipv4` | read | answered (load+list+read) |
-| `/admin/network` | `wan_autodetect` | detect, read, request | needs a parameter |
+| `/admin/network` | `wan_autodetect` | detect, read, request | declined: stated reason |
 | `/admin/network` | `wan_fc` | read, write | answered (read) |
 | `/admin/network` | `wan_ipv4_bigpond` | read, write | needs a parameter |
 | `/admin/network` | `wan_ipv4_dslite` | read, write | answered (read) |
@@ -448,7 +465,7 @@ firmware" is the live read-only verdict, naming the verbs that answered.
 | `/login` | `password` | - | answered (read) |
 | `/login` | `sysmode` | - | answered (load+list+read) |
 | `/login` | `telemetry` | request, user_action | no such callback |
-| `/login` | `vercode` | - | needs a parameter |
+| `/login` | `vercode` | - | declined: stated reason |
 | `/upgrade` | `info` | - | answered (read) |
 | `/upgrade` | `set` | - | answered (read) |
 | `/wan_error` | `never` | - | no such callback |

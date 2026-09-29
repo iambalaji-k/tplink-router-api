@@ -54,6 +54,21 @@ def test_doc_headline_counts_match_the_table(doc_text: str) -> None:
     assert int(answered.group(1)) == endpoints.ANSWERED_COUNT
 
 
+def test_doc_category_breakdown_adds_up(doc_text: str) -> None:
+    """Every form lands in exactly one category, so the breakdown must sum to the table."""
+    start = doc_text.index("| This firmware's answer | Forms |")
+    block = doc_text[start : doc_text.index("\n\n", doc_text.index("\n\n", start) + 1)]
+    counts = [int(cell) for cell in re.findall(r"\|\s*\**(\d+)\**\s*\|", block)]
+    assert len(counts) >= 5, f"the breakdown table shrank to {counts}"
+    assert sum(counts) == endpoints.FORM_COUNT, f"{counts} sums to {sum(counts)}, not {endpoints.FORM_COUNT}"
+
+    by_status: dict[str, int] = {}
+    for endpoint in endpoints.ENDPOINTS:
+        by_status[endpoint.status] = by_status.get(endpoint.status, 0) + 1
+    assert sum(by_status.values()) == endpoints.FORM_COUNT
+    assert by_status[endpoints.ANSWERED] == endpoints.ANSWERED_COUNT
+
+
 def test_doc_module_reference_lists_every_endpoint(doc_text: str) -> None:
     listed = {(module, form) for module, form in DOC_ROW_RE.findall(doc_text)}
     assert len(listed) == endpoints.FORM_COUNT

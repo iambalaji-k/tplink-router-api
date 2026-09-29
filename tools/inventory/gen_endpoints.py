@@ -47,6 +47,12 @@ NON_JSON = "non-json-or-server-error"
 NOT_SERVED = "not-served-404"
 # Deliberately not probed: the form name is itself an action (`reboot`, `logout`, `cloud_upgrade`).
 NOT_PROBED = "not-probed"
+# The router answered `{"success": false}` with no error field at all, so neither a missing handler
+# nor a missing argument can be attributed to it.
+REFUSED_NO_REASON = "refused-without-reason"
+# The router named a condition (`err_download`, `recovery enable is off`) rather than a missing
+# argument, so the form is reachable only once that condition changes.
+REFUSED_WITH_REASON = "refused-stated-reason"
 
 READ_VERBS = ("read", "load", "list")
 
@@ -160,6 +166,8 @@ STATUS_NAME = {
     "non-json-or-server-error": "NON_JSON",
     "not-served-404": "NOT_SERVED",
     "not-probed": "NOT_PROBED",
+    "refused-without-reason": "REFUSED_NO_REASON",
+    "refused-stated-reason": "REFUSED_WITH_REASON",
 }
 
 
@@ -245,6 +253,8 @@ def render_markdown(inventory: dict[str, Any], probe: dict[str, Any], patterns: 
         "non-json-or-server-error": "not JSON",
         "not-served-404": "HTTP 404",
         "not-probed": "not probed",
+        "refused-without-reason": "declined, no reason",
+        "refused-stated-reason": "declined: stated reason",
     }
     lines = [
         "| Module | Form | Verbs in the UI | This firmware |",
