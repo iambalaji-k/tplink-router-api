@@ -124,6 +124,25 @@ WOL_LOAD = {
 DMZ_READ = {"success": True, "data": {"enable": "off", "ipaddr": ""}}
 # This unit has no rules configured, so a row shape with an unrecognised field stands in for it.
 VS_RULES = [{"key": "rule1", "name": "ssh", "enable": "on", "protocol": "tcp", "eport": "2222"}]
+# Copied from a live read of admin/wireless?form=region on this unit.
+REGION_CAPABILITY = {
+    "success": True,
+    "data": {
+        "country": "US",
+        "region_list": {},
+        "support_smart_connect": "yes",
+        "support_wireless_schedule": "yes",
+        "capability": {
+            "channel_2g": [str(n) for n in range(1, 12)],
+            "channel_5g": ["36", "40", "44", "48", "149", "153", "157", "161", "165"],
+            "channel_6g": {},
+            "hwmode_2g": ["n", "gn", "bgn"],
+            "hwmode_5g": ["anac_5", "anacax_5"],
+            "htmode_2g": ["20", "40"],
+            "htmode_5g": ["20", "40", "80"],
+        },
+    },
+}
 ACCESS_TABLES = {
     "black_devices": ACCESS_BLACK_DEVICES,
     "white_devices": ACCESS_WHITE_DEVICES,
@@ -131,7 +150,7 @@ ACCESS_TABLES = {
     "black_list": [{"mac": "AA-BB-CC-DD-EE-01", "name": "laptop"}],
     "white_list": [],
 }
-FIRMWARE = {"success": True, "data": {"new_version": "", "hardware_version": "V1", "software_version": "1.0.0"}}
+FIRMWARE = {"success": True, "data": {"update_number": "1"}}
 
 
 _MISSING = object()
@@ -167,6 +186,8 @@ def response_for(url: str, data: dict):
         if operation == "load":
             return {"success": True, "data": ACCESS_TABLES.get(form, [])}
         return OK
+    if "admin/wireless?form=region" in url:
+        return REGION_CAPABILITY
     if "admin/wireless?form=statistics" in url:
         return WIFI_STATS
     if "admin/wireless" in url and "?form=guest" in url:
@@ -251,7 +272,7 @@ def test_read_only_endpoints(client):
     clients = client.get("/clients").json()
     assert [c["wire_type"] for c in clients] == ["wired", "2.4G"]
 
-    assert client.get("/firmware").json()["data"]["hardware_version"] == "V1"
+    assert client.get("/firmware").json()["update_number"] == 1
     assert client.get("/network/lan").json()["ipaddr"] == "192.168.0.1"
     assert client.get("/network/wan").json()["gateway"] == "103.21.1.1"
 
@@ -586,6 +607,20 @@ def test_delete_unknown_forwarding_rule_returns_404(client):
     assert client.delete("/nat/port-triggers/nope").status_code == 404
 
 
+def test_wifi_capabilities_come_from_the_router(client):
+    caps = client.get("/wifi/capabilities").json()
+    assert caps["country"] == "US"
+    assert caps["channels_2g"] == [str(n) for n in range(1, 12)]
+    assert "165" in caps["channels_5g"]
+    assert caps["htmodes_5g"] == ["20", "40", "80"]
+    assert caps["hwmodes_2g"] == ["n", "gn", "bgn"]
+    assert caps["support_smart_connect"] is True
+    # An empty 6G list arrives as {} rather than [], and no region list means the
+    # country cannot be changed.
+    assert caps["channels_6g"] == []
+    assert caps["region_selectable"] is False
+
+
 def test_reboot(client, router_requests):
     response = client.post("/reboot")
     assert response.status_code == 200 and response.json() == {"success": True}
@@ -679,6 +714,7 @@ def test_openapi_documents_every_route(client):
         "/wifi/config",
         "/wifi/guest",
         "/wifi/statistics",
+        "/wifi/capabilities",
         "/vpn/openvpn",
         "/vpn/pptp",
         "/vpn/connections",

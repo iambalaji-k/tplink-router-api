@@ -268,7 +268,7 @@ is not present in the post-login bundles.
 | Module | Form |
 | --- | --- |
 | `/admin/quick_setup` | `check_router`, `quick_setup`, `ap_setup` |
-| `/admin/status?form=menu_status` | Navigation/feature availability tree — the authoritative list of what this firmware exposes |
+| `/admin/status?form=menu_status` | Reports `patrol_mark` only — not the navigation tree its name suggests (see finding 1) |
 | `/locale` | `lang`, `country`, `list`, `multilang` (tp-link.com cloud, not LAN) |
 | `/debug`, `/upgrade`, `/wan_error`, `/device_config`, `/domain_login`, `/domain_redirect`, `/blocking`, `/accessibility` | Cloud/telemetry endpoints reached over `https://www.tp-link.com`, **not** the router's CGI |
 
@@ -276,7 +276,7 @@ is not present in the post-login bundles.
 
 ## 4. Findings worth acting on
 
-1. **`menu_status` is the Rosetta stone.** It returns which features this firmware actually enables — the right starting point for any "what can this router do" question, better than scraping bundles.
+1. **`menu_status` is not a feature tree — the real capability source is `wireless?form=region`.** `menu_status` answers `{patrol_mark: "0"}`. The region form is what reports what the unit accepts: `capability.channel_2g/5g/6g`, `hwmode_2g/5g`, `htmode_2g/5g`, plus `support_smart_connect` / `support_wireless_schedule` and whether `region_list` offers a country choice. This SDK exposes it as `GET /wifi/capabilities` / `wifi.get_capabilities()`. Note the shape traps: an unused 6G list arrives as `{}` not `[]`, and an empty `region_list` means the country is locked.
 2. **Guest networking is three forms, not one, and the old wrapper hit the wrong one.** Reads of `admin/wireless?form=guest_2g` / `guest_5g` / `guest_6g` return the per-band guest config (`enable`, `ssid`, `encryption`, `psk_key`, `psk_cipher`, `psk_version`, `hidden`, `disabled`, `redirect*`) — this router reports 2.4G guest SSID `TP-Link` and 5G `GuestExample`, both disabled. Client isolation and guest LAN access are a *separate* form, `?form=guest`, returning just `access` and `isolate`. `guest_2g5g` is the merged view, and the UI writes it with **prefixed** field names (`guest_2g5g_psk_key`, `guest_2g_enable`, …). The SDK previously posted bare `enable`/`isolate` to `guest_2g5g`, which the router accepted while ignoring both fields — a silent no-op, since `success` says nothing about unrecognised parameters. Fixed in `set_guest()`.
 3. **Several forms return secrets in cleartext**: `guest_2g5g` and `wireless_2g/5g` (`psk_key`), `wireless_addition_setting` (`psk_key`), `wireguard?form=config` (`private_key`), `openvpn?form=export`. Anything built on top of these must redact by default, as `GET /status` now does.
 4. **Two reboot paths exist** (`/admin/reboot?form=set` and `/admin/system?form=reboot`); the SDK uses the latter.

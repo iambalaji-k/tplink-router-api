@@ -20,6 +20,7 @@ from tplink_modern.models import (
     ClientDevice,
     DhcpReservation,
     DmzSettings,
+    FirmwareUpgradeCheck,
     ForwardRule,
     LanSettings,
     ManagedDevice,
@@ -29,6 +30,7 @@ from tplink_modern.models import (
     VpnConnection,
     WanSettings,
     WolDevice,
+    WirelessCapabilities,
     WirelessClientStats,
     redact_secrets,
 )
@@ -161,9 +163,9 @@ async def get_clients():
     return await client.clients.get_all()
 
 
-@app.get("/firmware", response_model=Dict[str, Any], summary="Check for firmware upgrades")
+@app.get("/firmware", response_model=FirmwareUpgradeCheck, summary="Check for firmware upgrades")
 async def check_firmware():
-    """Check if there is an upgrade package available for the router."""
+    """Ask the router whether an upgrade is pending. It reports a count, not a version."""
     client = get_router()
     return await client.firmware.check_upgrade()
 
@@ -349,6 +351,16 @@ async def get_wifi_statistics():
     """Retrieve detailed packets sent/received statistics for all connected wireless client devices."""
     client = get_router()
     return await client.wifi.get_statistics()
+
+
+@app.get("/wifi/capabilities", response_model=WirelessCapabilities, summary="Get what this unit's wireless driver accepts")
+async def get_wifi_capabilities():
+    """Channels, band widths and mode options the router supports in its current country.
+
+    Use this to validate a `POST /wifi/config` before sending it.
+    """
+    client = get_router()
+    return await client.wifi.get_capabilities()
 
 
 # --- Stage 3: VPN Servers & Connections ---

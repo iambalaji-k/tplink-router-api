@@ -155,6 +155,61 @@ class DmzSettings(BaseModel):
     ipaddr: str = ""
 
 
+class WirelessCapabilities(BaseModel):
+    """What this unit's wireless driver will actually accept, per band.
+
+    Reported by the router itself, so it is the thing to validate a write against
+    rather than a hardcoded channel table.
+    """
+    country: str = ""
+    channels_2g: List[str] = Field(default_factory=list)
+    channels_5g: List[str] = Field(default_factory=list)
+    channels_6g: List[str] = Field(default_factory=list)
+    hwmodes_2g: List[str] = Field(default_factory=list)
+    hwmodes_5g: List[str] = Field(default_factory=list)
+    htmodes_2g: List[str] = Field(default_factory=list)
+    htmodes_5g: List[str] = Field(default_factory=list)
+    support_smart_connect: bool = False
+    support_wireless_schedule: bool = False
+    region_selectable: bool = False
+
+    @classmethod
+    def from_router(cls, data: Dict[str, Any]) -> "WirelessCapabilities":
+        capability = data.get("capability") or {}
+
+        def band(key: str) -> List[str]:
+            value = capability.get(key) or []
+            return [str(v) for v in value] if isinstance(value, list) else []
+
+        return cls(
+            country=data.get("country", ""),
+            channels_2g=band("channel_2g"),
+            channels_5g=band("channel_5g"),
+            channels_6g=band("channel_6g"),
+            hwmodes_2g=band("hwmode_2g"),
+            hwmodes_5g=band("hwmode_5g"),
+            htmodes_2g=band("htmode_2g"),
+            htmodes_5g=band("htmode_5g"),
+            support_smart_connect=data.get("support_smart_connect") == "yes",
+            support_wireless_schedule=data.get("support_wireless_schedule") == "yes",
+            region_selectable=bool(data.get("region_list")),
+        )
+
+
+class FirmwareUpgradeCheck(BaseModel):
+    """The router's answer to 'is there an update', which is deliberately not a version."""
+    update_number: int = 0
+    raw: Dict[str, Any] = Field(default_factory=dict, description="Unparsed fields, the schema is thin")
+
+    @classmethod
+    def from_router(cls, data: Dict[str, Any]) -> "FirmwareUpgradeCheck":
+        try:
+            number = int(data.get("update_number", 0))
+        except (TypeError, ValueError):
+            number = 0
+        return cls(update_number=number, raw=dict(data))
+
+
 class SystemResource(BaseModel):
     """System utilization metrics."""
     cpu_usage: float = Field(default=0.0, description="CPU usage ratio (0.0 to 1.0)")

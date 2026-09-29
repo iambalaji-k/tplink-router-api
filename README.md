@@ -273,7 +273,7 @@ success — the router's own `errorcode` comes back in the body:
 
 - `GET /status` - Complete system resource usage, CPU, RAM, LAN, and Wi-Fi band configurations. Wi-Fi keys are redacted unless you pass `?include_secrets=true`.
 - `GET /clients` - Returns list of all connected wired and wireless devices.
-- `GET /firmware` - Checks for available firmware upgrades.
+- `GET /firmware` - Whether the router thinks an upgrade is pending (a count, not a version).
 - `GET /network/lan` - Get current local area network settings.
 - `GET /network/wan` - Get current wide area network settings.
 - `GET /network/dhcp/reservations` - List static DHCP IP-MAC address reservations.
@@ -298,6 +298,7 @@ success — the router's own `errorcode` comes back in the body:
 - `POST /wifi/config` - Update SSID, password, channel, HT mode for 2.4G or 5G bands.
 - `POST /wifi/guest` - Toggle guest Wi-Fi, set its SSID and password, or change client isolation. Omitted fields keep their current values.
 - `GET /wifi/statistics` - Query packets sent/received statistics for all connected wireless client devices.
+- `GET /wifi/capabilities` - Channels, band widths and modes this unit supports in its current country — validate a `/wifi/config` write against this.
 - `GET /vpn/openvpn` - Retrieve current OpenVPN server configuration.
 - `POST /vpn/openvpn` - Configure and toggle the OpenVPN server.
 - `GET /vpn/pptp` - Retrieve current PPTP VPN server configuration.

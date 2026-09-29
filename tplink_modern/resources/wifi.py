@@ -4,6 +4,7 @@ from tplink_modern.models import (
     REDACTED_PSK,
     GuestNetworkConfig,
     WirelessBandConfig,
+    WirelessCapabilities,
     WirelessClientStats,
 )
 
@@ -44,6 +45,15 @@ class WifiResource(BaseResource):
         """Get current Guest Network configuration."""
         status = await self.client.get_status()
         return status.guest
+
+    async def get_capabilities(self) -> WirelessCapabilities:
+        """Channels and widths this unit accepts per band, straight from the router.
+
+        The region form reports what the driver supports in the current country, so a caller
+        can validate a channel or htmode before writing it instead of guessing per firmware.
+        """
+        resp = await self.client.read("admin/wireless", "region")
+        return WirelessCapabilities.from_router(resp.get("data", {}))
 
     async def get_guest_band(self, band: str) -> Dict[str, Any]:
         """Read one guest band's configuration straight from its own form.
