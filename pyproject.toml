@@ -22,6 +22,10 @@ include = ["tplink_modern*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# `app.py` and `tools/` live at the repo root and are not part of the installed package, so the
+# root has to be on sys.path. That happens by accident under `python -m pytest` (cwd is added) but
+# not under the `pytest` command CI runs.
+pythonpath = ["."]
 asyncio_mode = "strict"
 markers = [
     "live: checks that talk to a real router; run with TPLINK_LIVE=1 pytest -m live",
