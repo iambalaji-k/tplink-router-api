@@ -118,7 +118,7 @@ ACCESS_MODE = {"success": True, "data": {"access_mode": "black"}}
 # The router reports saved wake targets plus its own limit in an `others` sibling.
 WOL_LOAD = {
     "success": True,
-    "data": [{"key": "dev1", "name": "serverbox", "mac": "AA-BB-CC-DD-EE-07"}],
+    "data": [{"key": "dev1", "name": "server", "mac": "AA-BB-CC-DD-EE-07"}],
     "others": {"max_rules": 8},
 }
 DMZ_READ = {"success": True, "data": {"enable": "off", "ipaddr": ""}}
@@ -535,8 +535,8 @@ def test_wol_devices_are_parsed(client):
     devices = client.get("/wol/devices").json()
     assert devices == [
         {
-            "key": "dev1", "name": "serverbox", "macaddr": "AA-BB-CC-DD-EE-07",
-            "index": 0, "raw": {"key": "dev1", "name": "serverbox", "mac": "AA-BB-CC-DD-EE-07"},
+            "key": "dev1", "name": "server", "macaddr": "AA-BB-CC-DD-EE-07",
+            "index": 0, "raw": {"key": "dev1", "name": "server", "mac": "AA-BB-CC-DD-EE-07"},
         }
     ]
 
