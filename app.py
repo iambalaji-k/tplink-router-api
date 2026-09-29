@@ -16,9 +16,11 @@ from tplink_modern.exceptions import (
     RouterError,
 )
 from tplink_modern.models import (
+    AccessControlSettings,
     ClientDevice,
     DhcpReservation,
     LanSettings,
+    ManagedDevice,
     OpenVpnConfig,
     PptpVpnConfig,
     RouterStatus,
@@ -205,6 +207,86 @@ async def delete_dhcp_reservation(macaddr: str):
     client = get_router()
     success = await client.network.delete_dhcp_reservation(macaddr=macaddr)
     return {"success": success}
+
+
+# --- Access control: block or allow a device ---
+
+class AccessControlUpdate(BaseModel):
+    enable: Optional[bool] = None
+    mode: Optional[str] = None
+
+
+class DeviceMACRequest(BaseModel):
+    macaddr: str
+
+
+@app.get("/access-control", response_model=AccessControlSettings, summary="Get access-control state")
+async def get_access_control():
+    """Whether access control is on, which list mode it uses, and the protected host MAC."""
+    client = get_router()
+    return await client.access.get_settings()
+
+
+@app.post("/access-control", summary="Enable access control or switch its list mode")
+async def update_access_control(req: AccessControlUpdate):
+    """Turn access control on/off, or choose 'black' (block listed) / 'white' (allow only listed)."""
+    client = get_router()
+    if req.enable is None and req.mode is None:
+        raise ValueError("provide 'enable' and/or 'mode'")
+    if req.enable is not None:
+        await client.access.set_enabled(req.enable)
+    if req.mode is not None:
+        await client.access.set_mode(req.mode)
+    return {"success": True}
+
+
+@app.get("/access-control/devices", response_model=List[ManagedDevice], summary="List devices that can be listed")
+async def get_access_control_devices(list_type: str = "black"):
+    """Devices the router offers for the block ('black') or allow ('white') list."""
+    client = get_router()
+    return await client.access.devices(list_type)
+
+
+@app.get("/access-control/blocked", response_model=List[str], summary="List blocked MAC addresses")
+async def get_blocked_devices():
+    """MACs currently on the block list."""
+    client = get_router()
+    return await client.access.blocked()
+
+
+@app.get("/access-control/allowed", response_model=List[str], summary="List allowed MAC addresses")
+async def get_allowed_devices():
+    """MACs currently on the allow list."""
+    client = get_router()
+    return await client.access.allowed()
+
+
+@app.post("/access-control/block", summary="Block a device by MAC address")
+async def block_device(req: DeviceMACRequest):
+    """Add a device to the block list. It must be a device the router has already seen."""
+    client = get_router()
+    return {"success": await client.access.block(req.macaddr)}
+
+
+@app.delete("/access-control/block/{macaddr}", summary="Unblock a device")
+async def unblock_device(macaddr: str):
+    """Remove a MAC from the block list."""
+    client = get_router()
+    return {"success": await client.access.unblock(macaddr)}
+
+
+@app.post("/access-control/allow", summary="Allow a device by MAC address")
+async def allow_device(req: DeviceMACRequest):
+    """Add a device to the allow list (only takes effect while mode is 'white')."""
+    client = get_router()
+    return {"success": await client.access.allow(req.macaddr)}
+
+
+@app.delete("/access-control/allow/{macaddr}", summary="Remove a device from the allow list")
+async def undisallow_device(macaddr: str):
+    """Remove a MAC from the allow list."""
+    client = get_router()
+    return {"success": await client.access.unallow(macaddr)}
 
 
 # --- Stage 2 & 4: Wireless Settings & Stats ---

@@ -1,4 +1,5 @@
 import asyncio
+import json
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -97,6 +98,30 @@ GUEST_5G = {
     },
 }
 GUEST_PERMISSIONS = {"success": True, "data": {"access": "off", "isolate": "off"}}
+
+# Device rows copied from a live load of admin/access_control?form=black_devices.
+ACCESS_BLACK_DEVICES = [
+    {
+        "conn_type": "wireless", "guest": "NON_GUEST", "host": "NON_HOST",
+        "ipaddr": "192.168.0.118", "mac": "AA-BB-CC-DD-EE-06", "name": "Lava",
+        "raw_conn_type": "2.4G", "type": "Mobile",
+    },
+    {
+        "conn_type": "wireless", "guest": "GUEST", "host": "NON_HOST",
+        "ipaddr": "192.168.0.43", "mac": "AA-BB-CC-DD-EE-05", "name": "Tab-A7",
+        "raw_conn_type": "5G", "type": "Mobile",
+    },
+]
+ACCESS_WHITE_DEVICES = list(ACCESS_BLACK_DEVICES)
+ACCESS_ENABLE = {"success": True, "data": {"enable": "off", "host_mac": "AA-BB-CC-DD-EE-04"}}
+ACCESS_MODE = {"success": True, "data": {"access_mode": "black"}}
+ACCESS_TABLES = {
+    "black_devices": ACCESS_BLACK_DEVICES,
+    "white_devices": ACCESS_WHITE_DEVICES,
+    # An empty list comes back as {} on this firmware; one entry as a list.
+    "black_list": [{"mac": "AA-BB-CC-DD-EE-01", "name": "laptop"}],
+    "white_list": [],
+}
 FIRMWARE = {"success": True, "data": {"new_version": "", "hardware_version": "V1", "software_version": "1.0.0"}}
 
 
@@ -119,6 +144,14 @@ def response_for(url: str, data: dict):
         return FIRMWARE
     if "admin/dhcps?form=reservation" in url:
         return {"load": DHCP_LOAD, "insert": OK, "remove": OK}[data["operation"]]
+    if "admin/access_control" in url:
+        form = url.split("?form=")[1]
+        operation = data.get("operation")
+        if operation == "read":
+            return ACCESS_ENABLE if form == "enable" else ACCESS_MODE
+        if operation == "load":
+            return {"success": True, "data": ACCESS_TABLES.get(form, [])}
+        return OK
     if "admin/wireless?form=statistics" in url:
         return WIFI_STATS
     if "admin/wireless" in url and "?form=guest" in url:
@@ -378,7 +411,77 @@ def test_guest_rejects_a_redaction_placeholder(client):
     assert "placeholder" in response.json()["detail"]
 
 
+def test_access_control_state(client):
+    body = client.get("/access-control").json()
+    assert body == {"enable": False, "mode": "black", "host_mac": "AA-BB-CC-DD-EE-04"}
+
+
+def test_access_control_devices_are_parsed(client):
+    devices = client.get("/access-control/devices").json()
+    assert [d["macaddr"] for d in devices] == ["AA-BB-CC-DD-EE-06", "AA-BB-CC-DD-EE-05"]
+    assert devices[0]["band"] == "2.4G"
+    assert devices[0]["device_type"] == "Mobile"
+    assert devices[0]["is_guest"] is False
+    assert devices[1]["is_guest"] is True
+
+
+def test_blocked_and_allowed_macs(client):
+    assert client.get("/access-control/blocked").json() == ["AA-BB-CC-DD-EE-01"]
+    assert client.get("/access-control/allowed").json() == []
+
+
+def test_block_sends_the_routers_own_device_row(client, router_requests):
+    response = client.post("/access-control/block", json={"macaddr": "aa:bb:cc:dd:ee:06"})
+    assert response.status_code == 200 and response.json() == {"success": True}
+
+    payload = request_payload(router_requests, "admin/access_control", form="black_devices", operation="block")
+    assert payload["index"] == 0, "the router needs the row's position in its own list"
+    row = json.loads(payload["data"])
+    assert row["mac"] == "AA-BB-CC-DD-EE-06"
+    assert row["name"] == "Lava"
+
+
+def test_block_requires_a_device_the_router_has_seen(client):
+    response = client.post("/access-control/block", json={"macaddr": "99-99-99-99-99-99"})
+    assert response.status_code == 404
+    assert "not on the router's black_devices list" in response.json()["detail"]
+
+
+def test_unblock_removes_by_mac_and_index(client, router_requests):
+    response = client.delete("/access-control/block/AA-BB-CC-DD-EE-01")
+    assert response.status_code == 200 and response.json() == {"success": True}
+
+    payload = request_payload(router_requests, "admin/access_control", form="black_list", operation="remove")
+    assert payload["key"] == "AA-BB-CC-DD-EE-01" and payload["index"] == 0
+
+
+def test_unblock_absent_mac_returns_404(client):
+    response = client.delete("/access-control/allow/99-99-99-99-99-99")
+    assert response.status_code == 404
+
+
+def test_access_control_mode_change(client, router_requests):
+    response = client.post("/access-control", json={"enable": True, "mode": "white"})
+    assert response.status_code == 200 and response.json() == {"success": True}
+
+    enable = request_payload(router_requests, "admin/access_control", form="enable", operation="write")
+    assert enable["enable"] == "on"
+    assert enable["host_mac"] == "AA-BB-CC-DD-EE-04", "the protected host MAC must be preserved"
+    assert request_payload(router_requests, "admin/access_control", form="mode", operation="write")["access_mode"] == "white"
+
+
+def test_access_control_rejects_unknown_mode(client):
+    response = client.post("/access-control", json={"mode": "grey"})
+    assert response.status_code == 400
+
+
+def test_access_control_requires_a_change(client):
+    response = client.post("/access-control", json={})
+    assert response.status_code == 400
+
+
 def test_vpn_config_round_trip(client, router_requests):
+
     response = client.post("/vpn/openvpn", json=OpenVpnConfig(enable=False, proto="tcp", port=1195).model_dump())
     assert response.status_code == 200 and response.json() == {"success": True}
 
@@ -466,6 +569,14 @@ def test_openapi_documents_every_route(client):
         "/network/wan",
         "/network/dhcp/reservations",
         "/network/dhcp/reservations/{macaddr}",
+        "/access-control",
+        "/access-control/devices",
+        "/access-control/blocked",
+        "/access-control/allowed",
+        "/access-control/block",
+        "/access-control/block/{macaddr}",
+        "/access-control/allow",
+        "/access-control/allow/{macaddr}",
         "/wifi/config",
         "/wifi/guest",
         "/wifi/statistics",

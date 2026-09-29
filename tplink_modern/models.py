@@ -73,6 +73,36 @@ def redact_secrets(model: BaseModel) -> BaseModel:
     return clone
 
 
+class AccessControlSettings(BaseModel):
+    """Parental-control / access-control list state."""
+    enable: bool = False
+    mode: str = Field(default="black", description="'black' blocks listed devices, 'white' allows only listed ones")
+    host_mac: str = Field(default="", description="MAC the router never blocks (usually the one it is configured from)")
+
+
+class ManagedDevice(BaseModel):
+    """A device the router offers to put on an access-control list."""
+    macaddr: str
+    name: str = ""
+    ipaddr: str = ""
+    conn_type: str = ""
+    band: str = Field(default="", description="Raw band, e.g. '2.4G' or '5G'")
+    device_type: str = Field(default="", description="Router's own guess, e.g. 'Mobile'")
+    is_guest: bool = False
+
+    @classmethod
+    def from_router(cls, raw: Dict[str, Any]) -> "ManagedDevice":
+        return cls(
+            macaddr=raw.get("mac", ""),
+            name=raw.get("name", ""),
+            ipaddr=raw.get("ipaddr", ""),
+            conn_type=raw.get("conn_type", ""),
+            band=raw.get("raw_conn_type", ""),
+            device_type=raw.get("type", ""),
+            is_guest=raw.get("guest") == "GUEST",
+        )
+
+
 class SystemResource(BaseModel):
     """System utilization metrics."""
     cpu_usage: float = Field(default=0.0, description="CPU usage ratio (0.0 to 1.0)")

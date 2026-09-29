@@ -4,8 +4,9 @@
 > Companion to [`2026-06-26_sdk-tplink-router-report.md`](../2026-06-26_sdk-tplink-router-report.md), which covers how authentication was reverse-engineered.
 
 **41 modules / 181 endpoints** were extracted from the router's own web UI, and every module
-was spot-checked with live read-only calls. The `tplink_modern` SDK currently models **16** of
-them — roughly 9% of the available surface.
+was spot-checked with live read-only calls. The `tplink_modern` SDK and its REST layer now model
+about two dozen of them — status, clients, DHCP, wireless (incl. guest credentials), VPN,
+access control, reboot and firmware check.
 
 ---
 
@@ -51,15 +52,36 @@ redaction, against the real router:
 | `/vpn/connections` | ok | list[0] |
 | `/docs`, `/openapi.json` | ok | 200 |
 
-### Router forms — 26 of 27 probes returned data
+### Access control, forwarding and WoL probes
 
-Confirms the SDK's targets are real, and maps new territory:
+Run with `read`/`load` only, against this unit:
+
+| Probe | Result |
+| --- | --- |
+| `access_control?form=enable` | `{enable: "off", host_mac: "AA-BB-CC-DD-EE-08"}` — access control is off, and the router pins one protected MAC |
+| `access_control?form=mode` | `{access_mode: "black"}` |
+| `access_control?form=black_devices` / `white_devices` | list[8] of `{mac, name, ipaddr, conn_type, raw_conn_type, type, guest, host}` — candidates to block or allow |
+| `access_control?form=black_list` / `white_list` | `{}` when empty; entries arrive as a list, so both shapes must be handled |
+| `nat?form=setting` | `{enable: "on", boost_enable: "on", reboot_time: 190}` |
+| `nat?form=pt`, `upnp?form=service`, `wol?form=device` | `{}` — reachable, nothing configured |
+| `status?form=menu_status` | `{patrol_mark: "0"}` — far thinner than expected; it reports feature flags, not a navigation tree |
+
+The UI issues these write operations, confirmed from the bundles: block is
+`request(black_devices, {operation:"block", data: JSON.stringify(row), index: n})` and allow is
+the same with `operation:"access"` against `white_devices`; removal is
+`remove(list_form, {key: <mac>, index: <position>})`. `set_guest`'s and access control's write
+paths follow that shape but have **not been exercised against the device**, since both would
+change live configuration.
+
+### General form probes — 26 of 27 returned data
+
+These confirmed the SDK's targets are real:
 
 | Probe | Result |
 | --- | --- |
 | `admin/status?form=all` | ok — full status incl. `guest_2g5g_*` fields |
 | `admin/wireless?form=wireless_2g` / `wireless_5g` | ok — ch 2 / ch 149, `htmode` auto / 80, `hwmode` bgn / anacax |
-| `admin/wireless?form=guest_2g5g` | ok — `encryption=psk_sae`, accepts `psk_key`, `psk_cipher`, `redirect`, `passwd_cycle` |
+| `admin/wireless?form=guest_2g5g` | ok — reads back unprefixed `psk_key`, `encryption=psk_sae`, `redirect`, `passwd_cycle`; writes need the prefixed names (finding 2) |
 | `admin/wireless?form=statistics` | ok — list[8] |
 | `admin/wireless?form=wireless_addition_setting`, `region` | ok — region `US`, `beacon_int=100`, `dtim_period=1` |
 | `admin/wireless?form=wireless` | **FAIL — `no such callback`** (present in UI source; needs an extra parameter) |

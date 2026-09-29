@@ -51,7 +51,7 @@ tplink-router-api/
 - **Strong Typing**: Strongly typed Pydantic models for responses and settings (LAN, WAN, Wifi, Connected Clients, etc.).
 - **Sub-Resource Client**: Modular layout where router components are accessed intuitively via `router.status`, `router.wifi`, `router.clients`, etc.
 - **REST Wrapper**: Full-featured FastAPI server with lifespan state management and auto-generated OpenAPI documentation.
-- **Surveyed API surface**: [`docs/router-api-inventory.md`](docs/router-api-inventory.md) maps all 181 router endpoints discovered on firmware 1.10.2, of which this SDK models 16.
+- **Surveyed API surface**: [`docs/router-api-inventory.md`](docs/router-api-inventory.md) maps all 181 router endpoints discovered on firmware 1.10.2; the SDK and REST layer model roughly two dozen of them, including device block/allow and guest credentials.
 
 ---
 
@@ -194,6 +194,38 @@ if __name__ == "__main__":
 
 > **Caution:** `system.reboot()` restarts the router and drops the session. See `examples/reboot.py`, which asks for confirmation first.
 
+### 5. Blocking and Allowing Devices
+```python
+import asyncio
+from tplink_modern import ArcherAX12
+
+async def main():
+    async with ArcherAX12(host="192.168.0.1", password="YOUR_PASSWORD") as router:
+        await router.login()
+
+        for device in await router.access.devices("black"):
+            print(f"{device.name:<12} {device.macaddr} {device.band} guest={device.is_guest}")
+
+        # Only devices the router has already seen can be listed; it needs the row
+        # it reported, which is why block() looks the MAC up first.
+        await router.access.block("AA-BB-CC-DD-EE-01")
+        await router.access.set_enabled(True)     # access control is off until you turn it on
+        print(await router.access.blocked())
+
+        await router.access.set_mode("white")     # allow-list mode
+        await router.access.allow("AA-BB-CC-DD-EE-06")
+        await router.access.unblock("AA-BB-CC-DD-EE-01")
+        await router.access.set_enabled(False)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+> **Caution:** enabling access control in `black` mode cuts the listed device off the network,
+> and in `white` mode anything not on the allow list loses connectivity. Test with a device you
+> can reach over cable, and note the router protects one MAC (`host_mac`) — usually the machine
+> that configured it.
+
 ---
 
 ## Low-Level Access
@@ -247,6 +279,14 @@ success — the router's own `errorcode` comes back in the body:
 - `GET /network/dhcp/reservations` - List static DHCP IP-MAC address reservations.
 - `POST /network/dhcp/reservations` - Create a new static DHCP address reservation.
 - `DELETE /network/dhcp/reservations/{macaddr}` - Delete a static DHCP address reservation by MAC.
+- `GET /access-control` - Whether access control is enabled, its list mode, and the protected host MAC.
+- `POST /access-control` - Enable/disable access control or switch mode (`black`/`white`).
+- `GET /access-control/devices` - Devices the router offers for the block or allow list.
+- `GET /access-control/blocked` / `GET /access-control/allowed` - MACs on each list.
+- `POST /access-control/block` - Block a device by MAC (body `{"macaddr": "..."}`).
+- `DELETE /access-control/block/{macaddr}` - Unblock a device.
+- `POST /access-control/allow` - Add a device to the allow list.
+- `DELETE /access-control/allow/{macaddr}` - Remove a device from the allow list.
 - `POST /wifi/config` - Update SSID, password, channel, HT mode for 2.4G or 5G bands.
 - `POST /wifi/guest` - Toggle guest Wi-Fi, set its SSID and password, or change client isolation. Omitted fields keep their current values.
 - `GET /wifi/statistics` - Query packets sent/received statistics for all connected wireless client devices.
