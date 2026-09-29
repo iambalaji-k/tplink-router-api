@@ -1,9 +1,11 @@
+import asyncio
 from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
 
 import app as api
+from tplink_modern import ArcherAX12
 from tplink_modern.exceptions import SessionExpiredError
 from tplink_modern.models import REDACTED_PSK, OpenVpnConfig, PptpVpnConfig
 
@@ -298,6 +300,57 @@ def test_endpoints_answer_503_without_a_router_client(client, monkeypatch):
     response = client.get("/status")
     assert response.status_code == 503
     assert "not initialized" in response.json()["detail"]
+
+
+def test_concurrent_requests_share_one_reauth():
+    """This firmware keeps one admin session, so parallel re-logins would kill each other.
+
+    Simulates it: only the most recently issued stok is accepted, and a rejected request
+    answers HTTP 200 with errorcode "timeout" the way the AX12 really does.
+    """
+    calls = []
+    state = {"active": None, "logins": 0}
+
+    async def fake_post(self, url, *args, **kwargs):
+        await asyncio.sleep(0)  # yield, so the gathered requests really interleave
+        payload = kwargs.get("data") or {}
+        url_str = str(url)
+        calls.append((url_str, payload))
+
+        if "login?form=keys" in url_str:
+            return mock_response(KEYS_OK)
+        if "login?form=auth" in url_str:
+            return mock_response(AUTH_OK)
+        if "login?form=login" in url_str:
+            state["logins"] += 1
+            state["active"] = f"stok{state['logins']}"
+            return mock_response({"success": True, "data": {"stok": state["active"]}})
+
+        used = url_str.split(";stok=")[1].split("/")[0]
+        if used != state["active"]:
+            return mock_response({"success": False, "errorcode": "timeout"})
+        if "admin/system?form=logout" in url_str:
+            return mock_response(OK)
+        return mock_response(STATUS_OK)
+
+    async def run():
+        async with ArcherAX12(host="192.168.0.1", password="test_password") as router:
+            await router.login()
+            assert state["logins"] == 1
+            # Somebody else logs in (the web UI, another process) and takes the session over.
+            state["active"] = "stok-hijacked"
+            first, second = await asyncio.gather(router.get_status(), router.get_status())
+            return first, second
+
+    with patch("httpx.AsyncClient.post", fake_post):
+        first, second = asyncio.run(run())
+
+    assert first.lan.ipaddr == "192.168.0.1"
+    assert second.lan.ipaddr == "192.168.0.1"
+    # One of the two lost the race and re-authenticated; the other must reuse that login
+    # rather than logging in again and invalidating it.
+    assert state["logins"] == 2, f"expected one re-auth, saw {state['logins']} extra logins"
+    assert sum(1 for url, _ in calls if "login?form=keys" in url) == 2
 
 
 def test_openapi_documents_every_route(client):

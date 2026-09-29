@@ -222,6 +222,8 @@ uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 
 On startup the server logs in once. A failed startup login is logged as a warning rather than fatal: the client re-authenticates transparently on the first request. Until then, endpoints answer `503`.
 
+**The router allows only one admin session.** Logging in from the web UI (or a second process) invalidates this server's `stok`, and vice versa — the API answers `200` with `errorcode: "timeout"` for the discarded token. The client detects that and re-authenticates, and a lock makes concurrent requests share a single re-login instead of stampeding, since parallel logins would otherwise knock each other out. Don't run two copies of this server against the same router.
+
 ### API Endpoints
 
 All endpoints live on one shared router client. Read-only endpoints are `GET`; configuration

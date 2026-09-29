@@ -1,4 +1,5 @@
 from typing import Any, Dict
+import asyncio
 from tplink_modern.session import RouterSession
 from tplink_modern.auth import Authenticator
 from tplink_modern.exceptions import APIError, SessionExpiredError
@@ -25,6 +26,7 @@ class ArcherAX12:
         self.session = RouterSession(host)
         self.password = password
         self._authenticator = Authenticator(self.session)
+        self._auth_lock = asyncio.Lock()
 
         # Expose sub-resources
         self.status = StatusResource(self)
@@ -69,13 +71,20 @@ class ArcherAX12:
 
     async def _request(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Wrapper for posting requests that handles transparent re-authentication on session expiration."""
+        generation = self.session.generation
         try:
             return await self.session.post(path, data)
         except SessionExpiredError:
-            # Session has timed out or is invalid; attempt to re-authenticate once
-            await self._authenticator.login(self.password)
-            # Retry the request with the new stok
-            return await self.session.post(path, data)
+            pass
+
+        # Re-auth one at a time: this firmware keeps a single admin session, so parallel
+        # logins invalidate each other's stok and every caller would end up failing. Whoever
+        # finds the generation already advanced just retries on the token someone else fetched.
+        async with self._auth_lock:
+            if self.session.generation == generation:
+                await self._authenticator.login(self.password)
+        return await self.session.post(path, data)
+
 
     async def get_status(self) -> RouterStatus:
         """Fetch router status information.

@@ -21,7 +21,7 @@ Referer: http://<host>/webpages/index.html
 operation=<operation>&<field>=<value>&...
 ```
 
-- **`stok`** — session token from the RSA login handshake (`login?form=keys` → `form=auth` → `form=login`). Expired or wrong tokens answer `401/403` or `errorcode: "permission denied"`.
+- **`stok`** — session token from the RSA login handshake (`login?form=keys` → `form=auth` → `form=login`). **The router keeps exactly one admin session**: a new login replaces the previous token, and requests carrying the discarded one answer HTTP 200 with `errorcode: "timeout"`. Stale or unauthorized tokens otherwise surface as `401`/`403` or `errorcode: "permission denied"`. Verified by logging in three times from separate clients and replaying the older tokens.
 - **`operation`** — the action on that form. Observed values: `read`, `write`, `load`, `insert`, `update`, `remove`, `list`, `go`, `set`, `request`, plus form-specific verbs such as `connect`, `disconnect`, `renew`, `release`, `reboot`, `start`, `stop`, `wakeup`, `upgrade`.
 - **Response** — `{"success": bool, "data": {...} | [...], "errorcode": 0 | "reason"}`. A rejected form name answers `errorcode: "no such callback"`.
 
@@ -247,6 +247,7 @@ is not present in the post-login bundles.
 4. **Two reboot paths exist** (`/admin/reboot?form=set` and `/admin/system?form=reboot`); the SDK uses the latter.
 5. **`nat?form=vs` answers an empty object** — port forwarding is reachable and cheap to model.
 6. **No `statistics` form in the UI bundles, yet it works** — a reminder that static extraction under-reports; forms built from template strings or issued by the login page are invisible to it.
+7. **One admin session, and the invalidation signal is `errorcode: "timeout"`, not an HTTP error.** Measured by logging in repeatedly and replaying older tokens: the previous stok starts answering `{"success": false, "errorcode": "timeout"}` with status 200. Any client that only watches for `permission denied` will treat a hijacked session as a data error. It also means this API and the web UI evict each other — opening the admin page logs the API out, and the next request logs the browser out.
 
 ---
 

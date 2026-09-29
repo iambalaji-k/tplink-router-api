@@ -83,4 +83,5 @@ class Authenticator:
 
         # Store the token in the session for subsequent requests
         self.session.stok = stok
+        self.session.generation += 1
         return stok

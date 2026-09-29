@@ -2,6 +2,10 @@ import httpx
 from typing import Any, Dict, Optional
 from tplink_modern.exceptions import SessionExpiredError
 
+# The AX12 keeps a single admin session and answers HTTP 200 with these error codes once
+# another login has replaced our stok.
+EXPIRED_ERROR_CODES = frozenset({"permission denied", "timeout"})
+
 
 class RouterSession:
     def __init__(self, host: str):
@@ -19,6 +23,7 @@ class RouterSession:
             verify=False,
         )
         self.stok: Optional[str] = None
+        self.generation = 0
 
     async def post(self, path: str, data: Dict[str, Any], use_login_stok: bool = False) -> Dict[str, Any]:
         """Send a POST request to the router's Luci CGI endpoint.
@@ -50,8 +55,8 @@ class RouterSession:
 
         # Check for TP-Link specific session expiration indicators
         err_code = res_json.get("errorcode") or res_json.get("errorCode")
-        if err_code == "permission denied":
-            raise SessionExpiredError("Session expired or permission denied")
+        if err_code in EXPIRED_ERROR_CODES:
+            raise SessionExpiredError(f"Session no longer accepted by router: {err_code}")
 
         return res_json
 
