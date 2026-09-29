@@ -13,7 +13,7 @@ tplink-router-api/
 ├── .env                    # Environment credentials
 │
 ├── docs/
-│   └── router-api-inventory.md   # Full surveyed router API (41 modules / 181 endpoints)
+│   └── router-api-inventory.md   # Full surveyed router API (50 modules / 226 endpoints)
 │
 ├── examples/               # SDK Usage Examples (live router)
 │   ├── login.py
@@ -33,7 +33,7 @@ tplink-router-api/
     ├── session.py          # Session management & re-auth HTTP client
     ├── exceptions.py       # Custom RouterError definitions
     ├── models.py           # Pydantic schemas for type safety
-    ├── endpoints.py        # Placeholder module (currently unused)
+    ├── endpoints.py        # Generated inventory: every form + what this firmware answers
     └── resources/          # API resources
         ├── base.py         # Base Resource class
         ├── access.py       # Access control: block / allow devices
@@ -54,7 +54,7 @@ tplink-router-api/
 - **Strong Typing**: Strongly typed Pydantic models for responses and settings (LAN, WAN, Wifi, Connected Clients, etc.).
 - **Sub-Resource Client**: Modular layout where router components are accessed intuitively via `router.status`, `router.wifi`, `router.clients`, etc.
 - **REST Wrapper**: Full-featured FastAPI server with lifespan state management and auto-generated OpenAPI documentation.
-- **Surveyed API surface**: [`docs/router-api-inventory.md`](docs/router-api-inventory.md) maps all 181 router endpoints discovered on firmware 1.10.2; the SDK and REST layer model roughly two dozen of them, including device block/allow and guest credentials.
+- **Surveyed API surface**: [`docs/router-api-inventory.md`](docs/router-api-inventory.md) maps all 226 router endpoints found on firmware 1.10.2 — 225 named by the router's own web bundles plus one the SDK uses that no bundle mentions — and records which of them answer a read-only request: 179 do, 18 have no handler on this firmware, 8 need a parameter, and 13 were deliberately left alone because their name is an action. [`tplink_modern/endpoints.py`](tplink_modern/endpoints.py) is the machine-readable twin of that table, and a test keeps the two in step. The SDK and REST layer model roughly two dozen of them, including device block/allow and guest credentials.
 
 ---
 

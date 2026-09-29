@@ -31,10 +31,12 @@ import os
 import re
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import httpx
 
+from tools.inventory.sdk_calls import call_sites
 from tplink_modern import ArcherAX12
 from tplink_modern.exceptions import RouterError
 
@@ -50,8 +52,6 @@ ACTION_FORM_RE = re.compile(
     r"^(reboot|logout|upgrade|factory.*|reset.*|cloud_upgrade|save_upgrade|config_multipart|slave_cmd|"
     r"search_slave|quick_setup|ap_setup|save_log|auto_upgrade|openvpn_cert)$"
 )
-
-CRUD_VERBS = frozenset({"load", "list", "insert", "update", "remove", "block", "access", "wakeup", "bind"})
 
 MAX_DEPTH = 4
 MAX_SAMPLE = 48
@@ -195,6 +195,37 @@ def is_action_shaped(form: str) -> bool:
     return bool(ACTION_FORM_RE.match(form))
 
 
+ANSWERED = "answered"
+NOT_IMPLEMENTED = "not-implemented"
+NEEDS_PARAMETERS = "exists-needs-parameters"
+NON_JSON = "non-json-or-server-error"
+NOT_SERVED = "not-served-404"
+NOT_PROBED = "not-probed"
+
+
+def verdict_category(record: dict[str, Any]) -> str:
+    """One category per probed form, so a generated table cannot drift from the report.
+
+    `no such callback` for every approved verb means this firmware has no handler. Anything else
+    it refuses with (`invalid proto_name`, `invalid parameter vpntype`) means it *does* have one and
+    wants something this read-only sweep will not guess at.
+    """
+    if record["verdict"] == "skipped":
+        return NOT_PROBED
+    if record["verdict"] == "answered":
+        return ANSWERED
+    codes = list(record["failures"].values())
+    if not codes:
+        return NOT_PROBED
+    if all(code.startswith("HTTP 404") for code in codes):
+        return NOT_SERVED
+    if all(code == "no such callback" for code in codes):
+        return NOT_IMPLEMENTED
+    if any(code.startswith("HTTP") or "JSONDecode" in code or "transport" in code for code in codes):
+        return NON_JSON
+    return NEEDS_PARAMETERS
+
+
 def describe(response: dict[str, Any]) -> dict[str, Any]:
     data = response.get("data")
     view: dict[str, Any] = {
@@ -215,9 +246,9 @@ async def probe(router: ArcherAX12, module: str, form: str, observed: list[str],
         record.reason = "form name is an action; not probed even with a read verb"
         return record
 
-    # `read` and `load` describe a row form differently, so a form the UI reads as rows gets
-    # every approved verb rather than stopping at the first answer.
-    crud_like = any(op in CRUD_VERBS for op in observed)
+    # Every approved verb is tried, not just the first to answer: `read` and `load` describe a row
+    # form differently, and "which of the three does this firmware accept" is the answer the
+    # inventory has to state.
     for op in operations_to_try(observed):
         if op not in SAFE_OPERATIONS:
             raise RuntimeError(f"refusing to send operation={op} to {module}?form={form}")
@@ -245,8 +276,6 @@ async def probe(router: ArcherAX12, module: str, form: str, observed: list[str],
             record.top_level_keys = view["top_level_keys"]
             record.data = view["data"]
             record.others = view.get("others")
-        if not crud_like:
-            break
         await asyncio.sleep(delay)
 
     record.settle()
@@ -273,6 +302,15 @@ async def run(args: argparse.Namespace) -> int:
             info = inventory["modules"][module][form]
             observed = [op for op in info["operations"] if op != "not observed"]
             targets.append((module, form, observed))
+
+    # Forms this package itself addresses but the bundles never name. Without this they would carry
+    # forward as folklore from an earlier session instead of being re-verified.
+    known = {(module, form) for module, form, _ in targets}
+    root = Path(__file__).resolve().parents[2]
+    for site in call_sites(root / "tplink_modern", root / "app.py"):
+        if site.is_literal and (site.module, site.prefix) not in known:
+            known.add((site.module, site.prefix))
+            targets.append((site.module, site.prefix, []))
     if args.limit:
         targets = targets[: args.limit]
 
