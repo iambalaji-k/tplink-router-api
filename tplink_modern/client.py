@@ -23,7 +23,7 @@ from tplink_modern.resources import (
     WakeOnLanResource,
     WifiResource,
 )
-from tplink_modern.session import RouterSession
+from tplink_modern.session import RouterSession, error_field
 
 
 def _checked(path: str, response: dict[str, Any]) -> dict[str, Any]:
@@ -31,7 +31,7 @@ def _checked(path: str, response: dict[str, Any]) -> dict[str, Any]:
     if response.get("success"):
         return response
 
-    errorcode = response.get("errorcode", response.get("errorCode"))
+    errorcode = error_field(response)
     detail = f"{path} refused by router" + (f": {errorcode}" if errorcode else "")
     if errorcode == "no such callback":
         raise FeatureUnavailableError(detail, errorcode)

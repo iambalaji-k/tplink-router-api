@@ -8,6 +8,19 @@ from tplink_modern.exceptions import SessionExpiredError
 # another login has replaced our stok.
 EXPIRED_ERROR_CODES = frozenset({"permission denied", "timeout"})
 
+# The web UI's own normalizer destructures all four of these and re-emits one field, in this order.
+# Watching only `errorcode` would let a session loss reported under another spelling be read as data.
+ERROR_FIELDS = ("errorCode", "error", "error_code", "errorcode")
+
+
+def error_field(response: dict[str, Any]) -> Any:
+    """The router's refusal reason, under whichever of its four spellings it arrived."""
+    for name in ERROR_FIELDS:
+        value = response.get(name)
+        if value not in (None, ""):
+            return value
+    return None
+
 
 class RouterSession:
     def __init__(self, host: str, timeout: float = 10.0, verify: bool = True):
@@ -61,7 +74,7 @@ class RouterSession:
         res_json = response.json()
 
         # Check for TP-Link specific session expiration indicators
-        err_code = res_json.get("errorcode") or res_json.get("errorCode")
+        err_code = error_field(res_json)
         if err_code in EXPIRED_ERROR_CODES:
             raise SessionExpiredError(f"Session no longer accepted by router: {err_code}")
 
