@@ -1,5 +1,6 @@
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict, Field
-from typing import List, Optional, Dict, Any
 
 
 class ClientDevice(BaseModel):
@@ -15,7 +16,7 @@ class DhcpReservation(BaseModel):
     macaddr: str
     ipaddr: str
     enable: bool = True
-    name: Optional[str] = None
+    name: str | None = None
 
 
 class OpenVpnConfig(BaseModel):
@@ -37,8 +38,8 @@ class VpnConnection(BaseModel):
     """Represents an active incoming VPN connection."""
     username: str
     ipaddr: str
-    macaddr: Optional[str] = None
-    uptime: Optional[str] = None
+    macaddr: str | None = None
+    uptime: str | None = None
     vpntype: str  # 'openvpn' or 'pptp'
 
 
@@ -91,7 +92,7 @@ class ManagedDevice(BaseModel):
     is_guest: bool = False
 
     @classmethod
-    def from_router(cls, raw: Dict[str, Any]) -> "ManagedDevice":
+    def from_router(cls, raw: dict[str, Any]) -> "ManagedDevice":
         return cls(
             macaddr=raw.get("mac", ""),
             name=raw.get("name", ""),
@@ -109,10 +110,10 @@ class WolDevice(BaseModel):
     name: str = ""
     macaddr: str = ""
     index: int = Field(default=0, description="Position in the router's list, needed to delete it")
-    raw: Dict[str, Any] = Field(default_factory=dict, description="Router row, replayed when waking")
+    raw: dict[str, Any] = Field(default_factory=dict, description="Router row, replayed when waking")
 
     @classmethod
-    def from_router(cls, raw: Dict[str, Any], index: int = 0) -> "WolDevice":
+    def from_router(cls, raw: dict[str, Any], index: int = 0) -> "WolDevice":
         return cls(
             key=str(raw.get("key", "")),
             name=raw.get("name", ""),
@@ -137,7 +138,7 @@ class ForwardRule(BaseModel):
     raw_index: int = 0
 
     @classmethod
-    def from_router(cls, raw: Dict[str, Any], index: int = 0) -> "ForwardRule":
+    def from_router(cls, raw: dict[str, Any], index: int = 0) -> "ForwardRule":
         merged = {
             **raw,
             "key": str(raw.get("key", "")),
@@ -162,22 +163,22 @@ class WirelessCapabilities(BaseModel):
     rather than a hardcoded channel table.
     """
     country: str = ""
-    channels_2g: List[str] = Field(default_factory=list)
-    channels_5g: List[str] = Field(default_factory=list)
-    channels_6g: List[str] = Field(default_factory=list)
-    hwmodes_2g: List[str] = Field(default_factory=list)
-    hwmodes_5g: List[str] = Field(default_factory=list)
-    htmodes_2g: List[str] = Field(default_factory=list)
-    htmodes_5g: List[str] = Field(default_factory=list)
+    channels_2g: list[str] = Field(default_factory=list)
+    channels_5g: list[str] = Field(default_factory=list)
+    channels_6g: list[str] = Field(default_factory=list)
+    hwmodes_2g: list[str] = Field(default_factory=list)
+    hwmodes_5g: list[str] = Field(default_factory=list)
+    htmodes_2g: list[str] = Field(default_factory=list)
+    htmodes_5g: list[str] = Field(default_factory=list)
     support_smart_connect: bool = False
     support_wireless_schedule: bool = False
     region_selectable: bool = False
 
     @classmethod
-    def from_router(cls, data: Dict[str, Any]) -> "WirelessCapabilities":
+    def from_router(cls, data: dict[str, Any]) -> "WirelessCapabilities":
         capability = data.get("capability") or {}
 
-        def band(key: str) -> List[str]:
+        def band(key: str) -> list[str]:
             value = capability.get(key) or []
             return [str(v) for v in value] if isinstance(value, list) else []
 
@@ -199,10 +200,10 @@ class WirelessCapabilities(BaseModel):
 class FirmwareUpgradeCheck(BaseModel):
     """The router's answer to 'is there an update', which is deliberately not a version."""
     update_number: int = 0
-    raw: Dict[str, Any] = Field(default_factory=dict, description="Unparsed fields, the schema is thin")
+    raw: dict[str, Any] = Field(default_factory=dict, description="Unparsed fields, the schema is thin")
 
     @classmethod
-    def from_router(cls, data: Dict[str, Any]) -> "FirmwareUpgradeCheck":
+    def from_router(cls, data: dict[str, Any]) -> "FirmwareUpgradeCheck":
         try:
             number = int(data.get("update_number", 0))
         except (TypeError, ValueError):
@@ -214,7 +215,7 @@ class SystemResource(BaseModel):
     """System utilization metrics."""
     cpu_usage: float = Field(default=0.0, description="CPU usage ratio (0.0 to 1.0)")
     mem_usage: float = Field(default=0.0, description="Memory usage ratio (0.0 to 1.0)")
-    cpu1_usage: Optional[float] = Field(default=None, description="Secondary CPU core usage if available")
+    cpu1_usage: float | None = Field(default=None, description="Secondary CPU core usage if available")
 
 
 class WirelessBandConfig(BaseModel):
@@ -223,12 +224,12 @@ class WirelessBandConfig(BaseModel):
     enable: bool = False
     macaddr: str = ""
     channel: str = Field(default="auto", description="Configured channel setting (e.g. 'auto' or channel number)")
-    current_channel: Optional[str] = Field(default=None, description="Actual operating channel")
+    current_channel: str | None = Field(default=None, description="Actual operating channel")
     encryption: str = "none"
-    psk_key: Optional[str] = Field(default=None, description="WPA/WPA2 pre-shared key (password)")
-    psk_cipher: Optional[str] = Field(default=None, description="Cipher used (e.g. 'aes', 'tkip')")
-    htmode: Optional[str] = Field(default=None, description="Channel width configuration (e.g. '20', '40', '80')")
-    hwmode: Optional[str] = Field(default=None, description="IEEE 802.11 mode (e.g. 'bgn', 'anacax')")
+    psk_key: str | None = Field(default=None, description="WPA/WPA2 pre-shared key (password)")
+    psk_cipher: str | None = Field(default=None, description="Cipher used (e.g. 'aes', 'tkip')")
+    htmode: str | None = Field(default=None, description="Channel width configuration (e.g. '20', '40', '80')")
+    hwmode: str | None = Field(default=None, description="IEEE 802.11 mode (e.g. 'bgn', 'anacax')")
 
 
 class LanSettings(BaseModel):
@@ -237,8 +238,8 @@ class LanSettings(BaseModel):
     netmask: str = ""
     macaddr: str = ""
     dhcp_enable: bool = False
-    ipv6_ipaddr: Optional[str] = None
-    ipv6_link_local: Optional[str] = None
+    ipv6_ipaddr: str | None = None
+    ipv6_link_local: str | None = None
 
 
 class WanSettings(BaseModel):
@@ -249,7 +250,7 @@ class WanSettings(BaseModel):
     macaddr: str = ""
     conntype: str = Field(default="dhcp", description="Connection type (e.g. 'dhcp', 'static', 'pppoe')")
     pridns: str = Field(default="", description="Primary DNS server")
-    snddns: Optional[str] = Field(default=None, description="Secondary DNS server")
+    snddns: str | None = Field(default=None, description="Secondary DNS server")
     uptime: int = Field(default=0, description="WAN connection uptime in seconds")
 
 
@@ -261,12 +262,12 @@ class GuestNetworkConfig(BaseModel):
     # 2.4G Guest network
     guest_2g_ssid: str = ""
     guest_2g_enable: bool = False
-    guest_2g_psk_key: Optional[str] = None
+    guest_2g_psk_key: str | None = None
     
     # 5G Guest network
     guest_5g_ssid: str = ""
     guest_5g_enable: bool = False
-    guest_5g_psk_key: Optional[str] = None
+    guest_5g_psk_key: str | None = None
 
 
 class RouterStatus(BaseModel):
@@ -277,10 +278,10 @@ class RouterStatus(BaseModel):
     wireless_2g: WirelessBandConfig = WirelessBandConfig()
     wireless_5g: WirelessBandConfig = WirelessBandConfig()
     guest: GuestNetworkConfig = GuestNetworkConfig()
-    clients: List[ClientDevice] = Field(default_factory=list)
+    clients: list[ClientDevice] = Field(default_factory=list)
 
     @classmethod
-    def from_raw(cls, raw_data: Dict[str, Any]) -> "RouterStatus":
+    def from_raw(cls, raw_data: dict[str, Any]) -> "RouterStatus":
         """Factory method to parse and map raw router status API JSON into RouterStatus."""
         
         def to_bool(val: Any) -> bool:

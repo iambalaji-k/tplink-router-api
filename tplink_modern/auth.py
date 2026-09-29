@@ -1,6 +1,6 @@
-from tplink_modern.session import RouterSession
 from tplink_modern.crypto import rsa_encrypt
 from tplink_modern.exceptions import AuthenticationError
+from tplink_modern.session import RouterSession
 
 
 class Authenticator:

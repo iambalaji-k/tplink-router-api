@@ -15,12 +15,12 @@ from fastapi.testclient import TestClient
 import app as api
 from tplink_modern import ArcherAX12
 from tplink_modern.models import (
+    REDACTED_PSK,
     ClientDevice,
     DhcpReservation,
     LanSettings,
     OpenVpnConfig,
     PptpVpnConfig,
-    REDACTED_PSK,
     RouterStatus,
     VpnConnection,
     WanSettings,

@@ -1,6 +1,9 @@
-from typing import List
-from tplink_modern.resources.base import BaseResource
+from tplink_modern.exceptions import FeatureUnavailableError
 from tplink_modern.models import OpenVpnConfig, PptpVpnConfig, VpnConnection
+from tplink_modern.resources.base import BaseResource
+
+# The router omits the address for connections that have not negotiated one yet.
+UNKNOWN_PEER_IP = "0.0.0.0"  # noqa: S104
 
 
 class VpnResource(BaseResource):
@@ -55,62 +58,34 @@ class VpnResource(BaseResource):
         await self.client.write("admin/pptpd", "config", **payload)
         return True
 
-    async def get_connections(self) -> List[VpnConnection]:
+    async def get_connections(self) -> list[VpnConnection]:
         """Get all active incoming OpenVPN and PPTP connections."""
-        connections = []
+        return [*(await self._connections("openvpn")), *(await self._connections("pptp"))]
 
-        # 1. Fetch OpenVPN connections
+    async def _connections(self, vpntype: str) -> list[VpnConnection]:
+        """Connections for one VPN type.
+
+        Only "this firmware has no such server" is treated as empty. Anything else --
+        a refused session, a malformed answer -- propagates, because the previous
+        version swallowed every error and reported "nobody connected".
+        """
         try:
-            res_ovpn = await self.client.api("admin/vpnconn", "config", "list", vpntype="openvpn")
-            if res_ovpn.get("success"):
-                ovpn_data = res_ovpn.get("data")
-                if isinstance(ovpn_data, list):
-                    for item in ovpn_data:
-                        connections.append(VpnConnection(
-                            username=item.get("username") or item.get("name", "unknown"),
-                            ipaddr=item.get("ipaddr") or item.get("ip", "0.0.0.0"),
-                            macaddr=item.get("macaddr") or item.get("mac"),
-                            uptime=item.get("uptime"),
-                            vpntype="openvpn"
-                        ))
-                elif isinstance(ovpn_data, dict):
-                    for item in ovpn_data.values():
-                        if isinstance(item, dict):
-                            connections.append(VpnConnection(
-                                username=item.get("username") or item.get("name", "unknown"),
-                                ipaddr=item.get("ipaddr") or item.get("ip", "0.0.0.0"),
-                                macaddr=item.get("macaddr") or item.get("mac"),
-                                uptime=item.get("uptime"),
-                                vpntype="openvpn"
-                            ))
-        except Exception:
-            pass
+            resp = await self.client.api("admin/vpnconn", "config", "list", vpntype=vpntype)
+        except FeatureUnavailableError:
+            return []
 
-        # 2. Fetch PPTP connections
-        try:
-            res_pptp = await self.client.api("admin/vpnconn", "config", "list", vpntype="pptp")
-            if res_pptp.get("success"):
-                pptp_data = res_pptp.get("data")
-                if isinstance(pptp_data, list):
-                    for item in pptp_data:
-                        connections.append(VpnConnection(
-                            username=item.get("username") or item.get("name", "unknown"),
-                            ipaddr=item.get("ipaddr") or item.get("ip", "0.0.0.0"),
-                            macaddr=item.get("macaddr") or item.get("mac"),
-                            uptime=item.get("uptime"),
-                            vpntype="pptp"
-                        ))
-                elif isinstance(pptp_data, dict):
-                    for item in pptp_data.values():
-                        if isinstance(item, dict):
-                            connections.append(VpnConnection(
-                                username=item.get("username") or item.get("name", "unknown"),
-                                ipaddr=item.get("ipaddr") or item.get("ip", "0.0.0.0"),
-                                macaddr=item.get("macaddr") or item.get("mac"),
-                                uptime=item.get("uptime"),
-                                vpntype="pptp"
-                            ))
-        except Exception:
-            pass
+        rows = resp.get("data")
+        if isinstance(rows, dict):
+            rows = list(rows.values())
 
-        return connections
+        return [
+            VpnConnection(
+                username=row.get("username") or row.get("name", "unknown"),
+                ipaddr=row.get("ipaddr") or row.get("ip", UNKNOWN_PEER_IP),
+                macaddr=row.get("macaddr") or row.get("mac"),
+                uptime=row.get("uptime"),
+                vpntype=vpntype,
+            )
+            for row in rows or []
+            if isinstance(row, dict)
+        ]

@@ -36,13 +36,16 @@ tplink-router-api/
     ├── endpoints.py        # Placeholder module (currently unused)
     └── resources/          # API resources
         ├── base.py         # Base Resource class
+        ├── access.py       # Access control: block / allow devices
         ├── clients.py      # Connected client device queries
         ├── firmware.py     # Upgrade check actions
+        ├── nat.py          # DMZ, virtual servers, port triggering
         ├── network.py      # LAN / WAN settings and DHCP reservations
         ├── status.py       # General router status
         ├── system.py       # Reboot and system commands
         ├── vpn.py          # OpenVPN / PPTP servers and connections
-        └── wifi.py         # Guest and main Wi-Fi configurations
+        ├── wifi.py         # Guest and main Wi-Fi configurations
+        └── wol.py          # Saved Wake-on-LAN targets and magic packets
 ```
 
 ## Features
@@ -312,7 +315,7 @@ Read these before exposing the server beyond `127.0.0.1`:
 
 - **The REST API is unauthenticated.** Anyone who can reach the port holds router admin rights, including `POST /reboot` and Wi-Fi/VPN changes. Bind to localhost, or put your own auth in front of it.
 - **Wi-Fi keys are redacted from `GET /status` by default** (they come back as `"***redacted***"`), because the router returns them in its own status payload. Pass `?include_secrets=true` to see them. The SDK deliberately still hands back real keys — `wifi.set_wireless_band()` re-sends the current PSK on every write, so masking at that layer would let a redacted placeholder overwrite your password. `tplink_modern.redact_secrets()` is exported if you serialize `RouterStatus` yourself.
-- **The SDK connects to the router over `http://`** and does not verify TLS if you pass an `https://` host (`verify=False` in `session.py`).
+- **The SDK talks plain HTTP to the router.** If you pass an `https://` host, certificates are verified by default; `ArcherAX12(host, password, timeout=10.0, verify=True)` exposes both, so turn `verify` off deliberately for a self-signed device rather than silently trusting a bad certificate.
 
 ### OpenAPI Documentation
 Once the server is running, navigate to:
@@ -328,8 +331,11 @@ The suite mocks the router's HTTP layer, so no router needs to be reachable:
 ```bash
 pytest -q          # 51 mocked tests, live module skipped
 mypy .             # clean across 30 source files
-ruff check .
+ruff check .       # clean
 ```
+
+`.github/workflows/ci.yml` runs all three on Python 3.11 and 3.13. The rule set CI enforces is
+pinned in `pyproject.toml`, so a ruff upgrade cannot quietly move the bar.
 
 | File | Covers |
 | --- | --- |
@@ -354,9 +360,11 @@ logs in from a second client to evict the server's `stok` — the same thing the
 — and asserts that two concurrent requests both recover. **Running it will log out any router web
 session you have open.**
 
-`ruff check .` currently reports style findings in the SDK and server (PEP 604/585 annotations,
-import ordering, and broad `except Exception: pass` blocks). None of them change runtime behaviour,
-and they are not treated as failures here.
+The lint cleanup was mostly mechanical, except where broad `except Exception` handlers were
+converting real failures into empty results: `vpn.get_connections()` swallowed every error and
+reported "nobody connected", so it now tolerates only `FeatureUnavailableError` (a unit without
+that VPN server) and lets anything else propagate. `keep_alive()`, `logout()`, and the server's
+startup/shutdown handlers narrow to router and transport errors for the same reason.
 
 > Note: `examples/` scripts are live tools, not tests — they talk to the real router in `.env`,
 > and `reboot.py` restarts it after an interactive confirmation.

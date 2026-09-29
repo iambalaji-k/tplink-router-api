@@ -1,5 +1,7 @@
 from unittest.mock import AsyncMock, patch
+
 import pytest
+
 from tplink_modern import ArcherAX12
 from tplink_modern.models import OpenVpnConfig, PptpVpnConfig
 

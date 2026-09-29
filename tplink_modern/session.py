@@ -1,5 +1,7 @@
+from typing import Any
+
 import httpx
-from typing import Any, Dict, Optional
+
 from tplink_modern.exceptions import SessionExpiredError
 
 # The AX12 keeps a single admin session and answers HTTP 200 with these error codes once
@@ -8,8 +10,13 @@ EXPIRED_ERROR_CODES = frozenset({"permission denied", "timeout"})
 
 
 class RouterSession:
-    def __init__(self, host: str):
-        # Normalize host format
+    def __init__(self, host: str, timeout: float = 10.0, verify: bool = True):
+        """Normalize the host and build the HTTP client.
+
+        `verify` only matters for an `https://` host; the router serves plain HTTP on the LAN.
+        It defaults to on so a certificate problem is an error rather than something silently
+        accepted -- pass verify=False deliberately, for a device with a self-signed certificate.
+        """
         host_clean = host.rstrip("/")
         if not host_clean.startswith(("http://", "https://")):
             self.base_url = f"http://{host_clean}"
@@ -18,14 +25,14 @@ class RouterSession:
 
         self.client = httpx.AsyncClient(
             base_url=self.base_url,
-            timeout=10,
+            timeout=timeout,
             follow_redirects=True,
-            verify=False,
+            verify=verify,
         )
-        self.stok: Optional[str] = None
+        self.stok: str | None = None
         self.generation = 0
 
-    async def post(self, path: str, data: Dict[str, Any], use_login_stok: bool = False) -> Dict[str, Any]:
+    async def post(self, path: str, data: dict[str, Any], use_login_stok: bool = False) -> dict[str, Any]:
         """Send a POST request to the router's Luci CGI endpoint.
         
         Args:

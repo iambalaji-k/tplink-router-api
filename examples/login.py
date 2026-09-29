@@ -5,6 +5,8 @@ import sys
 # Add parent directory to sys.path so we can import the local module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+import httpx
+
 from tplink_modern import ArcherAX12
 from tplink_modern.exceptions import RouterError
 
@@ -13,7 +15,7 @@ def load_env_file():
     """Load variables from .env file into os.environ if it exists."""
     env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
     if os.path.exists(env_path):
-        with open(env_path, "r", encoding="utf-8") as f:
+        with open(env_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -57,8 +59,9 @@ async def main():
     except RouterError as e:
         print(f"[-] Router error occurred: {e}")
         sys.exit(1)
-    except Exception as e:
-        print(f"[-] Unexpected error: {e}")
+    except (httpx.HTTPError, OSError) as e:
+        # Router unreachable, DNS failure, connection reset -- expected in a CLI tool.
+        print(f"[-] Transport error: {e}")
         sys.exit(1)
 
 

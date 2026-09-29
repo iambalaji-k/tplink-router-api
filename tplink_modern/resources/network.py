@@ -1,8 +1,8 @@
-from typing import List
 import json
-from tplink_modern.resources.base import BaseResource
-from tplink_modern.models import LanSettings, WanSettings, DhcpReservation
+
 from tplink_modern.exceptions import NotFoundError
+from tplink_modern.models import DhcpReservation, LanSettings, WanSettings
+from tplink_modern.resources.base import BaseResource
 
 
 class NetworkResource(BaseResource):
@@ -18,7 +18,7 @@ class NetworkResource(BaseResource):
         status = await self.client.get_status()
         return status.wan
 
-    async def get_dhcp_reservations(self) -> List[DhcpReservation]:
+    async def get_dhcp_reservations(self) -> list[DhcpReservation]:
         """Get all DHCP static address reservations."""
         res = await self.client.api("admin/dhcps", "reservation", "load")
 

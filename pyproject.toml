@@ -26,3 +26,30 @@ asyncio_mode = "strict"
 markers = [
     "live: checks that talk to a real router; run with TPLINK_LIVE=1 pytest -m live",
 ]
+
+# Pinned so a future ruff upgrade cannot quietly move the bar CI enforces.
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E4", "E7", "E9",  # pycodestyle errors that are not line length
+    "F",               # unused imports / undefined names
+    "I",               # import order
+    "UP",              # modern typing syntax (PEP 585/604)
+    "B",               # bugbear
+    "BLE",             # no blind `except Exception`
+    "PIE",             # pointless statements
+    "RUF",             # ruff's own checks
+    "S",               # bandit-style security smells
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests and examples assert on purpose, and hold placeholder credentials.
+"examples/*" = ["S101", "S105", "S106"]
+"tests/*" = ["S101", "S105", "S106"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true

@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List
+from typing import Any
 
 from tplink_modern.exceptions import NotFoundError
 from tplink_modern.models import AccessControlSettings, ManagedDevice
@@ -12,7 +12,7 @@ def _mac_key(macaddr: str) -> str:
     return macaddr.replace(":", "-").upper()
 
 
-def _as_rows(data: Any) -> List[Dict[str, Any]]:
+def _as_rows(data: Any) -> list[dict[str, Any]]:
     """The router answers these forms as a list when populated and a dict when empty."""
     if isinstance(data, list):
         return [row for row in data if isinstance(row, dict)]
@@ -53,23 +53,23 @@ class AccessControlResource(BaseResource):
         await self.client.write(PATH, "mode", access_mode=mode)
         return True
 
-    async def devices(self, list_type: str = "black") -> List[ManagedDevice]:
+    async def devices(self, list_type: str = "black") -> list[ManagedDevice]:
         """Devices the router offers to put on the given list."""
         if list_type not in ("black", "white"):
             raise ValueError("list_type must be 'black' or 'white'")
         resp = await self.client.api(PATH, f"{list_type}_devices", "load")
         return [ManagedDevice.from_router(row) for row in _as_rows(resp.get("data"))]
 
-    async def blocked(self) -> List[str]:
+    async def blocked(self) -> list[str]:
         """MACs currently on the block list."""
         return self._macs(await self.client.api(PATH, "black_list", "load"))
 
-    async def allowed(self) -> List[str]:
+    async def allowed(self) -> list[str]:
         """MACs currently on the allow list."""
         return self._macs(await self.client.api(PATH, "white_list", "load"))
 
     @staticmethod
-    def _macs(resp: Dict[str, Any]) -> List[str]:
+    def _macs(resp: dict[str, Any]) -> list[str]:
         macs = []
         for row in _as_rows(resp.get("data")):
             mac = row.get("mac") or row.get("macaddr")

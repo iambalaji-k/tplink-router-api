@@ -1,5 +1,4 @@
 import json
-from typing import List, Optional
 
 from tplink_modern.exceptions import NotFoundError
 from tplink_modern.models import WolDevice
@@ -15,7 +14,7 @@ def _mac_key(macaddr: str) -> str:
 class WakeOnLanResource(BaseResource):
     """Saved Wake-on-LAN targets. The router stores them itself; it does not infer them."""
 
-    async def devices(self) -> List[WolDevice]:
+    async def devices(self) -> list[WolDevice]:
         """Devices the router has saved for waking, plus its own rule limit."""
         resp = await self.client.api("admin/wol", "device", "load")
         rows = resp.get("data") or []
@@ -26,7 +25,7 @@ class WakeOnLanResource(BaseResource):
             for i, row in enumerate(row for row in rows if isinstance(row, dict))
         ]
 
-    async def max_rules(self) -> Optional[int]:
+    async def max_rules(self) -> int | None:
         """How many entries the firmware allows, when it reports one."""
         resp = await self.client.api("admin/wol", "device", "load")
         others = resp.get("others")
@@ -55,7 +54,7 @@ class WakeOnLanResource(BaseResource):
         )
         return True
 
-    async def wake(self, macaddr: Optional[str] = None, name: Optional[str] = None) -> bool:
+    async def wake(self, macaddr: str | None = None, name: str | None = None) -> bool:
         """Send a magic packet to a saved device, by MAC or by name."""
         if macaddr is None and name is None:
             raise ValueError("wake needs a macaddr or a name")

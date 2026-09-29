@@ -1,16 +1,13 @@
 class RouterError(Exception):
     """Base exception for all TP-Link Router SDK errors."""
-    pass
 
 
 class AuthenticationError(RouterError):
     """Raised when authentication fails."""
-    pass
 
 
 class SessionExpiredError(AuthenticationError):
     """Raised when the router session has expired or is invalid."""
-    pass
 
 
 class APIError(RouterError):
@@ -27,9 +24,7 @@ class APIError(RouterError):
 
 class FeatureUnavailableError(APIError):
     """This firmware does not implement the requested form or operation."""
-    pass
 
 
 class NotFoundError(RouterError):
     """A local lookup found nothing to act on."""
-    pass

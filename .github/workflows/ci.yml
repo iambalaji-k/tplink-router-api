@@ -1,0 +1,37 @@
+name: checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  static-and-unit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install the SDK and tooling
+        run: |
+          pip install -e .
+          pip install pytest pytest-asyncio mypy ruff
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Type check
+        run: mypy .
+
+      - name: Test (mocked; live suite needs a router)
+        env:
+          TPLINK_PASSWORD: not-a-real-password
+        run: pytest -q

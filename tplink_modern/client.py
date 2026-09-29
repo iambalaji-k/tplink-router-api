@@ -1,28 +1,32 @@
-from typing import Any, Dict
 import asyncio
-from tplink_modern.session import RouterSession
+from typing import Any
+
+import httpx
+
 from tplink_modern.auth import Authenticator
 from tplink_modern.exceptions import (
     APIError,
     FeatureUnavailableError,
+    RouterError,
     SessionExpiredError,
 )
 from tplink_modern.models import RouterStatus
 from tplink_modern.resources import (
     AccessControlResource,
-    NatResource,
-    StatusResource,
-    WakeOnLanResource,
-    FirmwareResource,
     ClientsResource,
-    WifiResource,
+    FirmwareResource,
+    NatResource,
     NetworkResource,
+    StatusResource,
     SystemResource,
     VpnResource,
+    WakeOnLanResource,
+    WifiResource,
 )
+from tplink_modern.session import RouterSession
 
 
-def _checked(path: str, response: Dict[str, Any]) -> Dict[str, Any]:
+def _checked(path: str, response: dict[str, Any]) -> dict[str, Any]:
     """Raise a typed error unless the router reported success."""
     if response.get("success"):
         return response
@@ -35,14 +39,16 @@ def _checked(path: str, response: Dict[str, Any]) -> Dict[str, Any]:
 
 
 class ArcherAX12:
-    def __init__(self, host: str, password: str):
+    def __init__(self, host: str, password: str, timeout: float = 10.0, verify: bool = True):
         """Initialize the Archer AX12 router client.
         
         Args:
             host: The router host IP or domain (e.g. '192.168.0.1' or 'wifi.config').
             password: The administration login password.
+            timeout: Seconds for each router request.
+            verify: Verify TLS certificates; only relevant for an https:// host.
         """
-        self.session = RouterSession(host)
+        self.session = RouterSession(host, timeout=timeout, verify=verify)
         self.password = password
         self._authenticator = Authenticator(self.session)
         self._auth_lock = asyncio.Lock()
@@ -67,7 +73,7 @@ class ArcherAX12:
         # 2. Immediately verify login by fetching status
         await self.get_status()
 
-    async def read(self, path: str, form: str, **kwargs) -> Dict[str, Any]:
+    async def read(self, path: str, form: str, **kwargs) -> dict[str, Any]:
         """Perform a low-level read operation against the router.
         
         This translates to a POST request to path?form=form with operation=read.
@@ -76,7 +82,7 @@ class ArcherAX12:
         data = {"operation": "read", **kwargs}
         return await self._request(full_path, data)
 
-    async def write(self, path: str, form: str, **kwargs) -> Dict[str, Any]:
+    async def write(self, path: str, form: str, **kwargs) -> dict[str, Any]:
         """Perform a low-level write operation against the router.
         
         This translates to a POST request to path?form=form with operation=write.
@@ -85,13 +91,13 @@ class ArcherAX12:
         data = {"operation": "write", **kwargs}
         return await self._request(full_path, data)
 
-    async def api(self, path: str, form: str, operation: str, **kwargs) -> Dict[str, Any]:
+    async def api(self, path: str, form: str, operation: str, **kwargs) -> dict[str, Any]:
         """Perform a low-level generic operation against the router."""
         full_path = f"{path}?form={form}"
         data = {"operation": operation, **kwargs}
         return await self._request(full_path, data)
 
-    async def _request(self, path: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _request(self, path: str, data: dict[str, Any]) -> dict[str, Any]:
         """Wrapper for posting requests that handles transparent re-authentication on session expiration."""
         generation = self.session.generation
         try:
@@ -129,7 +135,7 @@ class ArcherAX12:
             # Query a cheap status endpoint
             await self._request("admin/status?form=internet", {"operation": "read"})
             return True
-        except Exception:
+        except (RouterError, httpx.HTTPError):
             return False
 
     async def logout(self) -> None:
@@ -138,8 +144,9 @@ class ArcherAX12:
             try:
                 # Post to logout endpoint
                 await self.session.post("admin/system?form=logout", {})
-            except Exception:
-                # Fail silently during logout teardown
+            except (RouterError, httpx.HTTPError):
+                # A router that is already gone should not turn teardown into an error;
+                # the token is cleared in `finally` either way.
                 pass
             finally:
                 self.session.stok = None

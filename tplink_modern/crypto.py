@@ -1,4 +1,4 @@
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 
 def rsa_encrypt(password: str, modulus_hex: str, exponent_hex: str) -> str:

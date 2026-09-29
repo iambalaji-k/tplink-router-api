@@ -1,4 +1,3 @@
-from typing import List
 
 from tplink_modern.models import FirmwareUpgradeCheck
 from tplink_modern.resources.base import BaseResource

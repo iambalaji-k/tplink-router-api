@@ -1,8 +1,9 @@
 import os
 import sys
 from contextlib import asynccontextmanager
-from typing import Any, Dict, List, Optional
+from typing import Any
 
+import httpx
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -29,9 +30,9 @@ from tplink_modern.models import (
     RouterStatus,
     VpnConnection,
     WanSettings,
-    WolDevice,
     WirelessCapabilities,
     WirelessClientStats,
+    WolDevice,
     redact_secrets,
 )
 
@@ -40,7 +41,7 @@ def load_env_file() -> None:
     """Load credentials from .env into environment variables."""
     env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".env"))
     if os.path.exists(env_path):
-        with open(env_path, "r", encoding="utf-8") as f:
+        with open(env_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -54,7 +55,7 @@ def load_env_file() -> None:
 load_env_file()
 
 TPLINK_HOST: str = os.environ.get("TPLINK_HOST", "192.168.0.1")
-tplink_password_val: Optional[str] = os.environ.get("TPLINK_PASSWORD")
+tplink_password_val: str | None = os.environ.get("TPLINK_PASSWORD")
 
 if not tplink_password_val:
     print("CRITICAL ERROR: TPLINK_PASSWORD is not set in .env file.", file=sys.stderr)
@@ -64,7 +65,7 @@ TPLINK_PASSWORD: str = tplink_password_val
 
 
 # Global router client reference
-router: Optional[ArcherAX12] = None
+router: ArcherAX12 | None = None
 
 
 def get_router() -> ArcherAX12:
@@ -79,7 +80,7 @@ def get_router() -> ArcherAX12:
 
 # Router failures are the router's fault, not ours, so they default to 502. Anything the
 # firmware simply does not implement gets 501 so callers can tell the two apart.
-HTTP_BY_ERROR: Dict[Any, int] = {
+HTTP_BY_ERROR: dict[Any, int] = {
     NotFoundError: status.HTTP_404_NOT_FOUND,
     FeatureUnavailableError: status.HTTP_501_NOT_IMPLEMENTED,
     ValueError: status.HTTP_400_BAD_REQUEST,
@@ -105,7 +106,9 @@ async def lifespan(app: FastAPI):
     try:
         await router.login()
         print("[+] Router connection established and session verified.")
-    except Exception as e:
+    except (RouterError, httpx.HTTPError) as e:
+        # An unreachable router must not stop the server booting; requests re-authenticate
+        # once it returns. Anything else is our bug and should surface.
         print(f"[-] WARNING: Failed to login to router on startup: {e}. Auto-reauth will retry on request.")
 
     yield
@@ -115,7 +118,7 @@ async def lifespan(app: FastAPI):
         try:
             await router.close()
             print("[+] Router connection closed.")
-        except Exception as e:
+        except (RouterError, httpx.HTTPError) as e:
             print(f"[-] Error closing router session: {e}")
 
 
@@ -130,7 +133,7 @@ app = FastAPI(
 @app.exception_handler(RouterError)
 async def router_error_handler(request: Request, exc: RouterError) -> JSONResponse:
     """Map router SDK failures onto meaningful HTTP codes."""
-    body: Dict[str, Any] = {"detail": str(exc)}
+    body: dict[str, Any] = {"detail": str(exc)}
     errorcode = getattr(exc, "errorcode", None)
     if errorcode is not None:
         body["errorcode"] = errorcode
@@ -156,7 +159,7 @@ async def get_status(include_secrets: bool = False):
     return redact_secrets(router_status)
 
 
-@app.get("/clients", response_model=List[ClientDevice], summary="Get connected client devices")
+@app.get("/clients", response_model=list[ClientDevice], summary="Get connected client devices")
 async def get_clients():
     """Retrieve details (hostnames, IP, MAC addresses) of all connected wired and wireless devices."""
     client = get_router()
@@ -186,7 +189,7 @@ async def get_wan():
 
 # --- Stage 1: DHCP Reservations ---
 
-@app.get("/network/dhcp/reservations", response_model=List[DhcpReservation], summary="Get DHCP address reservations")
+@app.get("/network/dhcp/reservations", response_model=list[DhcpReservation], summary="Get DHCP address reservations")
 async def get_dhcp_reservations():
     """Retrieve all static address reservations mapping specific MAC addresses to fixed IPs."""
     client = get_router()
@@ -217,8 +220,8 @@ async def delete_dhcp_reservation(macaddr: str):
 # --- Access control: block or allow a device ---
 
 class AccessControlUpdate(BaseModel):
-    enable: Optional[bool] = None
-    mode: Optional[str] = None
+    enable: bool | None = None
+    mode: str | None = None
 
 
 class DeviceMACRequest(BaseModel):
@@ -245,21 +248,21 @@ async def update_access_control(req: AccessControlUpdate):
     return {"success": True}
 
 
-@app.get("/access-control/devices", response_model=List[ManagedDevice], summary="List devices that can be listed")
+@app.get("/access-control/devices", response_model=list[ManagedDevice], summary="List devices that can be listed")
 async def get_access_control_devices(list_type: str = "black"):
     """Devices the router offers for the block ('black') or allow ('white') list."""
     client = get_router()
     return await client.access.devices(list_type)
 
 
-@app.get("/access-control/blocked", response_model=List[str], summary="List blocked MAC addresses")
+@app.get("/access-control/blocked", response_model=list[str], summary="List blocked MAC addresses")
 async def get_blocked_devices():
     """MACs currently on the block list."""
     client = get_router()
     return await client.access.blocked()
 
 
-@app.get("/access-control/allowed", response_model=List[str], summary="List allowed MAC addresses")
+@app.get("/access-control/allowed", response_model=list[str], summary="List allowed MAC addresses")
 async def get_allowed_devices():
     """MACs currently on the allow list."""
     client = get_router()
@@ -298,11 +301,11 @@ async def undisallow_device(macaddr: str):
 
 class WifiConfigRequest(BaseModel):
     band: str
-    ssid: Optional[str] = None
-    password: Optional[str] = None
-    enable: Optional[bool] = None
-    channel: Optional[str] = None
-    htmode: Optional[str] = None
+    ssid: str | None = None
+    password: str | None = None
+    enable: bool | None = None
+    channel: str | None = None
+    htmode: str | None = None
 
 
 @app.post("/wifi/config", summary="Configure advanced Wi-Fi network settings")
@@ -321,11 +324,11 @@ async def configure_wifi(req: WifiConfigRequest):
 
 
 class GuestWifiRequest(BaseModel):
-    enable: Optional[bool] = None
-    isolate: Optional[bool] = None
-    ssid: Optional[str] = None
-    password: Optional[str] = None
-    bands: Optional[List[str]] = None
+    enable: bool | None = None
+    isolate: bool | None = None
+    ssid: str | None = None
+    password: str | None = None
+    bands: list[str] | None = None
 
 
 @app.post("/wifi/guest", summary="Update guest Wi-Fi network settings")
@@ -346,7 +349,7 @@ async def update_guest_wifi(req: GuestWifiRequest):
     return {"success": success}
 
 
-@app.get("/wifi/statistics", response_model=List[WirelessClientStats], summary="Get wireless client statistics")
+@app.get("/wifi/statistics", response_model=list[WirelessClientStats], summary="Get wireless client statistics")
 async def get_wifi_statistics():
     """Retrieve detailed packets sent/received statistics for all connected wireless client devices."""
     client = get_router()
@@ -395,7 +398,7 @@ async def update_pptp_config(req: PptpVpnConfig):
     return {"success": success}
 
 
-@app.get("/vpn/connections", response_model=List[VpnConnection], summary="Get active VPN connections")
+@app.get("/vpn/connections", response_model=list[VpnConnection], summary="Get active VPN connections")
 async def get_vpn_connections():
     """List all active incoming OpenVPN and PPTP connections to the router."""
     client = get_router()
@@ -405,8 +408,8 @@ async def get_vpn_connections():
 # --- Wake on LAN and port forwarding ---
 
 class WakeRequest(BaseModel):
-    macaddr: Optional[str] = None
-    name: Optional[str] = None
+    macaddr: str | None = None
+    name: str | None = None
 
 
 class WolDeviceRequest(BaseModel):
@@ -419,7 +422,7 @@ class DmzRequest(BaseModel):
     ipaddr: str = ""
 
 
-@app.get("/wol/devices", response_model=List[WolDevice], summary="List saved Wake-on-LAN targets")
+@app.get("/wol/devices", response_model=list[WolDevice], summary="List saved Wake-on-LAN targets")
 async def get_wol_devices():
     """Devices the router has stored for waking. It does not infer them from the client list."""
     client = get_router()
@@ -461,7 +464,7 @@ async def set_dmz(req: DmzRequest):
     return {"success": await client.nat.set_dmz(req.enable, req.ipaddr)}
 
 
-@app.get("/nat/virtual-servers", response_model=List[ForwardRule], summary="List port forwarding rules")
+@app.get("/nat/virtual-servers", response_model=list[ForwardRule], summary="List port forwarding rules")
 async def get_virtual_servers():
     """Port forwarding rules as the router reports them."""
     client = get_router()
@@ -475,7 +478,7 @@ async def delete_virtual_server(key: str):
     return {"success": await client.nat.delete_virtual_server(key)}
 
 
-@app.get("/nat/port-triggers", response_model=List[ForwardRule], summary="List port triggering rules")
+@app.get("/nat/port-triggers", response_model=list[ForwardRule], summary="List port triggering rules")
 async def get_port_triggers():
     """Port triggering rules as the router reports them."""
     client = get_router()

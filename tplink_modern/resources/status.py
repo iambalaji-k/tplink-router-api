@@ -1,5 +1,5 @@
-from tplink_modern.resources.base import BaseResource
 from tplink_modern.models import RouterStatus
+from tplink_modern.resources.base import BaseResource
 
 
 class StatusResource(BaseResource):

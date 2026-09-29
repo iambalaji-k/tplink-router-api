@@ -1,4 +1,3 @@
-from typing import List
 
 from tplink_modern.exceptions import NotFoundError
 from tplink_modern.models import DmzSettings, ForwardRule
@@ -7,7 +6,7 @@ from tplink_modern.resources.base import BaseResource
 PATH = "admin/nat"
 
 
-def _rows(data) -> List[dict]:
+def _rows(data) -> list[dict]:
     if isinstance(data, list):
         return [row for row in data if isinstance(row, dict)]
     if isinstance(data, dict):
@@ -28,15 +27,15 @@ class NatResource(BaseResource):
         await self.client.write(PATH, "dmz", enable="on" if enable else "off", ipaddr=ipaddr)
         return True
 
-    async def virtual_servers(self) -> List[ForwardRule]:
+    async def virtual_servers(self) -> list[ForwardRule]:
         """Port forwarding rules."""
         return await self._rules("vs")
 
-    async def port_triggers(self) -> List[ForwardRule]:
+    async def port_triggers(self) -> list[ForwardRule]:
         """Port triggering rules."""
         return await self._rules("pt")
 
-    async def _rules(self, form: str) -> List[ForwardRule]:
+    async def _rules(self, form: str) -> list[ForwardRule]:
         resp = await self.client.api(PATH, form, "load")
         return [ForwardRule.from_router(row, i) for i, row in enumerate(_rows(resp.get("data")))]
 

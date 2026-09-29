@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Optional
-from tplink_modern.resources.base import BaseResource
+from typing import Any
+
 from tplink_modern.models import (
     REDACTED_PSK,
     GuestNetworkConfig,
@@ -7,6 +7,7 @@ from tplink_modern.models import (
     WirelessCapabilities,
     WirelessClientStats,
 )
+from tplink_modern.resources.base import BaseResource
 
 GUEST_BANDS = ("2g", "5g")
 
@@ -22,7 +23,7 @@ def _on_off(value: bool) -> str:
     return "on" if value else "off"
 
 
-def _reject_placeholder(value: Optional[str], field: str) -> None:
+def _reject_placeholder(value: str | None, field: str) -> None:
     """A redacted key echoed back by a caller would overwrite the real one."""
     if value == REDACTED_PSK:
         raise ValueError(f"{field} is a redaction placeholder; read the real value first")
@@ -55,7 +56,7 @@ class WifiResource(BaseResource):
         resp = await self.client.read("admin/wireless", "region")
         return WirelessCapabilities.from_router(resp.get("data", {}))
 
-    async def get_guest_band(self, band: str) -> Dict[str, Any]:
+    async def get_guest_band(self, band: str) -> dict[str, Any]:
         """Read one guest band's configuration straight from its own form.
 
         The per-band guest forms report the field names they accept, so writes echo
@@ -66,11 +67,11 @@ class WifiResource(BaseResource):
 
     async def set_guest(
         self,
-        enable: Optional[bool] = None,
-        isolate: Optional[bool] = None,
-        ssid: Optional[str] = None,
-        password: Optional[str] = None,
-        bands: Optional[List[str]] = None,
+        enable: bool | None = None,
+        isolate: bool | None = None,
+        ssid: str | None = None,
+        password: str | None = None,
+        bands: list[str] | None = None,
     ) -> bool:
         """Configure the guest network.
 
@@ -120,11 +121,11 @@ class WifiResource(BaseResource):
     async def set_wireless_band(
         self,
         band: str,
-        ssid: Optional[str] = None,
-        password: Optional[str] = None,
-        enable: Optional[bool] = None,
-        channel: Optional[str] = None,
-        htmode: Optional[str] = None,
+        ssid: str | None = None,
+        password: str | None = None,
+        enable: bool | None = None,
+        channel: str | None = None,
+        htmode: str | None = None,
     ) -> bool:
         """Update Wi-Fi band configuration (2.4GHz or 5GHz).
         
@@ -162,7 +163,7 @@ class WifiResource(BaseResource):
         await self.client.write("admin/wireless", form, **payload)
         return True
 
-    async def get_statistics(self) -> List[WirelessClientStats]:
+    async def get_statistics(self) -> list[WirelessClientStats]:
         """Get active wireless transmission statistics for each connected client device."""
         res = await self.client.api("admin/wireless", "statistics", "load")
 
