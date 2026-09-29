@@ -576,7 +576,7 @@ class Report:
                     "operations": sorted(site.operations) or ["not observed"],
                     "shapes": sorted(site.shapes),
                     "batched": site.batched,
-                    "chunks": sorted(site.chunks)[:4],
+                    "chunks": sorted(site.chunks),
                     "evidence": [re.sub(r"\s+", " ", snippet)[:200] for snippet in site.snippets],
                 }
             modules[path] = entries

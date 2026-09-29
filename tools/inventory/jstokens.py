@@ -136,6 +136,11 @@ def match_braces(src: str, open_index: int) -> tuple[int, str]:
     return _match(src, open_index, "{", "}")
 
 
+def match_array(src: str, open_index: int) -> tuple[int, str]:
+    """Body of the `[...]` array whose `[` sits at `open_index - 1`, plus the index of its `]`."""
+    return _match(src, open_index, "[", "]")
+
+
 def call_span(src: str, open_index: int) -> tuple[int, list[tuple[int, int]]]:
     """`(closing index, [(start, end) per argument])` of the call whose `(` sits at `open_index - 1`.
 
