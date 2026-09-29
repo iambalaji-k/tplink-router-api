@@ -115,6 +115,15 @@ ACCESS_BLACK_DEVICES = [
 ACCESS_WHITE_DEVICES = list(ACCESS_BLACK_DEVICES)
 ACCESS_ENABLE = {"success": True, "data": {"enable": "off", "host_mac": "AA-BB-CC-DD-EE-04"}}
 ACCESS_MODE = {"success": True, "data": {"access_mode": "black"}}
+# The router reports saved wake targets plus its own limit in an `others` sibling.
+WOL_LOAD = {
+    "success": True,
+    "data": [{"key": "dev1", "name": "serverbox", "mac": "AA-BB-CC-DD-EE-07"}],
+    "others": {"max_rules": 8},
+}
+DMZ_READ = {"success": True, "data": {"enable": "off", "ipaddr": ""}}
+# This unit has no rules configured, so a row shape with an unrecognised field stands in for it.
+VS_RULES = [{"key": "rule1", "name": "ssh", "enable": "on", "protocol": "tcp", "eport": "2222"}]
 ACCESS_TABLES = {
     "black_devices": ACCESS_BLACK_DEVICES,
     "white_devices": ACCESS_WHITE_DEVICES,
@@ -144,6 +153,12 @@ def response_for(url: str, data: dict):
         return FIRMWARE
     if "admin/dhcps?form=reservation" in url:
         return {"load": DHCP_LOAD, "insert": OK, "remove": OK}[data["operation"]]
+    if "admin/wol?form=device" in url:
+        return WOL_LOAD if data.get("operation") == "load" else OK
+    if "admin/nat?form=dmz" in url:
+        return DMZ_READ if data.get("operation") == "read" else OK
+    if "admin/nat?form=vs" in url or "admin/nat?form=pt" in url:
+        return {"success": True, "data": VS_RULES} if data.get("operation") == "load" else OK
     if "admin/access_control" in url:
         form = url.split("?form=")[1]
         operation = data.get("operation")
@@ -495,6 +510,82 @@ def test_vpn_config_round_trip(client, router_requests):
     assert write["enabled"] == "on" and write["remoteip"] == "10.0.0.50-60"
 
 
+def test_wol_devices_are_parsed(client):
+    devices = client.get("/wol/devices").json()
+    assert devices == [
+        {
+            "key": "dev1", "name": "serverbox", "macaddr": "AA-BB-CC-DD-EE-07",
+            "index": 0, "raw": {"key": "dev1", "name": "serverbox", "mac": "AA-BB-CC-DD-EE-07"},
+        }
+    ]
+
+
+def test_wake_replays_the_routers_own_row(client, router_requests):
+    response = client.post("/wol/wake", json={"macaddr": "aa:bb:cc:dd:ee:07"})
+    assert response.status_code == 200 and response.json() == {"success": True}
+
+    payload = request_payload(router_requests, "admin/wol", form="device", operation="wakeup")
+    assert json.loads(payload["data"])["mac"] == "AA-BB-CC-DD-EE-07"
+
+
+def test_wake_needs_a_saved_device(client):
+    response = client.post("/wol/wake", json={"macaddr": "99-99-99-99-99-99"})
+    assert response.status_code == 404
+    assert "not a saved Wake-on-LAN device" in response.json()["detail"]
+
+
+def test_wake_needs_a_target(client):
+    response = client.post("/wol/wake", json={})
+    assert response.status_code == 400
+
+
+def test_add_wol_device_normalizes_the_mac(client, router_requests):
+    response = client.post("/wol/devices", json={"macaddr": "aa:bb:cc:dd:ee:ff", "name": "laptop"})
+    assert response.status_code == 200
+
+    payload = request_payload(router_requests, "admin/wol", form="device", operation="insert")
+    assert payload["mac"] == "AA-BB-CC-DD-EE-FF"
+    assert payload["name"] == "laptop"
+    assert payload["key"], "the firmware expects the caller to generate the row key"
+
+
+def test_remove_wol_device_uses_key_and_index(client, router_requests):
+    response = client.delete("/wol/devices/AA-BB-CC-DD-EE-07")
+    assert response.status_code == 200
+
+    payload = request_payload(router_requests, "admin/wol", form="device", operation="remove")
+    assert payload["key"] == "dev1" and payload["index"] == 0
+
+
+def test_dmz_round_trip(client, router_requests):
+    assert client.get("/nat/dmz").json() == {"enable": False, "ipaddr": ""}
+
+    response = client.post("/nat/dmz", json={"enable": True, "ipaddr": "192.168.0.50"})
+    assert response.status_code == 200
+    write = request_payload(router_requests, "admin/nat", form="dmz", operation="write")
+    assert write["enable"] == "on" and write["ipaddr"] == "192.168.0.50"
+
+
+def test_forwarding_rules_keep_unrecognised_fields(client):
+    """Rule schemas were never observed on a populated router, so extras must survive."""
+    rules = client.get("/nat/virtual-servers").json()
+    assert rules[0]["key"] == "rule1"
+    assert rules[0]["name"] == "ssh"
+    assert rules[0]["enable"] is True
+    assert rules[0]["eport"] == "2222"
+
+
+def test_delete_forwarding_rule_by_key(client, router_requests):
+    response = client.delete("/nat/virtual-servers/rule1")
+    assert response.status_code == 200
+    payload = request_payload(router_requests, "admin/nat?form=vs", operation="remove")
+    assert payload == {"operation": "remove", "key": "rule1", "index": 0}
+
+
+def test_delete_unknown_forwarding_rule_returns_404(client):
+    assert client.delete("/nat/port-triggers/nope").status_code == 404
+
+
 def test_reboot(client, router_requests):
     response = client.post("/reboot")
     assert response.status_code == 200 and response.json() == {"success": True}
@@ -577,6 +668,14 @@ def test_openapi_documents_every_route(client):
         "/access-control/block/{macaddr}",
         "/access-control/allow",
         "/access-control/allow/{macaddr}",
+        "/wol/devices",
+        "/wol/devices/{macaddr}",
+        "/wol/wake",
+        "/nat/dmz",
+        "/nat/virtual-servers",
+        "/nat/virtual-servers/{key}",
+        "/nat/port-triggers",
+        "/nat/port-triggers/{key}",
         "/wifi/config",
         "/wifi/guest",
         "/wifi/statistics",

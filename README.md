@@ -287,6 +287,14 @@ success — the router's own `errorcode` comes back in the body:
 - `DELETE /access-control/block/{macaddr}` - Unblock a device.
 - `POST /access-control/allow` - Add a device to the allow list.
 - `DELETE /access-control/allow/{macaddr}` - Remove a device from the allow list.
+- `GET /wol/devices` - Wake-on-LAN targets saved on the router.
+- `POST /wol/devices` - Save a wake target (body `{"macaddr": "...", "name": "..."}`).
+- `DELETE /wol/devices/{macaddr}` - Delete a saved wake target.
+- `POST /wol/wake` - Send a magic packet to a saved device by MAC or name.
+- `GET /nat/dmz` / `POST /nat/dmz` - Read or set the DMZ host.
+- `GET /nat/virtual-servers` - Port forwarding rules.
+- `DELETE /nat/virtual-servers/{key}` - Delete a port forwarding rule.
+- `GET /nat/port-triggers` / `DELETE /nat/port-triggers/{key}` - Port triggering rules.
 - `POST /wifi/config` - Update SSID, password, channel, HT mode for 2.4G or 5G bands.
 - `POST /wifi/guest` - Toggle guest Wi-Fi, set its SSID and password, or change client isolation. Omitted fields keep their current values.
 - `GET /wifi/statistics` - Query packets sent/received statistics for all connected wireless client devices.

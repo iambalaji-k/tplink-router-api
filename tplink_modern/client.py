@@ -10,7 +10,9 @@ from tplink_modern.exceptions import (
 from tplink_modern.models import RouterStatus
 from tplink_modern.resources import (
     AccessControlResource,
+    NatResource,
     StatusResource,
+    WakeOnLanResource,
     FirmwareResource,
     ClientsResource,
     WifiResource,
@@ -54,6 +56,8 @@ class ArcherAX12:
         self.system = SystemResource(self)
         self.vpn = VpnResource(self)
         self.access = AccessControlResource(self)
+        self.nat = NatResource(self)
+        self.wol = WakeOnLanResource(self)
 
 
     async def login(self) -> None:

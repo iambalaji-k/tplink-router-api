@@ -19,6 +19,8 @@ from tplink_modern.models import (
     AccessControlSettings,
     ClientDevice,
     DhcpReservation,
+    DmzSettings,
+    ForwardRule,
     LanSettings,
     ManagedDevice,
     OpenVpnConfig,
@@ -26,6 +28,7 @@ from tplink_modern.models import (
     RouterStatus,
     VpnConnection,
     WanSettings,
+    WolDevice,
     WirelessClientStats,
     redact_secrets,
 )
@@ -385,6 +388,93 @@ async def get_vpn_connections():
     """List all active incoming OpenVPN and PPTP connections to the router."""
     client = get_router()
     return await client.vpn.get_connections()
+
+
+# --- Wake on LAN and port forwarding ---
+
+class WakeRequest(BaseModel):
+    macaddr: Optional[str] = None
+    name: Optional[str] = None
+
+
+class WolDeviceRequest(BaseModel):
+    macaddr: str
+    name: str = ""
+
+
+class DmzRequest(BaseModel):
+    enable: bool
+    ipaddr: str = ""
+
+
+@app.get("/wol/devices", response_model=List[WolDevice], summary="List saved Wake-on-LAN targets")
+async def get_wol_devices():
+    """Devices the router has stored for waking. It does not infer them from the client list."""
+    client = get_router()
+    return await client.wol.devices()
+
+
+@app.post("/wol/devices", summary="Save a Wake-on-LAN target")
+async def add_wol_device(req: WolDeviceRequest):
+    """Add a MAC (and optional name) the router may send a magic packet to."""
+    client = get_router()
+    return {"success": await client.wol.add(req.macaddr, req.name)}
+
+
+@app.delete("/wol/devices/{macaddr}", summary="Delete a Wake-on-LAN target")
+async def remove_wol_device(macaddr: str):
+    """Remove a saved wake target by MAC."""
+    client = get_router()
+    return {"success": await client.wol.remove(macaddr)}
+
+
+@app.post("/wol/wake", summary="Send a magic packet to a saved device")
+async def wake_device(req: WakeRequest):
+    """Wake a device the router has saved, by MAC or name."""
+    client = get_router()
+    return {"success": await client.wol.wake(macaddr=req.macaddr, name=req.name)}
+
+
+@app.get("/nat/dmz", response_model=DmzSettings, summary="Get DMZ settings")
+async def get_dmz():
+    """Whether a DMZ host is configured and which internal address it points at."""
+    client = get_router()
+    return await client.nat.get_dmz()
+
+
+@app.post("/nat/dmz", summary="Configure the DMZ host")
+async def set_dmz(req: DmzRequest):
+    """Expose one internal host to the internet, or remove it from the DMZ."""
+    client = get_router()
+    return {"success": await client.nat.set_dmz(req.enable, req.ipaddr)}
+
+
+@app.get("/nat/virtual-servers", response_model=List[ForwardRule], summary="List port forwarding rules")
+async def get_virtual_servers():
+    """Port forwarding rules as the router reports them."""
+    client = get_router()
+    return await client.nat.virtual_servers()
+
+
+@app.delete("/nat/virtual-servers/{key}", summary="Delete a port forwarding rule")
+async def delete_virtual_server(key: str):
+    """Remove a virtual server rule by the key the router assigned it."""
+    client = get_router()
+    return {"success": await client.nat.delete_virtual_server(key)}
+
+
+@app.get("/nat/port-triggers", response_model=List[ForwardRule], summary="List port triggering rules")
+async def get_port_triggers():
+    """Port triggering rules as the router reports them."""
+    client = get_router()
+    return await client.nat.port_triggers()
+
+
+@app.delete("/nat/port-triggers/{key}", summary="Delete a port triggering rule")
+async def delete_port_trigger(key: str):
+    """Remove a port trigger rule by the key the router assigned it."""
+    client = get_router()
+    return {"success": await client.nat.delete_port_trigger(key)}
 
 
 # --- System Controls ---

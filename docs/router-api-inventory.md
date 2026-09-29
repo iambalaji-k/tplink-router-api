@@ -73,6 +73,16 @@ the same with `operation:"access"` against `white_devices`; removal is
 paths follow that shape but have **not been exercised against the device**, since both would
 change live configuration.
 
+Row CRUD across this firmware follows one convention, observed in the WoL and NAT modules:
+`insert(url, row, {index: 0})`, `update(url, {key}, row, index)`, `remove(url, {key, index})`,
+and one-off verbs via `request(url, {operation: "wakeup"|"block"|..., data: JSON.stringify(row)})`.
+List loads also carry an `others` sibling (e.g. `others.max_rules`) that is *not* inside `data`.
+
+**Port forwarding rules could not be schema-mapped.** `nat?form=vs` and `?form=pt` answer `{}`
+on this unit and there is no example row anywhere in the bundles, so `ForwardRule` keeps whatever
+fields the router sends (`extra="allow"`) instead of asserting a shape. Adding a rule is therefore
+not implemented — the field names are the one part of this survey still unknown.
+
 ### General form probes — 26 of 27 returned data
 
 These confirmed the SDK's targets are real:

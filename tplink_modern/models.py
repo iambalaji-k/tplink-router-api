@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional, Dict, Any
 
 
@@ -101,6 +101,58 @@ class ManagedDevice(BaseModel):
             device_type=raw.get("type", ""),
             is_guest=raw.get("guest") == "GUEST",
         )
+
+
+class WolDevice(BaseModel):
+    """A Wake-on-LAN target saved on the router."""
+    key: str = ""
+    name: str = ""
+    macaddr: str = ""
+    index: int = Field(default=0, description="Position in the router's list, needed to delete it")
+    raw: Dict[str, Any] = Field(default_factory=dict, description="Router row, replayed when waking")
+
+    @classmethod
+    def from_router(cls, raw: Dict[str, Any], index: int = 0) -> "WolDevice":
+        return cls(
+            key=str(raw.get("key", "")),
+            name=raw.get("name", ""),
+            macaddr=raw.get("mac", ""),
+            index=index,
+            raw=dict(raw),
+        )
+
+
+class ForwardRule(BaseModel):
+    """A virtual-server or port-triggering rule.
+
+    The router's own row is preserved in `raw`: the firmware returns these lists empty on
+    surveyed units, so the complete field set has not been observed and extras are kept.
+    """
+    model_config = ConfigDict(extra="allow")
+
+    key: str = ""
+    name: str = ""
+    enable: bool = False
+    protocol: str = ""
+    raw_index: int = 0
+
+    @classmethod
+    def from_router(cls, raw: Dict[str, Any], index: int = 0) -> "ForwardRule":
+        merged = {
+            **raw,
+            "key": str(raw.get("key", "")),
+            "name": raw.get("name", raw.get("service_name", "")),
+            "enable": raw.get("enable") in ("on", True, "1"),
+            "protocol": raw.get("protocol", ""),
+            "raw_index": index,
+        }
+        return cls(**merged)
+
+
+class DmzSettings(BaseModel):
+    """DMZ host configuration."""
+    enable: bool = False
+    ipaddr: str = ""
 
 
 class SystemResource(BaseModel):
