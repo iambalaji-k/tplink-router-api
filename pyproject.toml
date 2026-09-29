@@ -23,3 +23,6 @@ include = ["tplink_modern*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "strict"
+markers = [
+    "live: checks that talk to a real router; run with TPLINK_LIVE=1 pytest -m live",
+]

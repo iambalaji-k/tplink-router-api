@@ -326,8 +326,8 @@ Once the server is running, navigate to:
 The suite mocks the router's HTTP layer, so no router needs to be reachable:
 
 ```bash
-pytest -q          # 22 tests
-mypy .             # clean across 26 source files
+pytest -q          # 51 mocked tests, live module skipped
+mypy .             # clean across 30 source files
 ruff check .
 ```
 
@@ -336,7 +336,23 @@ ruff check .
 | `tests/conftest.py` | Supplies dummy `TPLINK_*` env vars so `app.py` imports without a real `.env` |
 | `tests/test_login.py` | RSA login handshake, wrong-password failure, transparent re-auth on `permission denied` |
 | `tests/test_features.py` | SDK-level DHCP reservations, Wi-Fi band writes, VPN config, wireless statistics |
-| `tests/test_api.py` | Every REST endpoint of `app.py`, including status codes, request bodies sent to the router, PSK redaction, `400`/`500`/`503` handling, and OpenAPI route coverage |
+| `tests/test_api.py` | Every REST endpoint of `app.py` against a mocked router: status codes, request bodies sent to the device, PSK redaction, concurrent re-auth, `400`/`404`/`501`/`502`/`503` handling, OpenAPI route coverage |
+| `tests/test_live.py` | Opt-in checks against a real Archer AX12 |
+
+### Live tests
+
+`tests/test_live.py` talks to the router in your `.env` — it issues reads and logins only, and
+never calls a write or reboot endpoint. It is skipped unless you ask for it:
+
+```bash
+TPLINK_LIVE=1 pytest -m live
+```
+
+Each read route's response is validated against its declared Pydantic model, so a firmware change
+that alters a payload shows up as a failure rather than a wrong value downstream. One test also
+logs in from a second client to evict the server's `stok` — the same thing the web admin page does
+— and asserts that two concurrent requests both recover. **Running it will log out any router web
+session you have open.**
 
 `ruff check .` currently reports style findings in the SDK and server (PEP 604/585 annotations,
 import ordering, and broad `except Exception: pass` blocks). None of them change runtime behaviour,
