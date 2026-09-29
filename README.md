@@ -1,258 +1,282 @@
-# tplink-modern
+# TP-Link Archer AX12 API
 
-A modern, production-quality Python SDK and FastAPI REST API wrapper for the TP-Link Archer AX12 v1 Router API.
+Async Python SDK and FastAPI REST layer for the **TP-Link Archer AX12 v1** router — built from the
+router's own web UI, endpoint by endpoint, and verified against a live device.
 
-## Project Structure
-```text
-tplink-router-api/
-│
-├── app.py                  # FastAPI REST Server
-├── pyproject.toml          # Package configuration & dependencies
-├── README.md               # Documentation
-├── .gitignore
-├── .env                    # Environment credentials
-│
-├── docs/
-│   └── router-api-inventory.md   # Full surveyed router API (50 modules / 226 endpoints)
-│
-├── examples/               # SDK Usage Examples (live router)
-│   ├── login.py
-│   ├── devices.py
-│   ├── status.py
-│   └── reboot.py
-│
-├── tests/                  # Mock-based unit tests (no router required)
-│   ├── test_login.py       # Login handshake, failure and auto-re-auth
-│   ├── test_features.py    # DHCP, Wi-Fi, VPN and wireless statistics
-│   ├── test_api.py         # REST routes and their error mapping
-│   ├── test_error_field.py # The router's four refusal-field spellings
-│   ├── test_inventory_extractor.py  # The URL shapes the bundles build
-│   ├── test_ui_routes.py   # Route table, menu tree, page -> form map
-│   ├── test_endpoints_inventory.py  # Doc, generated table and call sites agree
-│   └── test_live.py        # Opt-in checks against a real router (TPLINK_LIVE=1)
-│
-├── tools/inventory/        # Survey tooling that produced the inventory doc
-│   ├── extract_ui_inventory.py  # Endpoint URLs out of the router's own bundles
-│   ├── jstokens.py      # JS literal/template scanner used by the extractor
-│   ├── ui_routes.py     # Vue router table, menu tree, page-to-form mapping
-│   ├── probe_live.py    # Read-only live probe: read, load and list only
-│   ├── form_models.py   # Row field names out of the UI's table definitions
-│   ├── sdk_calls.py     # Endpoints this package itself addresses
-│   ├── fetch_missing_bundles.py   # Plain-GET audit of never-downloaded chunks
-│   └── gen_endpoints.py # Generates endpoints.py and the doc's table
-│
-└── tplink_modern/          # Python SDK package
-    ├── __init__.py         # Package entry point
-    ├── client.py           # ArcherAX12 high-level client
-    ├── auth.py             # RSA-based login handshake logic
-    ├── crypto.py           # RSA PKCS#1 v1.5 utilities
-    ├── session.py          # Session management & re-auth HTTP client
-    ├── exceptions.py       # Custom RouterError definitions
-    ├── models.py           # Pydantic schemas for type safety
-    ├── endpoints.py        # Generated inventory: every form + what this firmware answers
-    └── resources/          # API resources
-        ├── base.py         # Base Resource class
-        ├── access.py       # Access control: block / allow devices
-        ├── clients.py      # Connected client device queries
-        ├── firmware.py     # Upgrade check actions
-        ├── nat.py          # DMZ, virtual servers, port triggering
-        ├── network.py      # LAN / WAN settings and DHCP reservations
-        ├── status.py       # General router status
-        ├── system.py       # Reboot and system commands
-        ├── vpn.py          # OpenVPN / PPTP servers and connections
-        ├── wifi.py         # Guest and main Wi-Fi configurations
-        └── wol.py          # Saved Wake-on-LAN targets and magic packets
+![checks](https://github.com/iambalaji-k/tplink-router-api/actions/workflows/ci.yml/badge.svg)
+![license](https://img.shields.io/badge/license-MIT-green)
+![python](https://img.shields.io/badge/python-3.11%20%7C%203.13-blue)
+![firmware](https://img.shields.io/badge/firmware-AX12v1_1.10.2-orange)
+![surveyed](https://img.shields.io/badge/surveyed-226%20endpoints-brightgreen)
+
+- **Nothing guessed.** Every form name, verb and payload shape was recovered from the JavaScript the
+  router ships, then re-checked against the device.
+- **A real inventory.** [226 endpoints surveyed, 179 confirmed answering](docs/router-api-inventory.md),
+  each labelled with what this firmware actually did.
+- **Typed and checked.** Pydantic models, mypy and ruff clean, 76 mocked tests that need no router.
+
+> Use this against equipment you own or administer. It can block devices, change Wi-Fi passwords and
+> reboot the unit — see [Safety and privacy](#safety-and-privacy).
+
+---
+
+## Contents
+
+[Install](#install) · [Quick start](#quick-start) · [SDK tour](#sdk-tour) · [REST API](#rest-api) ·
+[Router API surface](#router-api-surface) · [Low-level access](#low-level-access) ·
+[How this router behaves](#how-this-router-behaves) · [Safety and privacy](#safety-and-privacy) ·
+[Development](#development) · [Survey tooling](#survey-tooling) · [Repository layout](#repository-layout)
+
+---
+
+## Install
+
+Requires Python 3.11+. The router serves plain HTTP on the LAN, so run this from a network segment
+you control.
+
+```bash
+git clone https://github.com/iambalaji-k/tplink-router-api.git
+cd tplink-router-api
+
+python -m venv venv
+source venv/bin/activate                     # Windows: .\venv\Scripts\activate
+
+pip install -e .                             # the SDK and its runtime dependencies
+pip install pytest pytest-asyncio mypy ruff  # dev tools (not declared in pyproject.toml)
 ```
 
-## Features
-- **Robust Authentication**: Handles standard 1024-bit RSA PKCS#1 v1.5 key-exchange and encryption.
-- **Session Resilience**: Automatic session check, keep-alive, and transparent re-authentication on token expiration.
-- **Strong Typing**: Strongly typed Pydantic models for responses and settings (LAN, WAN, Wifi, Connected Clients, etc.).
-- **Sub-Resource Client**: Modular layout where router components are accessed intuitively via `router.status`, `router.wifi`, `router.clients`, etc.
-- **REST Wrapper**: Full-featured FastAPI server with lifespan state management and auto-generated OpenAPI documentation.
-- **Surveyed API surface**: [`docs/router-api-inventory.md`](docs/router-api-inventory.md) maps all 226 router endpoints found on firmware 1.10.2 — 225 named by the router's own web bundles plus one the SDK uses that no bundle mentions — and records which of them answer a read-only request: 179 do, 18 have no handler on this firmware, 4 want an argument, 3 named a blocking condition, 1 declined without saying why, 4 answer non-JSON, 4 are not served at all, and 13 were deliberately left alone because their form name is itself an action. [`tplink_modern/endpoints.py`](tplink_modern/endpoints.py) is the machine-readable twin of that table, and a test keeps the two in step. The SDK and REST layer model roughly two dozen of them, including device block/allow and guest credentials.
+Create `.env` in the project root (already gitignored):
+
+```env
+TPLINK_HOST=192.168.0.1
+TPLINK_PASSWORD=your_router_admin_password
+```
 
 ---
 
-## Installation & Setup
+## Quick start
 
-Requires Python 3.11+. The router is reachable over plain HTTP on the LAN, so run this only from a trusted network segment.
-
-1. **Clone the Repository** and navigate to the project directory:
-   ```bash
-   cd tplink-router-api
-   ```
-
-2. **Initialize a Virtual Environment** and activate it:
-   ```bash
-   python -m venv venv
-   # On Windows:
-   .\venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-
-3. **Install the SDK and its runtime dependencies**:
-   ```bash
-   pip install -e .
-   ```
-
-4. **Install the development tools** (not declared in `pyproject.toml`):
-   ```bash
-   pip install pytest pytest-asyncio mypy ruff
-   ```
-
-5. **Configure Environment variables**:
-   Create a `.env` file in the root of the project:
-   ```env
-   TPLINK_HOST=192.168.0.1
-   TPLINK_PASSWORD=your_router_admin_password
-   ```
-
----
-
-## SDK Usage Examples
-
-Runnable versions of these snippets live in [`examples/`](examples) and read credentials from `.env`.
-
-### 1. Connecting and Checking Status
 ```python
 import asyncio
 from tplink_modern import ArcherAX12
 
 async def main():
-    # Use context manager for automatic cleanup (logout + close)
     async with ArcherAX12(host="192.168.0.1", password="YOUR_PASSWORD") as router:
         await router.login()
 
         status = await router.status.get()
-        print(f"LAN IP: {status.lan.ipaddr}")
-        print(f"WAN IP: {status.wan.ipaddr}")
-        print(f"CPU Load: {status.system.cpu_usage * 100:.1f}%")
-        print(f"Memory Load: {status.system.mem_usage * 100:.1f}%")
+        print(f"LAN {status.lan.ipaddr}   WAN {status.wan.ipaddr}")
+        print(f"CPU {status.system.cpu_usage * 100:.1f}%  "
+              f"MEM {status.system.mem_usage * 100:.1f}%")
 
-        # login() already verifies the session, and get_status() doubles as the probe
+        for client in await router.clients.get_all():
+            # wire_type is one of 'wired', '2.4G' or '5G'
+            print(f"[{client.wire_type}] {client.hostname or '<unknown>'} {client.ipaddr}")
+
+        # login() already verifies the session; get_status() doubles as the probe
         print(f"Session alive: {await router.keep_alive()}")
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
 ```
 
-`cpu_usage` / `mem_usage` are ratios in `0.0–1.0`, and every `bool` field on `RouterStatus`
-is derived from the router's raw `"on"` / `"off"` strings.
-
-### 2. Querying Connected Clients
-```python
-import asyncio
-from tplink_modern import ArcherAX12
-
-async def main():
-    async with ArcherAX12(host="192.168.0.1", password="YOUR_PASSWORD") as router:
-        await router.login()
-        clients = await router.clients.get_all()
-        for device in clients:
-            # wire_type is one of 'wired', '2.4G' or '5G'
-            name = device.hostname or "<unknown>"
-            print(f"[{device.wire_type}] {name} - IP: {device.ipaddr} (MAC: {device.macaddr})")
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-### 3. Reading and Changing Wi-Fi Settings
-```python
-import asyncio
-from tplink_modern import ArcherAX12
-
-async def main():
-    async with ArcherAX12(host="192.168.0.1", password="YOUR_PASSWORD") as router:
-        await router.login()
-
-        wifi_2g = await router.wifi.get_2g()
-        print(f"Current 2.4G SSID: {wifi_2g.ssid}, channel: {wifi_2g.channel}")
-
-        # Both setters are read-modify-write: omitted arguments keep their current
-        # value, so this only changes the SSID.
-        await router.wifi.set_wireless_band(band="2g", ssid="MyNetwork")
-
-        # Guest networks are per-band on this firmware, and isolation is a separate form.
-        await router.wifi.set_guest(enable=True, ssid="Guests", password="guest-pass-1", isolate=True)
-
-        print(await router.wifi.get_guest_band("2g"))
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-### 4. DHCP Reservations and VPN Status
-```python
-import asyncio
-from tplink_modern import ArcherAX12
-from tplink_modern.models import OpenVpnConfig
-
-async def main():
-    async with ArcherAX12(host="192.168.0.1", password="YOUR_PASSWORD") as router:
-        await router.login()
-
-        # MAC addresses are normalized to the router's uppercase hyphenated form
-        await router.network.add_dhcp_reservation(
-            macaddr="00:11:22:33:44:55", ipaddr="192.168.0.99", name="NAS"
-        )
-        for res in await router.network.get_dhcp_reservations():
-            print(f"{res.macaddr} -> {res.ipaddr} ({res.name})")
-
-        await router.network.delete_dhcp_reservation("00:11:22:33:44:55")
-
-        # Turning the OpenVPN server off
-        await router.vpn.set_openvpn(OpenVpnConfig(enable=False))
-        print(f"Active VPN connections: {len(await router.vpn.get_connections())}")
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-> **Caution:** `system.reboot()` restarts the router and drops the session. See `examples/reboot.py`, which asks for confirmation first.
-
-### 5. Blocking and Allowing Devices
-```python
-import asyncio
-from tplink_modern import ArcherAX12
-
-async def main():
-    async with ArcherAX12(host="192.168.0.1", password="YOUR_PASSWORD") as router:
-        await router.login()
-
-        for device in await router.access.devices("black"):
-            print(f"{device.name:<12} {device.macaddr} {device.band} guest={device.is_guest}")
-
-        # Only devices the router has already seen can be listed; it needs the row
-        # it reported, which is why block() looks the MAC up first.
-        await router.access.block("AA-BB-CC-DD-EE-01")
-        await router.access.set_enabled(True)     # access control is off until you turn it on
-        print(await router.access.blocked())
-
-        await router.access.set_mode("white")     # allow-list mode
-        await router.access.allow("AA-BB-CC-DD-EE-06")
-        await router.access.unblock("AA-BB-CC-DD-EE-01")
-        await router.access.set_enabled(False)
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-> **Caution:** enabling access control in `black` mode cuts the listed device off the network,
-> and in `white` mode anything not on the allow list loses connectivity. Test with a device you
-> can reach over cable, and note the router protects one MAC (`host_mac`) — usually the machine
-> that configured it.
+`cpu_usage` and `mem_usage` are ratios in `0.0–1.0`; every boolean on `RouterStatus` is derived from
+the router's raw `"on"` / `"off"` strings. The context manager logs out and closes the session.
+Runnable versions of these snippets live in [`examples/`](examples) and read credentials from `.env`.
 
 ---
 
-## Low-Level Access
+## SDK tour
 
-Every endpoint in the SDK is a thin wrapper over three primitives on `ArcherAX12`, useful for
-calling router forms the SDK does not model yet:
+Resources hang off the client: `status`, `clients`, `wifi`, `network`, `vpn`, `nat`, `access`, `wol`,
+`system`, `firmware`.
 
-| Method | Resulting request |
+### Wi-Fi
+
+```python
+band = await router.wifi.get_2g()             # get_5g() for the other band
+print(band.ssid, band.channel, band.htmode)
+
+# Read-modify-write: omitted arguments keep their current value, so this only
+# changes the SSID.
+await router.wifi.set_wireless_band(band="2g", ssid="MyNetwork")
+
+# Guest networking is per-band on this firmware, and client isolation is its own form.
+await router.wifi.set_guest(enable=True, ssid="Guests", password="guest-pass-1", isolate=True)
+print(await router.wifi.get_guest_band("2g"))
+print(await router.wifi.get_statistics())
+
+# Ask the router what it accepts before you write it.
+caps = await router.wifi.get_capabilities()
+```
+
+### DHCP reservations
+
+```python
+# MAC addresses are normalised to the router's uppercase hyphenated form.
+await router.network.add_dhcp_reservation(
+    macaddr="00:11:22:33:44:55", ipaddr="192.168.0.99", name="NAS"
+)
+for res in await router.network.get_dhcp_reservations():
+    print(res.macaddr, "->", res.ipaddr, f"({res.name})")
+
+await router.network.delete_dhcp_reservation("00:11:22:33:44:55")
+```
+
+### Blocking and allowing devices
+
+```python
+for device in await router.access.devices("black"):
+    print(device.name, device.macaddr, device.band, device.is_guest)
+
+# Only devices the router has already seen can be listed; it needs the row it
+# reported, which is why block() looks the MAC up first.
+await router.access.block("AA-BB-CC-DD-EE-01")
+await router.access.set_enabled(True)          # access control is off until you turn it on
+print(await router.access.blocked())
+
+await router.access.set_mode("white")          # allow-list mode
+await router.access.allow("AA-BB-CC-DD-EE-02")
+await router.access.unblock("AA-BB-CC-DD-EE-01")
+await router.access.set_enabled(False)
+```
+
+> Enabling access control in `black` mode cuts the listed device off the network; in `white` mode
+> anything absent from the allow list loses connectivity. Test with a device you can reach over
+> cable. The router protects one MAC of its own (`host_mac`) — usually the machine that configured
+> it.
+
+### VPN, DMZ, port forwarding, Wake-on-LAN
+
+```python
+await router.vpn.set_openvpn(OpenVpnConfig(enable=False))
+print(len(await router.vpn.get_connections()))
+
+await router.nat.set_dmz(enable=True, ipaddr="192.168.0.50")
+print(await router.nat.virtual_servers())
+
+await router.wol.add("AA-BB-CC-DD-EE-03", "study-pc")
+await router.wol.wake(name="study-pc")
+print(await router.wol.max_rules())            # the `others` limit the router reports
+```
+
+> `await router.system.reboot()` restarts the router and drops the session.
+> [`examples/reboot.py`](examples/reboot.py) asks for confirmation first.
+
+---
+
+## REST API
+
+The FastAPI app exposes the same SDK over HTTP, sharing one router client and coordinating the
+connection lifespan automatically.
+
+```bash
+uvicorn app:app --host 127.0.0.1 --port 8000
+```
+
+The server logs in at startup. A failed startup login is logged as a warning rather than fatal: the
+client re-authenticates transparently on the first request, and until then endpoints answer `503`.
+
+### Status and devices
+
+| Method | Route | What it gives you |
+| --- | --- | --- |
+| `GET` | `/status` | CPU, RAM, LAN, WAN, both Wi-Fi bands, guest state, clients. PSKs redacted unless `?include_secrets=true` |
+| `GET` | `/clients` | Every connected wired and wireless device |
+| `GET` | `/firmware` | Whether the router thinks an upgrade is pending (a count, not a version) |
+
+### Network
+
+| Method | Route |
+| --- | --- |
+| `GET` | `/network/lan`, `/network/wan` |
+| `GET` `POST` `DELETE` | `/network/dhcp/reservations`, `/network/dhcp/reservations/{macaddr}` |
+
+### Wi-Fi
+
+| Method | Route |
+| --- | --- |
+| `POST` | `/wifi/config` — SSID, password, channel, HT mode for the 2.4G or 5G band |
+| `POST` | `/wifi/guest` — guest toggle, SSID, password, isolation; omitted fields keep their values |
+| `GET` | `/wifi/statistics` — packets sent and received per wireless client |
+| `GET` | `/wifi/capabilities` — channels, band widths and modes this unit accepts in its current country; validate a `/wifi/config` write against this |
+
+### Access control
+
+| Method | Route |
+| --- | --- |
+| `GET` `POST` | `/access-control` — enabled flag, list mode (`black`/`white`), protected host MAC |
+| `GET` | `/access-control/devices`, `/access-control/blocked`, `/access-control/allowed` |
+| `POST` `DELETE` | `/access-control/block`, `/access-control/block/{macaddr}` |
+| `POST` `DELETE` | `/access-control/allow`, `/access-control/allow/{macaddr}` |
+
+### Forwarding, VPN, WoL, system
+
+| Method | Route |
+| --- | --- |
+| `GET` `POST` | `/nat/dmz` |
+| `GET` `DELETE` | `/nat/virtual-servers`, `/nat/virtual-servers/{key}` |
+| `GET` `DELETE` | `/nat/port-triggers`, `/nat/port-triggers/{key}` |
+| `GET` `POST` | `/vpn/openvpn`, `/vpn/pptp` |
+| `GET` | `/vpn/connections` |
+| `GET` `POST` `DELETE` | `/wol/devices`, `/wol/devices/{macaddr}` |
+| `POST` | `/wol/wake` |
+| `POST` | `/reboot` |
+
+### Error mapping
+
+A write answers `{"success": true}`; a refused write never looks like a success — the router's own
+`errorcode` comes back in the body.
+
+| HTTP | Meaning |
+| --- | --- |
+| `400` | Bad arguments (unknown band, malformed body) |
+| `404` | Nothing to act on (an unknown DHCP reservation, an unseen MAC) |
+| `501` | This firmware does not implement the form (`errorcode: "no such callback"`) |
+| `502` | The router refused or failed the request; body carries `errorcode` |
+| `503` | Router client not initialised (startup login pending, or shutting down) |
+
+### OpenAPI documentation
+
+With the server running: **Swagger UI** at `/docs`, **ReDoc** at `/redoc`.
+
+---
+
+## Router API surface
+
+The router's admin UI is a Vue app that posts form-encoded requests to a `luci` CGI. This project
+recovered that surface from the shipped JavaScript, then probed it read-only against the device.
+
+**226 endpoints across 50 modules**, of which on firmware AX12v1_1.10.2:
+
+| Outcome | Forms |
+| --- | --- |
+| Answered a read-only request | **179** |
+| No handler (`no such callback` for every approved verb) | 18 |
+| Handler exists but wants an argument | 4 |
+| Handler exists and named a blocking condition | 3 |
+| Declined with no reason given | 1 |
+| Answers non-JSON (file download or HTTP 500) | 4 |
+| Not served at all (HTTP 404) | 4 |
+| Not probed — the form name is itself an action | 13 |
+
+[`docs/router-api-inventory.md`](docs/router-api-inventory.md) holds every form, the verbs the UI
+applies to it, the response field names, and the shape traps — empty tables answer `{}` rather than
+`[]`; capacity limits arrive in an `others` sibling and **only** on `load`; several forms return
+Wi-Fi keys in cleartext.
+
+[`tplink_modern/endpoints.py`](tplink_modern/endpoints.py) is that same table as machine-readable
+constants, generated from the survey reports, and
+[`tests/test_endpoints_inventory.py`](tests/test_endpoints_inventory.py) fails if the document, the
+generated table and the SDK's own call sites ever disagree. The SDK and REST layer model about two
+dozen of the 226, including device block/allow and guest credentials.
+
+---
+
+## Low-level access
+
+Three primitives sit under everything, useful for forms the SDK does not wrap yet:
+
+| Method | Request it sends |
 | --- | --- |
 | `await router.read(path, form, **kw)` | `POST /cgi-bin/luci/;stok=<stok>/{path}?form={form}` with `operation=read` |
 | `await router.write(path, form, **kw)` | same, with `operation=write` |
@@ -263,125 +287,153 @@ Responses are the router's raw JSON dict (`{"success": bool, "data": ..., "error
 
 ---
 
-## Running the FastAPI REST Server
+## How this router behaves
 
-You can expose the SDK as a high-performance REST service. The server initializes a shared `ArcherAX12` client and coordinates the connection lifespan automatically.
+Things that were not obvious, written down so they are not discovered the hard way:
 
-Start the FastAPI application:
-```bash
-uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-```
-
-On startup the server logs in once. A failed startup login is logged as a warning rather than fatal: the client re-authenticates transparently on the first request. Until then, endpoints answer `503`.
-
-**The router allows only one admin session.** Logging in from the web UI (or a second process) invalidates this server's `stok`, and vice versa — the API answers `200` with `errorcode: "timeout"` for the discarded token. The client detects that and re-authenticates, and a lock makes concurrent requests share a single re-login instead of stampeding, since parallel logins would otherwise knock each other out. Don't run two copies of this server against the same router.
-
-### API Endpoints
-
-All endpoints share one router client. Read-only endpoints are `GET`; configuration changes are
-`POST`/`DELETE`. A write answers `{"success": true}`, and a refused write never looks like a
-success — the router's own `errorcode` comes back in the body:
-
-| HTTP | Meaning |
-| --- | --- |
-| `400` | Bad arguments (unknown band, malformed body) |
-| `404` | Nothing to act on (e.g. deleting an unknown DHCP reservation) |
-| `501` | This firmware does not implement the form (`errorcode: "no such callback"`) |
-| `502` | The router refused or failed the request; body carries `errorcode` |
-| `503` | Router client not initialized (startup login still pending, or the server is shutting down) |
-
-- `GET /status` - Complete system resource usage, CPU, RAM, LAN, and Wi-Fi band configurations. Wi-Fi keys are redacted unless you pass `?include_secrets=true`.
-- `GET /clients` - Returns list of all connected wired and wireless devices.
-- `GET /firmware` - Whether the router thinks an upgrade is pending (a count, not a version).
-- `GET /network/lan` - Get current local area network settings.
-- `GET /network/wan` - Get current wide area network settings.
-- `GET /network/dhcp/reservations` - List static DHCP IP-MAC address reservations.
-- `POST /network/dhcp/reservations` - Create a new static DHCP address reservation.
-- `DELETE /network/dhcp/reservations/{macaddr}` - Delete a static DHCP address reservation by MAC.
-- `GET /access-control` - Whether access control is enabled, its list mode, and the protected host MAC.
-- `POST /access-control` - Enable/disable access control or switch mode (`black`/`white`).
-- `GET /access-control/devices` - Devices the router offers for the block or allow list.
-- `GET /access-control/blocked` / `GET /access-control/allowed` - MACs on each list.
-- `POST /access-control/block` - Block a device by MAC (body `{"macaddr": "..."}`).
-- `DELETE /access-control/block/{macaddr}` - Unblock a device.
-- `POST /access-control/allow` - Add a device to the allow list.
-- `DELETE /access-control/allow/{macaddr}` - Remove a device from the allow list.
-- `GET /wol/devices` - Wake-on-LAN targets saved on the router.
-- `POST /wol/devices` - Save a wake target (body `{"macaddr": "...", "name": "..."}`).
-- `DELETE /wol/devices/{macaddr}` - Delete a saved wake target.
-- `POST /wol/wake` - Send a magic packet to a saved device by MAC or name.
-- `GET /nat/dmz` / `POST /nat/dmz` - Read or set the DMZ host.
-- `GET /nat/virtual-servers` - Port forwarding rules.
-- `DELETE /nat/virtual-servers/{key}` - Delete a port forwarding rule.
-- `GET /nat/port-triggers` / `DELETE /nat/port-triggers/{key}` - Port triggering rules.
-- `POST /wifi/config` - Update SSID, password, channel, HT mode for 2.4G or 5G bands.
-- `POST /wifi/guest` - Toggle guest Wi-Fi, set its SSID and password, or change client isolation. Omitted fields keep their current values.
-- `GET /wifi/statistics` - Query packets sent/received statistics for all connected wireless client devices.
-- `GET /wifi/capabilities` - Channels, band widths and modes this unit supports in its current country — validate a `/wifi/config` write against this.
-- `GET /vpn/openvpn` - Retrieve current OpenVPN server configuration.
-- `POST /vpn/openvpn` - Configure and toggle the OpenVPN server.
-- `GET /vpn/pptp` - Retrieve current PPTP VPN server configuration.
-- `POST /vpn/pptp` - Configure and toggle the PPTP VPN server.
-- `GET /vpn/connections` - List active incoming OpenVPN and PPTP connections.
-- `POST /reboot` - Triggers a router restart.
-
-### Security Notes
-
-Read these before exposing the server beyond `127.0.0.1`:
-
-- **The REST API is unauthenticated.** Anyone who can reach the port holds router admin rights, including `POST /reboot` and Wi-Fi/VPN changes. Bind to localhost, or put your own auth in front of it.
-- **Wi-Fi keys are redacted from `GET /status` by default** (they come back as `"***redacted***"`), because the router returns them in its own status payload. Pass `?include_secrets=true` to see them. The SDK deliberately still hands back real keys — `wifi.set_wireless_band()` re-sends the current PSK on every write, so masking at that layer would let a redacted placeholder overwrite your password. `tplink_modern.redact_secrets()` is exported if you serialize `RouterStatus` yourself.
-- **The SDK talks plain HTTP to the router.** If you pass an `https://` host, certificates are verified by default; `ArcherAX12(host, password, timeout=10.0, verify=True)` exposes both, so turn `verify` off deliberately for a self-signed device rather than silently trusting a bad certificate.
-
-### OpenAPI Documentation
-Once the server is running, navigate to:
-- **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+- **One admin session, total.** A new login replaces the old `stok`, and requests carrying the
+  discarded token answer **HTTP 200** with `errorcode: "timeout"` — not a 401. Opening the web UI
+  logs this API out and vice versa. The client detects that and re-authenticates, with a lock so
+  concurrent requests share a single re-login instead of stampeding, since parallel logins would
+  otherwise knock each other out. Do not run two copies of the server against one router.
+- **`success: true` says nothing about unrecognised parameters** — they are silently ignored. This
+  one cost real time: a guest-Wi-Fi helper posted bare `enable` / `isolate` to the merged
+  `guest_2g5g` form, which wants prefixed names. The router returned success and changed nothing.
+  Verify writes by reading them back, and never assume a read schema equals the write schema.
+- **The refusal field has four spellings** (`errorCode`, `error`, `error_code`, `errorcode`). The SDK
+  reads all four, in the order the router's own UI normalises them.
+- **Empty list forms answer `{}`, not `[]`,** and an unused capability list arrives as `{}` too.
+- **The password handshake** is `login?form=keys` → `form=auth` → `form=login`, with the password
+  RSA PKCS#1 v1.5 encrypted against a 1024-bit modulus the device supplies.
+- **Errors are surfaced, not swallowed.** Where the code once caught every exception, it now tolerates
+  only the specific failure: `vpn.get_connections()` used to turn any error into "nobody connected",
+  so it now accepts only `FeatureUnavailableError` (a unit without that VPN server) and lets anything
+  else propagate. `keep_alive()`, `logout()` and the server's startup/shutdown handlers narrow to
+  router and transport errors for the same reason.
 
 ---
 
-## Running Tests & Type Checks
+## Safety and privacy
+
+Read these before exposing anything beyond `127.0.0.1`:
+
+- **The REST API has no authentication of its own.** Anyone who can reach the port holds router
+  admin rights, including `POST /reboot` and Wi-Fi or VPN changes. Bind to localhost, or put your
+  own auth in front of it.
+- **Wi-Fi keys are redacted from `GET /status` by default** (`"***redacted***"`), because the router
+  returns them inside its own status payload. Pass `?include_secrets=true` to see them. The SDK
+  deliberately still hands back real keys: `wifi.set_wireless_band()` re-sends the current PSK on
+  every write, so masking at that layer would let a redacted placeholder overwrite your password.
+  `tplink_modern.redact_secrets()` is exported if you serialise `RouterStatus` yourself.
+- **Plain HTTP on the LAN.** If you pass an `https://` host, certificates are verified by default;
+  `ArcherAX12(host, password, timeout=10.0, verify=True)` exposes both, so turn `verify` off
+  deliberately for a self-signed device rather than silently trusting a bad certificate.
+- **Not every write path is verified.** The live survey sent only `read`, `load` and `list`. Check the
+  inventory's *Not verified* section before trusting an unexercised write.
+- **Test fixtures use synthetic MACs and hostnames**, never identifiers from a real network.
+
+---
+
+## Development
 
 The suite mocks the router's HTTP layer, so no router needs to be reachable:
 
 ```bash
-pytest -q          # 51 mocked tests, live module skipped
-mypy .             # clean across 30 source files
+pytest -q          # 76 mocked tests; the live module self-skips
+mypy .             # clean across 44 source files
 ruff check .       # clean
 ```
 
-`.github/workflows/ci.yml` runs all three on Python 3.11 and 3.13. The rule set CI enforces is
-pinned in `pyproject.toml`, so a ruff upgrade cannot quietly move the bar.
+[`ci.yml`](.github/workflows/ci.yml) runs all three on Python 3.11 and 3.13. The lint rule set CI
+enforces is pinned in `pyproject.toml`, so a ruff upgrade cannot quietly move the bar.
 
-| File | Covers |
+| Test file | Covers |
 | --- | --- |
 | `tests/conftest.py` | Supplies dummy `TPLINK_*` env vars so `app.py` imports without a real `.env` |
 | `tests/test_login.py` | RSA login handshake, wrong-password failure, transparent re-auth on `permission denied` |
 | `tests/test_features.py` | SDK-level DHCP reservations, Wi-Fi band writes, VPN config, wireless statistics |
 | `tests/test_api.py` | Every REST endpoint of `app.py` against a mocked router: status codes, request bodies sent to the device, PSK redaction, concurrent re-auth, `400`/`404`/`501`/`502`/`503` handling, OpenAPI route coverage |
+| `tests/test_error_field.py` | The four refusal-field spellings |
+| `tests/test_inventory_extractor.py` | The URL shapes the bundles actually build |
+| `tests/test_ui_routes.py` | Route table, menu tree, page → form map |
+| `tests/test_endpoints_inventory.py` | Doc, generated table and SDK call sites agree |
 | `tests/test_live.py` | Opt-in checks against a real Archer AX12 |
 
 ### Live tests
 
-`tests/test_live.py` talks to the router in your `.env` — it issues reads and logins only, and
-never calls a write or reboot endpoint. It is skipped unless you ask for it:
+`tests/test_live.py` talks to the router in your `.env` — it issues reads and logins only, and never
+calls a write or reboot endpoint. It is skipped unless you ask for it:
 
 ```bash
 TPLINK_LIVE=1 pytest -m live
 ```
 
 Each read route's response is validated against its declared Pydantic model, so a firmware change
-that alters a payload shows up as a failure rather than a wrong value downstream. One test also
-logs in from a second client to evict the server's `stok` — the same thing the web admin page does
-— and asserts that two concurrent requests both recover. **Running it will log out any router web
-session you have open.**
+that alters a payload shows up as a failure rather than a wrong value downstream. One test also logs
+in from a second client to evict the server's `stok` — the same thing the web admin page does — and
+asserts that two concurrent requests both recover. **Running it will log out any router web session
+you have open.**
 
-The lint cleanup was mostly mechanical, except where broad `except Exception` handlers were
-converting real failures into empty results: `vpn.get_connections()` swallowed every error and
-reported "nobody connected", so it now tolerates only `FeatureUnavailableError` (a unit without
-that VPN server) and lets anything else propagate. `keep_alive()`, `logout()`, and the server's
-startup/shutdown handlers narrow to router and transport errors for the same reason.
+---
 
-> Note: `examples/` scripts are live tools, not tests — they talk to the real router in `.env`,
-> and `reboot.py` restarts it after an interactive confirmation.
+## Survey tooling
 
+Everything in `tools/inventory/` is reproducible, and read-only by construction. The crawled bundles
+and the JSON reports they produce live under `.cache/` — gitignored and regenerable.
+
+| Tool | What it does |
+| --- | --- |
+| `extract_ui_inventory.py` | Recovers endpoint URLs from the router's own bundles, resolving template literals, `?form=a&form=b` batches, variable suffixes and `join("&")` arrays |
+| `jstokens.py` | The JS literal and template scanner underneath it |
+| `ui_routes.py` | Reads the Vue router table and menu tree; maps each page to the forms it can reach |
+| `probe_live.py` | Asks every form with `read` / `load` / `list` only; records schemas, masks secret-named values, skips action-shaped form names |
+| `form_models.py` | Recovers row field names for tables the router returned empty, from the UI's own column and default-row definitions — an inference, never a response |
+| `sdk_calls.py` | Scans this package's call sites, so a form no bundle names still gets verified |
+| `fetch_missing_bundles.py` | Audits imports that were never downloaded; plain GETs, so it cannot evict your session |
+| `gen_endpoints.py` | Generates `endpoints.py` and the inventory doc's module table |
+
+```bash
+python -m tools.inventory.extract_ui_inventory
+python -m tools.inventory.ui_routes
+python -m tools.inventory.probe_live                      # needs a reachable router
+python -m tools.inventory.gen_endpoints --markdown .cache/ax12-ui/doc-table.md
+```
+
+---
+
+## Repository layout
+
+```text
+tplink-router-api/
+├── app.py                  # FastAPI REST server
+├── pyproject.toml          # Package config, pinned lint rules, test settings
+├── LICENSE                 # MIT
+├── .github/workflows/      # CI: ruff, mypy, pytest on 3.11 and 3.13
+├── docs/
+│   └── router-api-inventory.md   # Full surveyed API: 50 modules / 226 endpoints
+├── examples/               # Runnable SDK examples (login, status, devices, reboot)
+├── tests/                  # Mocked unit tests + opt-in live checks
+├── tools/inventory/        # The survey tooling that produced the inventory
+└── tplink_modern/          # The SDK
+    ├── client.py           # ArcherAX12 high-level client
+    ├── auth.py             # RSA-based login handshake
+    ├── crypto.py           # RSA PKCS#1 v1.5 utilities
+    ├── session.py          # Session, stok and transparent re-auth
+    ├── exceptions.py       # Typed RouterError hierarchy
+    ├── models.py           # Pydantic schemas for type safety
+    ├── endpoints.py        # Generated inventory constants
+    └── resources/          # base, access, clients, firmware, nat, network,
+                            # status, system, vpn, wifi, wol
+```
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Disclaimer
+
+Not affiliated with, endorsed by, or sponsored by TP-Link. Reverse-engineered from the firmware's own
+client code for interoperability. Use against equipment you own or administer; operating on a device
+you are not authorised to manage may be unlawful in your jurisdiction.
