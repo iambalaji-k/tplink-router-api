@@ -234,15 +234,28 @@ async def configure_wifi(req: WifiConfigRequest):
 
 
 class GuestWifiRequest(BaseModel):
-    enable: bool
-    isolate: bool = False
+    enable: Optional[bool] = None
+    isolate: Optional[bool] = None
+    ssid: Optional[str] = None
+    password: Optional[str] = None
+    bands: Optional[List[str]] = None
 
 
 @app.post("/wifi/guest", summary="Update guest Wi-Fi network settings")
 async def update_guest_wifi(req: GuestWifiRequest):
-    """Enable/disable guest Wi-Fi and configure client isolation."""
+    """Toggle guest Wi-Fi and isolation, or rename it and set its password.
+
+    Omitted fields keep their current values, so enabling the network cannot blank the
+    SSID or key. At least one field is required.
+    """
     client = get_router()
-    success = await client.wifi.set_guest(enable=req.enable, isolate=req.isolate)
+    success = await client.wifi.set_guest(
+        enable=req.enable,
+        isolate=req.isolate,
+        ssid=req.ssid,
+        password=req.password,
+        bands=req.bands,
+    )
     return {"success": success}
 
 

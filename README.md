@@ -152,13 +152,14 @@ async def main():
         wifi_2g = await router.wifi.get_2g()
         print(f"Current 2.4G SSID: {wifi_2g.ssid}, channel: {wifi_2g.channel}")
 
-        # set_wireless_band performs a read-modify-write: omitted arguments
-        # keep their current value, so this only changes the SSID.
+        # Both setters are read-modify-write: omitted arguments keep their current
+        # value, so this only changes the SSID.
         await router.wifi.set_wireless_band(band="2g", ssid="MyNetwork")
 
-        # Enable the guest network with client isolation
-        success = await router.wifi.set_guest(enable=True, isolate=True)
-        print(f"Guest Wifi Configured: {success}")
+        # Guest networks are per-band on this firmware, and isolation is a separate form.
+        await router.wifi.set_guest(enable=True, ssid="Guests", password="guest-pass-1", isolate=True)
+
+        print(await router.wifi.get_guest_band("2g"))
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -247,7 +248,7 @@ success — the router's own `errorcode` comes back in the body:
 - `POST /network/dhcp/reservations` - Create a new static DHCP address reservation.
 - `DELETE /network/dhcp/reservations/{macaddr}` - Delete a static DHCP address reservation by MAC.
 - `POST /wifi/config` - Update SSID, password, channel, HT mode for 2.4G or 5G bands.
-- `POST /wifi/guest` - Update Guest Wi-Fi state (enable/disable, isolate).
+- `POST /wifi/guest` - Toggle guest Wi-Fi, set its SSID and password, or change client isolation. Omitted fields keep their current values.
 - `GET /wifi/statistics` - Query packets sent/received statistics for all connected wireless client devices.
 - `GET /vpn/openvpn` - Retrieve current OpenVPN server configuration.
 - `POST /vpn/openvpn` - Configure and toggle the OpenVPN server.

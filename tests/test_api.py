@@ -81,6 +81,22 @@ VPN_CONNS = {
     "openvpn": {"success": True, "data": [{"username": "client1", "ipaddr": "10.8.0.6", "uptime": "00:05:23"}]},
     "pptp": {"success": True, "data": []},
 }
+# Field names and values copied from a live read of these forms on firmware 1.10.2.
+GUEST_2G = {
+    "success": True,
+    "data": {
+        "enable": "off", "ssid": "TP-Link", "encryption": "psk_sae",
+        "psk_cipher": "", "psk_key": "", "psk_version": "", "hidden": "off",
+    },
+}
+GUEST_5G = {
+    "success": True,
+    "data": {
+        "enable": "off", "ssid": "GuestExample", "encryption": "psk_sae",
+        "psk_cipher": "", "psk_key": "", "psk_version": "", "hidden": "off",
+    },
+}
+GUEST_PERMISSIONS = {"success": True, "data": {"access": "off", "isolate": "off"}}
 FIRMWARE = {"success": True, "data": {"new_version": "", "hardware_version": "V1", "software_version": "1.0.0"}}
 
 
@@ -105,7 +121,12 @@ def response_for(url: str, data: dict):
         return {"load": DHCP_LOAD, "insert": OK, "remove": OK}[data["operation"]]
     if "admin/wireless?form=statistics" in url:
         return WIFI_STATS
-    if "admin/wireless?form=guest_2g5g" in url or "admin/wireless?form=wireless_2g" in url:
+    if "admin/wireless" in url and "?form=guest" in url:
+        form = url.split("?form=")[1]
+        if data.get("operation") == "read":
+            return {"guest_2g": GUEST_2G, "guest_5g": GUEST_5G, "guest": GUEST_PERMISSIONS}.get(form)
+        return OK
+    if "admin/wireless?form=wireless_2g" in url:
         return OK
     if "admin/openvpn?form=config" in url:
         return OK if data["operation"] == "write" else OPENVPN_READ
@@ -130,12 +151,14 @@ def mock_response(payload):
     return resp
 
 
-def request_payload(calls, path_fragment, **fields):
-    """The first recorded request body for a URL fragment matching the given fields."""
+def request_payload(calls, path_fragment, form=None, **fields):
+    """The first recorded request body for a URL, optionally requiring an exact form."""
     return next(
         data
         for url, data in calls
-        if path_fragment in url and all(data.get(k) == v for k, v in fields.items())
+        if path_fragment in url
+        and (form is None or url.endswith(f"?form={form}"))
+        and all(data.get(k) == v for k, v in fields.items())
     )
 
 
@@ -302,12 +325,57 @@ def test_wifi_config_rejects_unknown_band(client):
     assert "2g" in response.json()["detail"]
 
 
-def test_guest_wifi_toggle(client, router_requests):
+def test_guest_toggle_writes_each_band_form(client, router_requests):
     response = client.post("/wifi/guest", json={"enable": True, "isolate": True})
     assert response.status_code == 200 and response.json() == {"success": True}
 
-    write = request_payload(router_requests, "admin/wireless?form=guest_2g5g", operation="write")
-    assert write == {"operation": "write", "enable": "on", "isolate": "on"}
+    band = request_payload(router_requests, "admin/wireless?form=guest_2g", operation="write")
+    assert band["enable"] == "on"
+    # Untouched fields are echoed back from the router rather than dropped.
+    assert band["ssid"] == "TP-Link"
+    assert band["psk_key"] == ""
+    assert band["encryption"] == "psk_sae"
+    assert request_payload(router_requests, "admin/wireless?form=guest_5g", operation="write")["ssid"] == "GuestExample"
+
+    # Isolation lives on its own form on this firmware, alongside the guest-access flag.
+    perms = request_payload(router_requests, "admin/wireless", form="guest", operation="write")
+    assert perms["isolate"] == "on" and perms["access"] == "off"
+    assert not any("guest_2g5g" in url for url, _ in router_requests)
+
+
+def test_guest_ssid_and_password_apply_to_both_bands(client, router_requests):
+    response = client.post("/wifi/guest", json={"ssid": "Guests", "password": "guestpass1"})
+    assert response.status_code == 200
+
+    for form in ("guest_2g", "guest_5g"):
+        write = request_payload(router_requests, f"admin/wireless?form={form}", operation="write")
+        assert write["ssid"] == "Guests"
+        assert write["psk_key"] == "guestpass1"
+        assert write["enable"] == "off", "setting a key must not switch the network on"
+
+    assert not [data for url, data in router_requests
+                if url.endswith("?form=guest") and data.get("operation") == "write"]
+
+
+def test_guest_isolate_alone_leaves_the_bands_alone(client, router_requests):
+    response = client.post("/wifi/guest", json={"isolate": False})
+    assert response.status_code == 200
+    assert not any("guest_2g" in url and data.get("operation") == "write" for url, data in router_requests)
+    perms = request_payload(router_requests, "admin/wireless", form="guest", operation="write")
+    assert perms == {"operation": "write", "isolate": "off", "access": "off"}
+
+
+def test_guest_requires_at_least_one_change(client):
+    response = client.post("/wifi/guest", json={})
+    assert response.status_code == 400
+    assert "at least one" in response.json()["detail"]
+
+
+def test_guest_rejects_a_redaction_placeholder(client):
+    """Writing the placeholder back would really set the guest key to '***redacted***'."""
+    response = client.post("/wifi/guest", json={"password": REDACTED_PSK})
+    assert response.status_code == 400
+    assert "placeholder" in response.json()["detail"]
 
 
 def test_vpn_config_round_trip(client, router_requests):

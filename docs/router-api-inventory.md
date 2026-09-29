@@ -135,7 +135,10 @@ is not present in the post-login bundles.
 | Form | Operations |
 | --- | --- |
 | `wireless_2g`, `wireless_5g` | read, write — SSID, `channel`, `current_channel`, `htmode`, `hwmode`, `encryption`, `psk_key`, `psk_cipher`, `hidden`, `isolate`, `airtime_fairness`, `disabled` |
-| `guest_2g5g` | read, write — incl. `psk_key`, `psk_cipher`, `psk_version`, `encryption` (`psk_sae`), `redirect`, `portal_password` |
+| `guest_2g`, `guest_5g`, `guest_6g` | read, write — per-band guest config: `enable`, `ssid`, `encryption`, `psk_key`, `psk_cipher`, `psk_version`, `hidden`, `disabled`, `redirect`, `redirect_url`, `authentication_*` |
+| `guest` | read, write — guest permissions only: `access`, `isolate` |
+| `guest_2g5g` | read (unprefixed) / write (**prefixed**: `guest_2g5g_psk_key`, `guest_2g_enable`, …) — merged view of the guest bands |
+| `guestnetwork_bandwidth_ctrl`, `guestnetwork_effectivetime_ctrl` | read, write — per-band guest rate limits and an active-hours schedule |
 | `statistics` | load — per-client `rxpkts`, `txpkts`, `type`, `encryption` |
 | `wireless_addition_setting` | read, write — `beacon_int`, `dtim_period`, `frag`, `rts`, `shortgi` |
 | `wireless_schedule` | read, write |
@@ -242,7 +245,7 @@ is not present in the post-login bundles.
 ## 4. Findings worth acting on
 
 1. **`menu_status` is the Rosetta stone.** It returns which features this firmware actually enables — the right starting point for any "what can this router do" question, better than scraping bundles.
-2. **The guest network is fully writable, including its password.** The SDK's `set_guest()` sends only `enable` and `isolate` even though `guest_2g5g` accepts `psk_key`, `psk_cipher`, `psk_version` and `redirect`. The limitation is in our wrapper, not the router.
+2. **Guest networking is three forms, not one, and the old wrapper hit the wrong one.** Reads of `admin/wireless?form=guest_2g` / `guest_5g` / `guest_6g` return the per-band guest config (`enable`, `ssid`, `encryption`, `psk_key`, `psk_cipher`, `psk_version`, `hidden`, `disabled`, `redirect*`) — this router reports 2.4G guest SSID `TP-Link` and 5G `GuestExample`, both disabled. Client isolation and guest LAN access are a *separate* form, `?form=guest`, returning just `access` and `isolate`. `guest_2g5g` is the merged view, and the UI writes it with **prefixed** field names (`guest_2g5g_psk_key`, `guest_2g_enable`, …). The SDK previously posted bare `enable`/`isolate` to `guest_2g5g`, which the router accepted while ignoring both fields — a silent no-op, since `success` says nothing about unrecognised parameters. Fixed in `set_guest()`.
 3. **Several forms return secrets in cleartext**: `guest_2g5g` and `wireless_2g/5g` (`psk_key`), `wireless_addition_setting` (`psk_key`), `wireguard?form=config` (`private_key`), `openvpn?form=export`. Anything built on top of these must redact by default, as `GET /status` now does.
 4. **Two reboot paths exist** (`/admin/reboot?form=set` and `/admin/system?form=reboot`); the SDK uses the latter.
 5. **`nat?form=vs` answers an empty object** — port forwarding is reachable and cheap to model.

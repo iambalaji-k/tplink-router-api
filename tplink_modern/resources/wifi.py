@@ -1,6 +1,30 @@
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from tplink_modern.resources.base import BaseResource
-from tplink_modern.models import WirelessBandConfig, GuestNetworkConfig, WirelessClientStats
+from tplink_modern.models import (
+    REDACTED_PSK,
+    GuestNetworkConfig,
+    WirelessBandConfig,
+    WirelessClientStats,
+)
+
+GUEST_BANDS = ("2g", "5g")
+
+
+def _guest_band(band: str) -> str:
+    band = band.lower().strip()
+    if band not in ("2g", "5g", "6g"):
+        raise ValueError("Band must be one of '2g', '5g' or '6g'")
+    return band
+
+
+def _on_off(value: bool) -> str:
+    return "on" if value else "off"
+
+
+def _reject_placeholder(value: Optional[str], field: str) -> None:
+    """A redacted key echoed back by a caller would overwrite the real one."""
+    if value == REDACTED_PSK:
+        raise ValueError(f"{field} is a redaction placeholder; read the real value first")
 
 
 class WifiResource(BaseResource):
@@ -21,22 +45,66 @@ class WifiResource(BaseResource):
         status = await self.client.get_status()
         return status.guest
 
-    async def set_guest(self, enable: bool, isolate: bool = False) -> bool:
-        """Turn guest networks on or off.
-        
-        Args:
-            enable: True to enable, False to disable.
-            isolate: True to isolate guests from the main LAN.
+    async def get_guest_band(self, band: str) -> Dict[str, Any]:
+        """Read one guest band's configuration straight from its own form.
+
+        The per-band guest forms report the field names they accept, so writes echo
+        these values back rather than guessing at them.
         """
-        enable_str = "on" if enable else "off"
-        isolate_str = "on" if isolate else "off"
-        
-        # In AX12, setting guest wifi usually targets guest_2g5g form on wireless endpoint
-        payload = {
-            "enable": enable_str,
-            "isolate": isolate_str,
-        }
-        await self.client.write("admin/wireless", "guest_2g5g", **payload)
+        resp = await self.client.read("admin/wireless", f"guest_{_guest_band(band)}")
+        return resp.get("data", {})
+
+    async def set_guest(
+        self,
+        enable: Optional[bool] = None,
+        isolate: Optional[bool] = None,
+        ssid: Optional[str] = None,
+        password: Optional[str] = None,
+        bands: Optional[List[str]] = None,
+    ) -> bool:
+        """Configure the guest network.
+
+        Args:
+            enable: Turn the guest network on or off. Omit to leave it as-is.
+            isolate: Isolate guests from the main LAN (its own form on this firmware).
+            ssid: Guest network name applied to every band listed.
+            password: Guest WPA key applied to every band listed.
+            bands: Which guest bands to write, defaults to 2g and 5g.
+
+        Omitted values keep whatever the router currently reports, so calling this with
+        only ``enable`` cannot blank an SSID or a key.
+        """
+        if enable is None and isolate is None and ssid is None and password is None:
+            raise ValueError("set_guest needs at least one of enable, isolate, ssid or password")
+
+        _reject_placeholder(password, "password")
+        targets = [_guest_band(b) for b in bands] if bands else list(GUEST_BANDS)
+
+        if enable is not None or ssid is not None or password is not None:
+            for band in targets:
+                current = await self.get_guest_band(band)
+                await self.client.write(
+                    "admin/wireless",
+                    f"guest_{band}",
+                    enable=_on_off(enable) if enable is not None else current.get("enable", "off"),
+                    ssid=ssid if ssid is not None else current.get("ssid", ""),
+                    psk_key=password if password is not None else (current.get("psk_key") or ""),
+                    encryption=current.get("encryption") or "psk",
+                    psk_cipher=current.get("psk_cipher") or "aes",
+                    psk_version=current.get("psk_version") or "",
+                    hidden=current.get("hidden") or "off",
+                )
+
+        if isolate is not None:
+            permissions = await self.client.read("admin/wireless", "guest")
+            current = permissions.get("data", {})
+            await self.client.write(
+                "admin/wireless",
+                "guest",
+                isolate=_on_off(isolate),
+                access=current.get("access", "off"),
+            )
+
         return True
 
     async def set_wireless_band(
@@ -61,7 +129,8 @@ class WifiResource(BaseResource):
         band_clean = band.lower().strip()
         if band_clean not in ("2g", "5g"):
             raise ValueError("Band must be either '2g' or '5g'")
-            
+        _reject_placeholder(password, "password")
+
         if band_clean == "2g":
             current = await self.get_2g()
             form = "wireless_2g"
