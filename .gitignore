@@ -41,3 +41,6 @@ htmlcov/
 
 # Crawled router UI bundles + scratch analysis (regenerable, large)
 .cache/
+
+# CLI session-resume notes
+agy.txt
