@@ -123,8 +123,9 @@ choice of read verb is not arbitrary.
    `?form=a&form=b` URLs, 18 forms referenced as strings but with no call site the resolver could
    attribute, and 2 sites whose form name is built at runtime (listed in §4).
 3. **Check completeness.** Every `form=<name>` token appearing anywhere in the bundles was
-   re-derived independently and looked up in the report; nothing was unaccounted for. Import
-   specifiers that were never downloaded are listed by
+   re-derived independently and looked up in the report. One token did not resolve — `n.locale=r` in
+   `su-*.js`, an i18n assignment that happens to read like a query parameter — and it is the only
+   miss, so the scan is accounted for. Import specifiers that were never downloaded are listed by
    `venv/Scripts/python.exe -m tools.inventory.fetch_missing_bundles` — plain GETs, so they cannot
    evict the router's session. 27 remain, all translation bundles; three were sampled and contain no
    `form=` string at all, so the missing files are not an endpoint gap.
