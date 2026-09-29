@@ -241,10 +241,45 @@ def test_dhcp_reservation_lifecycle(client, router_requests):
     assert remove["key"] == "AA-BB-CC-DD-EE-01" and remove["index"] == 0
 
 
-def test_delete_unknown_reservation_returns_500(client):
+def test_delete_unknown_reservation_returns_404(client):
     response = client.delete("/network/dhcp/reservations/99-99-99-99-99-99")
-    assert response.status_code == 500
+    assert response.status_code == 404
     assert "not found" in response.json()["detail"]
+
+
+def test_form_the_firmware_lacks_reports_501(client, monkeypatch):
+    """'no such callback' means this firmware has no such feature - not a transient failure."""
+
+    async def refuse(path, data, **kwargs):
+        return {"success": False, "errorcode": "no such callback"}
+
+    monkeypatch.setattr(api.router.session, "post", refuse)
+    response = client.get("/wifi/statistics")
+    assert response.status_code == 501
+    assert response.json()["errorcode"] == "no such callback"
+
+
+def test_router_refusal_reports_502_with_the_router_reason(client, monkeypatch):
+    async def refuse(path, data, **kwargs):
+        return {"success": False, "errorcode": "permission error"}
+
+    monkeypatch.setattr(api.router.session, "post", refuse)
+    response = client.post("/reboot")
+    assert response.status_code == 502
+    assert "admin/system?form=reboot" in response.json()["detail"]
+    assert response.json()["errorcode"] == "permission error"
+
+
+def test_write_failure_is_not_reported_as_success(client, monkeypatch):
+    """A refused write used to return {"success": false}; it must never look like a success."""
+
+    async def refuse(path, data, **kwargs):
+        return {"success": False, "errorcode": "parameter value invalid"}
+
+    monkeypatch.setattr(api.router.session, "post", refuse)
+    response = client.post("/wifi/guest", json={"enable": True})
+    assert response.status_code == 502
+    assert "success" not in response.json()
 
 
 def test_wifi_config_is_read_modify_write(client, router_requests):

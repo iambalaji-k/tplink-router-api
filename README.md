@@ -226,9 +226,17 @@ On startup the server logs in once. A failed startup login is logged as a warnin
 
 ### API Endpoints
 
-All endpoints live on one shared router client. Read-only endpoints are `GET`; configuration
-changes are `POST`/`DELETE`. Write handlers return `{"success": true}` and map any `RouterError`
-to `500`.
+All endpoints share one router client. Read-only endpoints are `GET`; configuration changes are
+`POST`/`DELETE`. A write answers `{"success": true}`, and a refused write never looks like a
+success — the router's own `errorcode` comes back in the body:
+
+| HTTP | Meaning |
+| --- | --- |
+| `400` | Bad arguments (unknown band, malformed body) |
+| `404` | Nothing to act on (e.g. deleting an unknown DHCP reservation) |
+| `501` | This firmware does not implement the form (`errorcode: "no such callback"`) |
+| `502` | The router refused or failed the request; body carries `errorcode` |
+| `503` | Router client not initialized (startup login still pending, or the server is shutting down) |
 
 - `GET /status` - Complete system resource usage, CPU, RAM, LAN, and Wi-Fi band configurations. Wi-Fi keys are redacted unless you pass `?include_secrets=true`.
 - `GET /clients` - Returns list of all connected wired and wireless devices.

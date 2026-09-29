@@ -2,7 +2,7 @@ from typing import List
 import json
 from tplink_modern.resources.base import BaseResource
 from tplink_modern.models import LanSettings, WanSettings, DhcpReservation
-from tplink_modern.exceptions import RouterError
+from tplink_modern.exceptions import NotFoundError
 
 
 class NetworkResource(BaseResource):
@@ -21,9 +21,7 @@ class NetworkResource(BaseResource):
     async def get_dhcp_reservations(self) -> List[DhcpReservation]:
         """Get all DHCP static address reservations."""
         res = await self.client.api("admin/dhcps", "reservation", "load")
-        if not res.get("success"):
-            raise RouterError("Failed to fetch DHCP reservations")
-        
+
         reservations = []
         for item in res.get("data", []):
             reservations.append(DhcpReservation(
@@ -46,12 +44,12 @@ class NetworkResource(BaseResource):
             "comment": name
         }
         
-        res = await self.client.api(
+        await self.client.api(
             "admin/dhcps", "reservation", "insert",
             new=json.dumps(new_entry),
             index=0
         )
-        return bool(res.get("success"))
+        return True
 
     async def delete_dhcp_reservation(self, macaddr: str) -> bool:
         """Delete a DHCP static address reservation by MAC address."""
@@ -67,12 +65,12 @@ class NetworkResource(BaseResource):
                 break
                 
         if target_idx is None:
-            raise RouterError(f"Reservation with MAC address {macaddr} not found")
-            
-        res = await self.client.api(
+            raise NotFoundError(f"Reservation with MAC address {macaddr} not found")
+
+        await self.client.api(
             "admin/dhcps", "reservation", "remove",
             key=mac_norm,
             index=target_idx
         )
-        return bool(res.get("success"))
+        return True
 

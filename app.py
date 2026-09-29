@@ -2,20 +2,28 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException, status
+
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from tplink_modern import ArcherAX12
-from tplink_modern.exceptions import RouterError
+from tplink_modern.exceptions import (
+    APIError,
+    AuthenticationError,
+    FeatureUnavailableError,
+    NotFoundError,
+    RouterError,
+)
 from tplink_modern.models import (
-    RouterStatus,
     ClientDevice,
-    LanSettings,
-    WanSettings,
     DhcpReservation,
+    LanSettings,
     OpenVpnConfig,
     PptpVpnConfig,
+    RouterStatus,
     VpnConnection,
+    WanSettings,
     WirelessClientStats,
     redact_secrets,
 )
@@ -62,6 +70,25 @@ def get_router() -> ArcherAX12:
     return router
 
 
+# Router failures are the router's fault, not ours, so they default to 502. Anything the
+# firmware simply does not implement gets 501 so callers can tell the two apart.
+HTTP_BY_ERROR: Dict[Any, int] = {
+    NotFoundError: status.HTTP_404_NOT_FOUND,
+    FeatureUnavailableError: status.HTTP_501_NOT_IMPLEMENTED,
+    ValueError: status.HTTP_400_BAD_REQUEST,
+    APIError: status.HTTP_502_BAD_GATEWAY,
+    AuthenticationError: status.HTTP_502_BAD_GATEWAY,
+    RouterError: status.HTTP_502_BAD_GATEWAY,
+}
+
+
+def status_code_for(exc: BaseException) -> int:
+    for cls in type(exc).__mro__:
+        if cls in HTTP_BY_ERROR:
+            return HTTP_BY_ERROR[cls]
+    return status.HTTP_502_BAD_GATEWAY
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager that handles startup login and shutdown logout."""
@@ -73,9 +100,9 @@ async def lifespan(app: FastAPI):
         print("[+] Router connection established and session verified.")
     except Exception as e:
         print(f"[-] WARNING: Failed to login to router on startup: {e}. Auto-reauth will retry on request.")
-    
+
     yield
-    
+
     if router is not None:
         print("[*] Terminating router session and closing client...")
         try:
@@ -93,6 +120,22 @@ app = FastAPI(
 )
 
 
+@app.exception_handler(RouterError)
+async def router_error_handler(request: Request, exc: RouterError) -> JSONResponse:
+    """Map router SDK failures onto meaningful HTTP codes."""
+    body: Dict[str, Any] = {"detail": str(exc)}
+    errorcode = getattr(exc, "errorcode", None)
+    if errorcode is not None:
+        body["errorcode"] = errorcode
+    return JSONResponse(status_code=status_code_for(exc), content=body)
+
+
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
+    """Bad arguments are the caller's mistake, not the router's."""
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": str(exc)})
+
+
 @app.get("/status", response_model=RouterStatus, summary="Get complete router status")
 async def get_status(include_secrets: bool = False):
     """Retrieve system resource usage, LAN, WAN, and Wi-Fi band configurations.
@@ -100,11 +143,7 @@ async def get_status(include_secrets: bool = False):
     Wi-Fi pre-shared keys are redacted unless `include_secrets=true` is passed.
     """
     client = get_router()
-    try:
-        router_status = await client.status.get()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
+    router_status = await client.status.get()
     if include_secrets:
         return router_status
     return redact_secrets(router_status)
@@ -114,40 +153,28 @@ async def get_status(include_secrets: bool = False):
 async def get_clients():
     """Retrieve details (hostnames, IP, MAC addresses) of all connected wired and wireless devices."""
     client = get_router()
-    try:
-        return await client.clients.get_all()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.clients.get_all()
 
 
 @app.get("/firmware", response_model=Dict[str, Any], summary="Check for firmware upgrades")
 async def check_firmware():
     """Check if there is an upgrade package available for the router."""
     client = get_router()
-    try:
-        return await client.firmware.check_upgrade()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.firmware.check_upgrade()
 
 
 @app.get("/network/lan", response_model=LanSettings, summary="Get LAN configuration")
 async def get_lan():
     """Get the local area network configuration, including IP, netmask, MAC, and DHCP status."""
     client = get_router()
-    try:
-        return await client.network.get_lan()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.network.get_lan()
 
 
 @app.get("/network/wan", response_model=WanSettings, summary="Get WAN configuration")
 async def get_wan():
     """Get the wide area network configuration, including public IP, gateway, DNS, and uptime."""
     client = get_router()
-    try:
-        return await client.network.get_wan()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.network.get_wan()
 
 
 # --- Stage 1: DHCP Reservations ---
@@ -156,37 +183,28 @@ async def get_wan():
 async def get_dhcp_reservations():
     """Retrieve all static address reservations mapping specific MAC addresses to fixed IPs."""
     client = get_router()
-    try:
-        return await client.network.get_dhcp_reservations()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.network.get_dhcp_reservations()
 
 
 @app.post("/network/dhcp/reservations", summary="Add DHCP address reservation")
 async def add_dhcp_reservation(req: DhcpReservation):
     """Add a new static DHCP address reservation mapping a MAC address to a fixed IP."""
     client = get_router()
-    try:
-        success = await client.network.add_dhcp_reservation(
-            macaddr=req.macaddr,
-            ipaddr=req.ipaddr,
-            name=req.name or "",
-            enable=req.enable
-        )
-        return {"success": success}
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    success = await client.network.add_dhcp_reservation(
+        macaddr=req.macaddr,
+        ipaddr=req.ipaddr,
+        name=req.name or "",
+        enable=req.enable
+    )
+    return {"success": success}
 
 
 @app.delete("/network/dhcp/reservations/{macaddr}", summary="Delete DHCP address reservation")
 async def delete_dhcp_reservation(macaddr: str):
     """Remove an existing static DHCP address reservation by MAC address."""
     client = get_router()
-    try:
-        success = await client.network.delete_dhcp_reservation(macaddr=macaddr)
-        return {"success": success}
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    success = await client.network.delete_dhcp_reservation(macaddr=macaddr)
+    return {"success": success}
 
 
 # --- Stage 2 & 4: Wireless Settings & Stats ---
@@ -204,20 +222,15 @@ class WifiConfigRequest(BaseModel):
 async def configure_wifi(req: WifiConfigRequest):
     """Update wireless band configuration (SSID, password, status, channel, HT mode) for 2.4GHz or 5GHz."""
     client = get_router()
-    try:
-        success = await client.wifi.set_wireless_band(
-            band=req.band,
-            ssid=req.ssid,
-            password=req.password,
-            enable=req.enable,
-            channel=req.channel,
-            htmode=req.htmode
-        )
-        return {"success": success}
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    success = await client.wifi.set_wireless_band(
+        band=req.band,
+        ssid=req.ssid,
+        password=req.password,
+        enable=req.enable,
+        channel=req.channel,
+        htmode=req.htmode
+    )
+    return {"success": success}
 
 
 class GuestWifiRequest(BaseModel):
@@ -229,21 +242,15 @@ class GuestWifiRequest(BaseModel):
 async def update_guest_wifi(req: GuestWifiRequest):
     """Enable/disable guest Wi-Fi and configure client isolation."""
     client = get_router()
-    try:
-        success = await client.wifi.set_guest(enable=req.enable, isolate=req.isolate)
-        return {"success": success}
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    success = await client.wifi.set_guest(enable=req.enable, isolate=req.isolate)
+    return {"success": success}
 
 
 @app.get("/wifi/statistics", response_model=List[WirelessClientStats], summary="Get wireless client statistics")
 async def get_wifi_statistics():
-    """Retrieve detailed packets sent/received statistics for all wireless client devices."""
+    """Retrieve detailed packets sent/received statistics for all connected wireless client devices."""
     client = get_router()
-    try:
-        return await client.wifi.get_statistics()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.wifi.get_statistics()
 
 
 # --- Stage 3: VPN Servers & Connections ---
@@ -252,52 +259,37 @@ async def get_wifi_statistics():
 async def get_openvpn_config():
     """Retrieve current OpenVPN server configuration details."""
     client = get_router()
-    try:
-        return await client.vpn.get_openvpn()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.vpn.get_openvpn()
 
 
 @app.post("/vpn/openvpn", summary="Update OpenVPN server configuration")
 async def update_openvpn_config(req: OpenVpnConfig):
     """Update OpenVPN server configurations."""
     client = get_router()
-    try:
-        success = await client.vpn.set_openvpn(req)
-        return {"success": success}
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    success = await client.vpn.set_openvpn(req)
+    return {"success": success}
 
 
 @app.get("/vpn/pptp", response_model=PptpVpnConfig, summary="Get PPTP VPN configuration")
 async def get_pptp_config():
     """Retrieve current PPTP VPN server configuration details."""
     client = get_router()
-    try:
-        return await client.vpn.get_pptp()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.vpn.get_pptp()
 
 
 @app.post("/vpn/pptp", summary="Update PPTP VPN server configuration")
 async def update_pptp_config(req: PptpVpnConfig):
     """Update PPTP VPN server configurations."""
     client = get_router()
-    try:
-        success = await client.vpn.set_pptp(req)
-        return {"success": success}
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    success = await client.vpn.set_pptp(req)
+    return {"success": success}
 
 
 @app.get("/vpn/connections", response_model=List[VpnConnection], summary="Get active VPN connections")
 async def get_vpn_connections():
     """List all active incoming OpenVPN and PPTP connections to the router."""
     client = get_router()
-    try:
-        return await client.vpn.get_connections()
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    return await client.vpn.get_connections()
 
 
 # --- System Controls ---
@@ -306,10 +298,5 @@ async def get_vpn_connections():
 async def reboot():
     """Request the router to perform a system restart."""
     client = get_router()
-    try:
-        success = await client.system.reboot()
-        return {"success": success}
-    except RouterError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
-
+    success = await client.system.reboot()
+    return {"success": success}

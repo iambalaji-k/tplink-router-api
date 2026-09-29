@@ -2,7 +2,11 @@ from typing import Any, Dict
 import asyncio
 from tplink_modern.session import RouterSession
 from tplink_modern.auth import Authenticator
-from tplink_modern.exceptions import APIError, SessionExpiredError
+from tplink_modern.exceptions import (
+    APIError,
+    FeatureUnavailableError,
+    SessionExpiredError,
+)
 from tplink_modern.models import RouterStatus
 from tplink_modern.resources import (
     StatusResource,
@@ -13,6 +17,18 @@ from tplink_modern.resources import (
     SystemResource,
     VpnResource,
 )
+
+
+def _checked(path: str, response: Dict[str, Any]) -> Dict[str, Any]:
+    """Raise a typed error unless the router reported success."""
+    if response.get("success"):
+        return response
+
+    errorcode = response.get("errorcode", response.get("errorCode"))
+    detail = f"{path} refused by router" + (f": {errorcode}" if errorcode else "")
+    if errorcode == "no such callback":
+        raise FeatureUnavailableError(detail, errorcode)
+    raise APIError(detail, errorcode)
 
 
 class ArcherAX12:
@@ -73,35 +89,24 @@ class ArcherAX12:
         """Wrapper for posting requests that handles transparent re-authentication on session expiration."""
         generation = self.session.generation
         try:
-            return await self.session.post(path, data)
+            response = await self.session.post(path, data)
         except SessionExpiredError:
-            pass
-
-        # Re-auth one at a time: this firmware keeps a single admin session, so parallel
-        # logins invalidate each other's stok and every caller would end up failing. Whoever
-        # finds the generation already advanced just retries on the token someone else fetched.
-        async with self._auth_lock:
-            if self.session.generation == generation:
-                await self._authenticator.login(self.password)
-        return await self.session.post(path, data)
-
+            # Re-auth one at a time: this firmware keeps a single admin session, so parallel
+            # logins invalidate each other's stok and every caller would end up failing.
+            # Whoever finds the generation already advanced just retries on the token
+            # somebody else fetched.
+            async with self._auth_lock:
+                if self.session.generation == generation:
+                    await self._authenticator.login(self.password)
+            response = await self.session.post(path, data)
+        return _checked(path, response)
 
     async def get_status(self) -> RouterStatus:
         """Fetch router status information.
-        
+
         This also acts as a verification endpoint for the session.
         """
-        try:
-            resp = await self._request(
-                "admin/status?form=all",
-                {"operation": "read"}
-            )
-        except Exception as e:
-            raise APIError(f"Status request failed: {e}") from e
-
-        if not resp.get("success"):
-            err_code = resp.get("errorcode", "unknown error")
-            raise APIError(f"Status endpoint returned error: {err_code}")
+        resp = await self._request("admin/status?form=all", {"operation": "read"})
 
         try:
             return RouterStatus.from_raw(resp.get("data", {}))

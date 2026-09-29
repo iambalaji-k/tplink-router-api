@@ -1,5 +1,12 @@
 from tplink_modern.client import ArcherAX12
-from tplink_modern.exceptions import RouterError, AuthenticationError, SessionExpiredError, APIError
+from tplink_modern.exceptions import (
+    APIError,
+    AuthenticationError,
+    FeatureUnavailableError,
+    NotFoundError,
+    RouterError,
+    SessionExpiredError,
+)
 from tplink_modern.models import (
     ClientDevice,
     SystemResource,
@@ -18,6 +25,8 @@ __all__ = [
     "AuthenticationError",
     "SessionExpiredError",
     "APIError",
+    "FeatureUnavailableError",
+    "NotFoundError",
     "ClientDevice",
     "SystemResource",
     "WirelessBandConfig",

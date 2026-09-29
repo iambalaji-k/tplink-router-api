@@ -1,7 +1,6 @@
 from typing import List
 from tplink_modern.resources.base import BaseResource
 from tplink_modern.models import OpenVpnConfig, PptpVpnConfig, VpnConnection
-from tplink_modern.exceptions import RouterError
 
 
 class VpnResource(BaseResource):
@@ -10,9 +9,7 @@ class VpnResource(BaseResource):
     async def get_openvpn(self) -> OpenVpnConfig:
         """Get current OpenVPN server configuration."""
         res = await self.client.api("admin/openvpn", "config", "read")
-        if not res.get("success"):
-            raise RouterError("Failed to fetch OpenVPN configuration")
-            
+
         data = res.get("data", {})
         return OpenVpnConfig(
             enable=data.get("enabled") == "on",
@@ -33,15 +30,13 @@ class VpnResource(BaseResource):
             "interface_type": "tun",
             "access": "home"
         }
-        res = await self.client.write("admin/openvpn", "config", **payload)
-        return bool(res.get("success"))
+        await self.client.write("admin/openvpn", "config", **payload)
+        return True
 
     async def get_pptp(self) -> PptpVpnConfig:
         """Get current PPTP VPN server configuration."""
         res = await self.client.api("admin/pptpd", "config", "read")
-        if not res.get("success"):
-            raise RouterError("Failed to fetch PPTP VPN configuration")
-            
+
         data = res.get("data", {})
         return PptpVpnConfig(
             enable=data.get("enabled") == "on",
@@ -57,8 +52,8 @@ class VpnResource(BaseResource):
             "samba_access": "on",
             "netbios_pass": "on"
         }
-        res = await self.client.write("admin/pptpd", "config", **payload)
-        return bool(res.get("success"))
+        await self.client.write("admin/pptpd", "config", **payload)
+        return True
 
     async def get_connections(self) -> List[VpnConnection]:
         """Get all active incoming OpenVPN and PPTP connections."""

@@ -1,7 +1,6 @@
 from typing import List, Optional
 from tplink_modern.resources.base import BaseResource
 from tplink_modern.models import WirelessBandConfig, GuestNetworkConfig, WirelessClientStats
-from tplink_modern.exceptions import RouterError
 
 
 class WifiResource(BaseResource):
@@ -37,8 +36,8 @@ class WifiResource(BaseResource):
             "enable": enable_str,
             "isolate": isolate_str,
         }
-        resp = await self.client.write("admin/wireless", "guest_2g5g", **payload)
-        return resp.get("success", False)
+        await self.client.write("admin/wireless", "guest_2g5g", **payload)
+        return True
 
     async def set_wireless_band(
         self,
@@ -81,15 +80,13 @@ class WifiResource(BaseResource):
             "htmode": htmode if htmode is not None else (current.htmode or "auto"),
         }
         
-        resp = await self.client.write("admin/wireless", form, **payload)
-        return resp.get("success", False)
+        await self.client.write("admin/wireless", form, **payload)
+        return True
 
     async def get_statistics(self) -> List[WirelessClientStats]:
         """Get active wireless transmission statistics for each connected client device."""
         res = await self.client.api("admin/wireless", "statistics", "load")
-        if not res.get("success"):
-            raise RouterError("Failed to fetch wireless statistics")
-            
+
         stats = []
         for item in res.get("data", []):
             stats.append(WirelessClientStats(

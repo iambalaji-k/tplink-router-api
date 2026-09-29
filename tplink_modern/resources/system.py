@@ -6,5 +6,5 @@ class SystemResource(BaseResource):
 
     async def reboot(self) -> bool:
         """Trigger a router reboot."""
-        resp = await self.client.write("admin/system", "reboot")
-        return resp.get("success", False)
+        await self.client.write("admin/system", "reboot")
+        return True

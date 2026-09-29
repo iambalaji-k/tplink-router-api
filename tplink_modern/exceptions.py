@@ -14,5 +14,22 @@ class SessionExpiredError(AuthenticationError):
 
 
 class APIError(RouterError):
-    """Raised when the router API returns an error or invalid response."""
+    """The router refused a request or answered with something unusable.
+
+    `errorcode` carries the router's own reason (e.g. "timeout", "no such callback")
+    so callers can tell a firmware gap from a transient failure.
+    """
+
+    def __init__(self, message: str, errorcode: object = None):
+        super().__init__(message)
+        self.errorcode = errorcode
+
+
+class FeatureUnavailableError(APIError):
+    """This firmware does not implement the requested form or operation."""
+    pass
+
+
+class NotFoundError(RouterError):
+    """A local lookup found nothing to act on."""
     pass
