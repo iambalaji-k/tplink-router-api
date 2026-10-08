@@ -529,8 +529,8 @@
 </table>
 </div>
 <div class="p-3 bg-surface-container border-t border-outline-variant flex items-center justify-between text-body-sm font-body-sm text-outline">
-<span>Showing 5 of 14 active leases</span>
-<button class="text-primary font-code-sm text-code-sm hover:underline">View ARP Routing Cache &amp; Static Bindings →</button>
+<span id="live-devices-footer-count">Connecting to router...</span>
+<a href="/dashboard/stitch_clients.html" class="text-primary font-code-sm text-code-sm hover:underline">View All Connected Clients &amp; Topology →</a>
 </div>
 </div>
 </section>
@@ -761,10 +761,57 @@ async function updateLiveVitals() {
       }
     }
 
-    // 4. Clients Count
-    if (Array.isArray(data.clients)) {
-      const countEls = document.querySelectorAll('.live-clients-count');
-      countEls.forEach(el => el.textContent = data.clients.length);
+    // 4. Clients Table & Count
+    let clientsList = Array.isArray(data.clients) ? data.clients : [];
+    if (clientsList.length === 0) {
+      try {
+        const cRes = await fetch('/clients');
+        if (cRes.ok) {
+          const fetchedClients = await cRes.json();
+          if (Array.isArray(fetchedClients) && fetchedClients.length > 0) {
+            clientsList = fetchedClients;
+          }
+        }
+      } catch (e) {
+        console.debug('Secondary /clients fetch error:', e);
+      }
+    }
+
+    const countEls = document.querySelectorAll('.live-clients-count');
+    countEls.forEach(el => el.textContent = clientsList.length);
+
+    const footerCount = document.getElementById('live-devices-footer-count');
+    if (footerCount) footerCount.textContent = `Showing ${clientsList.length} active connected devices`;
+
+    const tbody = document.getElementById('live-devices-tbody');
+    if (tbody) {
+      if (clientsList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-outline font-mono">No devices currently connected to router.</td></tr>';
+      } else {
+        tbody.innerHTML = clientsList.map(c => {
+          const wireBadge = c.wire_type === 'wired' ? '<span class="px-2 py-0.5 rounded text-[10px] bg-secondary/20 text-secondary font-bold border border-secondary/40 font-mono">Wired Ethernet</span>' :
+                            c.wire_type === '5G' ? '<span class="px-2 py-0.5 rounded text-[10px] bg-primary/20 text-primary font-bold border border-primary/40 font-mono">5 GHz Wi-Fi 6</span>' :
+                            '<span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-highest text-tertiary font-bold border border-outline-variant font-mono">2.4 GHz</span>';
+          const icon = c.wire_type === 'wired' ? 'lan' : 'devices';
+          return `
+            <tr class="hover:bg-surface-container/60 transition-colors">
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2.5">
+                  <span class="material-symbols-outlined text-primary text-lg" data-icon="${icon}">${icon}</span>
+                  <span class="font-semibold text-on-surface">${c.hostname || '&lt;unknown&gt;'}</span>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-primary font-medium font-mono">${c.ipaddr || '--'}</td>
+              <td class="py-3 px-4 text-outline font-mono">${c.macaddr || '--'}</td>
+              <td class="py-3 px-4">${wireBadge}</td>
+              <td class="py-3 px-4 text-secondary font-mono">Active Link</td>
+              <td class="py-3 px-4 text-right">
+                <button onclick="blockDevice('${c.macaddr}')" class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95 font-mono">Block</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
     }
 
     // 5. Live Badge
