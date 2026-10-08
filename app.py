@@ -5,7 +5,7 @@ from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -547,6 +547,15 @@ async def raw_api(req: RawApiRequest):
     """Dispatch low-level calls to any module and form on the router using ArcherAX12.api()."""
     client = get_router()
     return await client.api(req.module, req.form, req.operation, **req.params)
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Serve the router dashboard favicon."""
+    ico_path = os.path.join(os.path.dirname(__file__), "ui", "favicon.ico")
+    if os.path.exists(ico_path):
+        return FileResponse(ico_path, media_type="image/x-icon")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get("/", include_in_schema=False)

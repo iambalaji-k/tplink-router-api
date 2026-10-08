@@ -1,0 +1,107 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: "class",
+  content: ["./ui/**/*.html"],
+  theme: {
+    extend: {
+      colors: {
+        "surface": "#0f131d",
+        "surface-dim": "#0f131d",
+        "on-tertiary": "#472a00",
+        "primary-container": "#00a7e1",
+        "background": "#0f131d",
+        "error-container": "#93000a",
+        "tertiary-fixed-dim": "#ffb95f",
+        "surface-bright": "#353944",
+        "tertiary-fixed": "#ffddb8",
+        "on-tertiary-container": "#4b2d00",
+        "on-primary-fixed-variant": "#004c69",
+        "surface-container-lowest": "#0a0e18",
+        "on-error": "#690005",
+        "secondary": "#4edea3",
+        "on-tertiary-fixed-variant": "#653e00",
+        "surface-container": "#1c1f2a",
+        "primary": "#7cd0ff",
+        "primary-fixed-dim": "#7cd0ff",
+        "on-primary-fixed": "#001e2c",
+        "tertiary-container": "#d98b00",
+        "on-error-container": "#ffdad6",
+        "inverse-on-surface": "#2c303b",
+        "on-secondary-container": "#00311f",
+        "primary-fixed": "#c4e7ff",
+        "outline": "#87929a",
+        "surface-container-low": "#171b26",
+        "on-secondary-fixed": "#002113",
+        "secondary-fixed": "#6ffbbe",
+        "on-primary-container": "#00384e",
+        "on-secondary-fixed-variant": "#005236",
+        "surface-container-highest": "#313540",
+        "on-tertiary-fixed": "#2a1700",
+        "inverse-surface": "#dfe2f1",
+        "on-background": "#dfe2f1",
+        "surface-variant": "#313540",
+        "on-surface-variant": "#bdc8d1",
+        "inverse-primary": "#00658a",
+        "error": "#ffb4ab",
+        "outline-variant": "#3e484f",
+        "secondary-fixed-dim": "#4edea3",
+        "on-surface": "#dfe2f1",
+        "surface-container-high": "#262a35",
+        "tertiary": "#ffb95f",
+        "secondary-container": "#00a572",
+        "surface-tint": "#7cd0ff",
+        "on-primary": "#00344a",
+        "on-secondary": "#003824"
+      },
+      borderRadius: {
+        "DEFAULT": "0.125rem",
+        "lg": "0.25rem",
+        "xl": "0.5rem",
+        "full": "0.75rem"
+      },
+      spacing: {
+        "space-lg": "1.5rem",
+        "space-xs": "0.25rem",
+        "margin": "2rem",
+        "gutter": "1.25rem",
+        "gutter-mobile": "0.75rem",
+        "margin-mobile": "1rem",
+        "space-sm": "0.5rem",
+        "space-md": "1rem",
+        "space-xl": "2rem"
+      },
+      fontFamily: {
+        "body-md": ["Inter", "sans-serif"],
+        "code-md": ["JetBrains Mono", "monospace"],
+        "headline-lg": ["Inter", "sans-serif"],
+        "code-lg": ["JetBrains Mono", "monospace"],
+        "display-xl-mobile": ["Inter", "sans-serif"],
+        "label-caps": ["Inter", "sans-serif"],
+        "display-xl": ["Inter", "sans-serif"],
+        "body-lg": ["Inter", "sans-serif"],
+        "headline-sm": ["Inter", "sans-serif"],
+        "headline-md": ["Inter", "sans-serif"],
+        "body-sm": ["Inter", "sans-serif"],
+        "code-sm": ["JetBrains Mono", "monospace"]
+      },
+      fontSize: {
+        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+        "code-md": ["13px", { "lineHeight": "18px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+        "code-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+        "display-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700" }],
+        "display-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+        "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+        "code-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }]
+      }
+    }
+  },
+  plugins: [
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/container-queries")
+  ]
+};

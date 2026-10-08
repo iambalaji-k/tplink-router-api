@@ -44,3 +44,7 @@ htmlcov/
 
 # CLI session-resume notes
 agy.txt
+
+# Node / JS dependencies
+node_modules/
+

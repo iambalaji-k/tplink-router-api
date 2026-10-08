@@ -774,3 +774,10 @@ def test_raw_api_dispatch(client, router_requests):
     assert res.status_code == 200
     assert any("admin/wireless?form=wireless_2g" in url for url, _ in router_requests)
 
+
+def test_favicon_endpoint(client):
+    res = client.get("/favicon.ico")
+    assert res.status_code == 200
+    assert res.headers["content-type"] == "image/x-icon"
+
+
