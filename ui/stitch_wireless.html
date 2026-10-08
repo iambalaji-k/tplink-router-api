@@ -283,7 +283,7 @@
 <!-- SSID -->
 <div class="space-y-1">
 <label class="text-label-caps font-label-caps text-on-surface-variant">SSID NAME (NETWORK NAME)</label>
-<input class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" type="text" value="Archer_AX12_2.4G"/>
+<input id="wifi-ssid-2g" class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-mono" type="text" placeholder="Loading 2.4G SSID..." value=""/>
 </div>
 <!-- Hide SSID Checkbox -->
 <div class="flex items-center gap-2 pt-0.5">
@@ -326,7 +326,7 @@
 <div class="space-y-1">
 <label class="text-label-caps font-label-caps text-on-surface-variant">PRE-SHARED KEY (PASSWORD)</label>
 <div class="relative">
-<input class="w-full h-10 pl-3 pr-10 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary" type="password" value="SuperSecretPresharedPass123"/>
+<input id="wifi-pass-2g" class="w-full h-10 pl-3 pr-10 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary font-mono" type="password" placeholder="••••••••" value=""/>
 <button class="absolute right-3 top-2.5 text-on-surface-variant hover:text-primary transition-colors" type="button">
 <span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
 </button>
@@ -373,7 +373,7 @@
 <!-- SSID -->
 <div class="space-y-1">
 <label class="text-label-caps font-label-caps text-on-surface-variant">SSID NAME (HIGH-SPEED TIER)</label>
-<input class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" type="text" value="Archer_AX12_5G"/>
+<input id="wifi-ssid-5g" class="w-full h-10 px-3 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-mono" type="text" placeholder="Loading 5G SSID..." value=""/>
 </div>
 <!-- Hide SSID Checkbox -->
 <div class="flex items-center gap-2 pt-0.5">
@@ -419,7 +419,7 @@
 <div class="space-y-1">
 <label class="text-label-caps font-label-caps text-on-surface-variant">PRE-SHARED KEY (PASSWORD)</label>
 <div class="relative">
-<input class="w-full h-10 pl-3 pr-10 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary" type="password" value="SuperSecure5GHzAXPassphrase"/>
+<input id="wifi-pass-5g" class="w-full h-10 pl-3 pr-10 bg-surface border border-outline-variant rounded-lg text-code-md font-code-md text-on-surface focus:outline-none focus:border-primary font-mono" type="password" placeholder="••••••••" value=""/>
 <button class="absolute right-3 top-2.5 text-on-surface-variant hover:text-primary transition-colors" type="button">
 <span class="material-symbols-outlined text-lg" data-icon="visibility">visibility</span>
 </button>
@@ -461,7 +461,7 @@
 <span class="text-label-caps font-label-caps text-on-surface-variant">GUEST 2.4G SSID</span>
 <span class="w-2 h-2 rounded-full bg-secondary"></span>
 </div>
-<input class="w-full h-9 px-2 bg-surface-container border border-outline-variant rounded text-code-md font-code-md text-on-surface" type="text" value="Archer_Guest_2.4G"/>
+<input id="wifi-guest-2g" class="w-full h-9 px-2 bg-surface-container border border-outline-variant rounded text-code-md font-code-md text-on-surface font-mono" type="text" placeholder="Loading Guest 2.4G..." value=""/>
 <label class="flex items-center gap-2 cursor-pointer pt-1">
 <input checked="" class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary-container" type="checkbox"/>
 <span class="text-body-sm font-body-sm text-on-surface-variant">Broadcast SSID</span>
@@ -473,7 +473,7 @@
 <span class="text-label-caps font-label-caps text-on-surface-variant">GUEST 5G SSID</span>
 <span class="w-2 h-2 rounded-full bg-secondary"></span>
 </div>
-<input class="w-full h-9 px-2 bg-surface-container border border-outline-variant rounded text-code-md font-code-md text-on-surface" type="text" value="Archer_Guest_5G"/>
+<input id="wifi-guest-5g" class="w-full h-9 px-2 bg-surface-container border border-outline-variant rounded text-code-md font-code-md text-on-surface font-mono" type="text" placeholder="Loading Guest 5G..." value=""/>
 <label class="flex items-center gap-2 cursor-pointer pt-1">
 <input checked="" class="w-3.5 h-3.5 rounded bg-surface border-outline-variant text-primary-container" type="checkbox"/>
 <span class="text-body-sm font-body-sm text-on-surface-variant">Broadcast SSID</span>
@@ -544,111 +544,8 @@
 <th class="py-3 px-space-md">SIGNAL ATTENUATION / RSSI</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant text-body-md font-body-md">
-<!-- Row 1 -->
-<tr class="hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-base" data-icon="laptop_mac">laptop_mac</span>
-<span class="text-code-md font-code-md text-on-surface font-semibold">AA:BB:CC:DD:EE:1A</span>
-</div>
-</td>
-<td class="py-3 px-space-md">
-<span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-primary/10 text-primary border border-primary/30">
-                    5GHz (Wi-Fi 6)
-                  </span>
-</td>
-<td class="py-3 px-space-md text-code-sm font-code-sm text-on-surface-variant">WPA3-SAE</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">1,482,904 pkts</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">894,120 pkts</td>
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-3">
-<div class="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-secondary rounded-full" style="width: 88%"></div>
-</div>
-<span class="text-code-md font-code-md text-secondary font-mono">-48 dBm</span>
-<span class="text-code-sm font-code-sm text-outline">(Optimal)</span>
-</div>
-</td>
-</tr>
-<!-- Row 2 -->
-<tr class="hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-base" data-icon="smartphone">smartphone</span>
-<span class="text-code-md font-code-md text-on-surface font-semibold">AA:BB:CC:DD:EE:2B</span>
-</div>
-</td>
-<td class="py-3 px-space-md">
-<span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-primary/10 text-primary border border-primary/30">
-                    5GHz (Wi-Fi 6)
-                  </span>
-</td>
-<td class="py-3 px-space-md text-code-sm font-code-sm text-on-surface-variant">WPA3-SAE</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">412,890 pkts</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">204,115 pkts</td>
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-3">
-<div class="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-secondary-fixed rounded-full" style="width: 76%"></div>
-</div>
-<span class="text-code-md font-code-md text-secondary font-mono">-54 dBm</span>
-<span class="text-code-sm font-code-sm text-outline">(Good)</span>
-</div>
-</td>
-</tr>
-<!-- Row 3 -->
-<tr class="hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-on-surface-variant text-base" data-icon="smart_toy">smart_toy</span>
-<span class="text-code-md font-code-md text-on-surface font-semibold">AA:BB:CC:DD:EE:3C</span>
-</div>
-</td>
-<td class="py-3 px-space-md">
-<span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-surface-container-highest text-on-surface-variant border border-outline-variant">
-                    2.4GHz
-                  </span>
-</td>
-<td class="py-3 px-space-md text-code-sm font-code-sm text-on-surface-variant">WPA2-PSK</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">3,119,400 pkts</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">120,400 pkts</td>
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-3">
-<div class="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-tertiary rounded-full" style="width: 58%"></div>
-</div>
-<span class="text-code-md font-code-md text-tertiary font-mono">-62 dBm</span>
-<span class="text-code-sm font-code-sm text-outline">(Moderate)</span>
-</div>
-</td>
-</tr>
-<!-- Row 4 -->
-<tr class="hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-base" data-icon="tv">tv</span>
-<span class="text-code-md font-code-md text-on-surface font-semibold">AA:BB:CC:DD:EE:5E</span>
-</div>
-</td>
-<td class="py-3 px-space-md">
-<span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-primary/10 text-primary border border-primary/30">
-                    5GHz (Wi-Fi 6)
-                  </span>
-</td>
-<td class="py-3 px-space-md text-code-sm font-code-sm text-on-surface-variant">WPA3-SAE</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">89,200 pkts</td>
-<td class="py-3 px-space-md text-right font-code-md text-code-md text-on-surface font-mono">34,100 pkts</td>
-<td class="py-3 px-space-md">
-<div class="flex items-center gap-3">
-<div class="w-24 h-2 bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-secondary rounded-full" style="width: 82%"></div>
-</div>
-<span class="text-code-md font-code-md text-secondary font-mono">-51 dBm</span>
-<span class="text-code-sm font-code-sm text-outline">(Optimal)</span>
-</div>
-</td>
-</tr>
+<tbody id="wifi-stats-tbody" class="divide-y divide-outline-variant font-code-sm text-code-sm">
+<tr><td colspan="6" class="py-8 text-center text-outline font-mono">Loading active wireless associations from router...</td></tr>
 </tbody>
 </table>
 </div>
@@ -711,5 +608,65 @@
       }
     });
   </script>
+
+
+
+
+<script>
+async function loadWifiData() {
+  // 1. Wireless statistics and active associations
+  try {
+    const res = await fetch('/wifi/statistics');
+    const tbody = document.getElementById('wifi-stats-tbody');
+    if (res.ok && tbody) {
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-outline font-mono">No wireless clients transmitting packets currently.</td></tr>';
+      } else {
+        tbody.innerHTML = data.map(s => `
+          <tr class="hover:bg-surface-container/60 transition-colors">
+            <td class="py-3 px-4 font-mono font-semibold text-primary">${s.macaddr}</td>
+            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] ${s.band.includes('5') ? 'bg-primary/20 text-primary border border-primary/40' : 'bg-surface-container-highest text-tertiary border border-outline-variant'} font-mono">${s.band}</span></td>
+            <td class="py-3 px-4 font-mono text-on-surface-variant">${s.encryption}</td>
+            <td class="py-3 px-4 font-mono text-right text-on-surface">${s.rx_packets.toLocaleString()} pkts</td>
+            <td class="py-3 px-4 font-mono text-right text-on-surface">${s.tx_packets.toLocaleString()} pkts</td>
+            <td class="py-3 px-4 text-secondary font-mono">Active Link</td>
+          </tr>
+        `).join('');
+      }
+    }
+  } catch(e) { console.debug('Wi-Fi stats error:', e); }
+
+  // 2. Wi-Fi status and SSIDs
+  try {
+    const res = await fetch('/status');
+    if (res.ok) {
+      const data = await res.json();
+      const ssid2g = document.getElementById('wifi-ssid-2g');
+      if (ssid2g && data.wireless_2g && data.wireless_2g.ssid) ssid2g.value = data.wireless_2g.ssid;
+      const ssid5g = document.getElementById('wifi-ssid-5g');
+      if (ssid5g && data.wireless_5g && data.wireless_5g.ssid) ssid5g.value = data.wireless_5g.ssid;
+    }
+  } catch(e) { console.debug('Router status error:', e); }
+
+  // 3. Guest network status
+  try {
+    const res = await fetch('/wifi/guest');
+    if (res.ok) {
+      const data = await res.json();
+      const guest2g = document.getElementById('wifi-guest-2g');
+      if (guest2g && data.ssid) guest2g.value = data.ssid;
+      const guest5g = document.getElementById('wifi-guest-5g');
+      if (guest5g && data.ssid_5g) guest5g.value = data.ssid_5g;
+    }
+  } catch(e) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadWifiData();
+  setInterval(loadWifiData, 8000);
+});
+</script>
+
 </body></html>
 

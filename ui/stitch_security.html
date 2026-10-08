@@ -307,13 +307,13 @@
 <span class="material-symbols-outlined text-primary text-[22px] flex-shrink-0" style="font-variation-settings: 'FILL' 1;">security</span>
 <div class="text-body-sm font-body-sm text-on-surface leading-relaxed">
 <span class="font-semibold text-primary">Host Protection Active:</span>
-            Device with MAC <span class="font-code-md text-code-md text-primary-fixed-dim bg-surface-container-highest px-1.5 py-0.5 rounded border border-outline-variant">AA-BB-CC-DD-EE-01</span> is permanently immune from blacklisting to prevent administrative lockout.
+            Router default gateway (192.168.0.1) and management interface are permanently immune from blacklisting to prevent administrative lockout.
           </div>
 </div>
 <!-- Blocked Devices Table -->
 <div class="space-y-space-sm">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-<div class="text-label-caps font-label-caps text-outline uppercase">Target Enforcements (3 Listed)</div>
+<div id="blocked-count-badge" class="text-label-caps font-label-caps text-outline uppercase">Target Enforcements (0 Listed)</div>
 <div class="flex items-center gap-2">
 <button class="px-3 py-1.5 rounded bg-surface-container hover:bg-surface-bright text-on-surface-variant border border-outline-variant text-code-sm font-code-sm flex items-center gap-1 active:scale-95 transition-all">
 <span class="material-symbols-outlined text-[16px]">delete_sweep</span>
@@ -337,64 +337,8 @@
 <th class="py-2.5 px-4 text-right">Action</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/50 font-body-md text-body-md">
-<!-- Row 1 -->
-<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
-<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
-<span class="material-symbols-outlined text-outline text-[18px]">phone_android</span>
-                    Unknown-Android-Guest
-                  </td>
-<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">BC:D1:19:44:A2:10</td>
-<td class="py-3 px-4">
-<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/60">2.4 GHz</span>
-</td>
-<td class="py-3 px-4">
-<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-tertiary-container/20 text-tertiary border border-tertiary/30">Guest Network</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-primary border border-primary/30 active:scale-95 transition-all">
-                      Unblock
-                    </button>
-</td>
-</tr>
-<!-- Row 2 -->
-<tr class="bg-surface-container/50 hover:bg-surface-container transition-colors">
-<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
-<span class="material-symbols-outlined text-outline text-[18px]">power</span>
-                    Smart-Plug-Orphaned
-                  </td>
-<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">48:E7:DA:91:33:FF</td>
-<td class="py-3 px-4">
-<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/60">2.4 GHz</span>
-</td>
-<td class="py-3 px-4">
-<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-outline border border-outline-variant/40">Primary Network</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-primary border border-primary/30 active:scale-95 transition-all">
-                      Unblock
-                    </button>
-</td>
-</tr>
-<!-- Row 3 -->
-<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
-<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
-<span class="material-symbols-outlined text-outline text-[18px]">sensors</span>
-                    Rogue-Device-IoT
-                  </td>
-<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">60:01:94:8C:22:1B</td>
-<td class="py-3 px-4">
-<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/60">5 GHz</span>
-</td>
-<td class="py-3 px-4">
-<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-outline border border-outline-variant/40">Primary Network</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-primary border border-primary/30 active:scale-95 transition-all">
-                      Unblock
-                    </button>
-</td>
-</tr>
+<tbody id="blocked-tbody" class="divide-y divide-outline-variant font-code-sm text-code-sm">
+<tr><td colspan="5" class="py-6 text-center text-outline font-mono">Loading access control rules...</td></tr>
 </tbody>
 </table>
 </div>
@@ -414,7 +358,7 @@
 <!-- Search Filter -->
 <div class="relative">
 <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-outline text-[18px]">search</span>
-<input class="bg-surface-container-lowest border border-outline-variant rounded pl-8 pr-3 py-1.5 text-code-sm font-code-sm text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none w-48 lg:w-60" placeholder="Filter 3 reservations..." type="text"/>
+<input class="bg-surface-container-lowest border border-outline-variant rounded pl-8 pr-3 py-1.5 text-code-sm font-code-sm text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none w-48 lg:w-60" placeholder="Filter static reservations..." type="text"/>
 </div>
 <!-- + Add Reservation CTA -->
 <button class="px-3 py-1.5 rounded bg-primary-container text-on-primary-container font-code-md text-code-md flex items-center gap-1 hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(0,167,225,0.3)]">
@@ -435,70 +379,8 @@
 <th class="py-2.5 px-4 text-right">Actions</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/50 font-body-md text-body-md">
-<!-- Row 1: NAS Storage -->
-<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
-<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-[20px]">hard_drive</span>
-                  NAS-Storage
-                </td>
-<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">00:11:32:98:AA:10</td>
-<td class="py-3 px-4 font-code-md text-code-md text-primary">192.168.0.99</td>
-<td class="py-3 px-4">
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</td>
-<td class="py-3 px-4 text-right">
-<div class="flex items-center justify-end gap-1">
-<button class="p-1 hover:text-primary text-outline rounded transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-<button class="p-1 hover:text-error text-outline rounded transition-colors" title="Delete"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-</div>
-</td>
-</tr>
-<!-- Row 2: Home-Assistant -->
-<tr class="bg-surface-container/50 hover:bg-surface-container transition-colors">
-<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
-<span class="material-symbols-outlined text-secondary text-[20px]">home_iot_device</span>
-                  Home-Assistant
-                </td>
-<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">DC:A6:32:81:4C:55</td>
-<td class="py-3 px-4 font-code-md text-code-md text-primary">192.168.0.50</td>
-<td class="py-3 px-4">
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</td>
-<td class="py-3 px-4 text-right">
-<div class="flex items-center justify-end gap-1">
-<button class="p-1 hover:text-primary text-outline rounded transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-<button class="p-1 hover:text-error text-outline rounded transition-colors" title="Delete"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-</div>
-</td>
-</tr>
-<!-- Row 3: Print-Server -->
-<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
-<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
-<span class="material-symbols-outlined text-outline text-[20px]">print</span>
-                  Print-Server
-                </td>
-<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">3C:2A:F4:12:88:9B</td>
-<td class="py-3 px-4 font-code-md text-code-md text-primary">192.168.0.80</td>
-<td class="py-3 px-4">
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
-</label>
-</td>
-<td class="py-3 px-4 text-right">
-<div class="flex items-center justify-end gap-1">
-<button class="p-1 hover:text-primary text-outline rounded transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-<button class="p-1 hover:text-error text-outline rounded transition-colors" title="Delete"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-</div>
-</td>
-</tr>
+<tbody id="dhcp-tbody" class="divide-y divide-outline-variant font-code-sm text-code-sm">
+<tr><td colspan="5" class="py-6 text-center text-outline font-mono">Loading DHCP static reservations...</td></tr>
 </tbody>
 </table>
 </div>
@@ -526,10 +408,10 @@
 <div class="space-y-1.5">
 <label class="text-label-caps font-label-caps text-on-surface-variant flex items-center justify-between">
 <span>Internal Target IP:</span>
-<span class="text-secondary font-code-sm">Home-Assistant linked</span>
+<span id="dmz-status-label" class="text-outline font-code-sm font-mono">Status: Checking...</span>
 </label>
 <div class="relative">
-<input class="w-full bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 text-code-md font-code-md text-primary font-bold focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="192.168.0.50"/>
+<input id="dmz-ip-input" class="w-full bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 text-code-md font-code-md text-primary font-bold focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono" type="text" placeholder="e.g. 192.168.0.X" value=""/>
 <span class="absolute right-3 top-2.5 text-code-sm font-code-sm text-outline">LAN Host</span>
 </div>
 </div>
@@ -572,40 +454,8 @@
 <th class="py-2 px-3 text-right">Action</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant/50 text-code-md font-code-md">
-<!-- Rule 1 -->
-<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
-<td class="py-2.5 px-3 text-on-surface font-body-md text-body-md font-medium">Web-Server-80</td>
-<td class="py-2.5 px-3 text-primary">80</td>
-<td class="py-2.5 px-3 text-primary">80</td>
-<td class="py-2.5 px-3"><span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-code-sm">TCP</span></td>
-<td class="py-2.5 px-3 text-on-surface-variant">192.168.0.50</td>
-<td class="py-2.5 px-3 text-right">
-<button class="text-outline hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-</td>
-</tr>
-<!-- Rule 2 -->
-<tr class="bg-surface-container/50 hover:bg-surface-container transition-colors">
-<td class="py-2.5 px-3 text-on-surface font-body-md text-body-md font-medium">Minecraft-25565</td>
-<td class="py-2.5 px-3 text-primary">25565</td>
-<td class="py-2.5 px-3 text-primary">25565</td>
-<td class="py-2.5 px-3"><span class="px-1.5 py-0.5 rounded bg-secondary-container/20 text-secondary text-code-sm">TCP/UDP</span></td>
-<td class="py-2.5 px-3 text-on-surface-variant">192.168.0.99</td>
-<td class="py-2.5 px-3 text-right">
-<button class="text-outline hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-</td>
-</tr>
-<!-- Rule 3 -->
-<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
-<td class="py-2.5 px-3 text-on-surface font-body-md text-body-md font-medium">WireGuard-VPN</td>
-<td class="py-2.5 px-3 text-primary">51820</td>
-<td class="py-2.5 px-3 text-primary">51820</td>
-<td class="py-2.5 px-3"><span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-code-sm">UDP</span></td>
-<td class="py-2.5 px-3 text-on-surface-variant">192.168.0.50</td>
-<td class="py-2.5 px-3 text-right">
-<button class="text-outline hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-</td>
-</tr>
+<tbody id="nat-tbody" class="divide-y divide-outline-variant font-code-sm text-code-sm">
+<tr><td colspan="6" class="py-6 text-center text-outline font-mono">Loading virtual server rules...</td></tr>
 </tbody>
 </table>
 </div>
@@ -621,80 +471,193 @@
 <p class="text-body-sm font-body-sm text-outline">Wake offline systems remotely across the local subnet layer via UDP broadcast.</p>
 </div>
 </div>
-<span class="text-code-sm font-code-sm px-2.5 py-1 rounded bg-surface-container text-on-surface-variant border border-outline-variant self-start sm:self-auto">
-            2 / 8 entries used
-          </span>
+<span id="wol-count-badge" class="text-code-sm font-code-sm px-2.5 py-1 rounded bg-surface-container text-on-surface-variant border border-outline-variant font-mono">-- entries</span>
 </div>
 <!-- Saved WoL targets list -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-<!-- Target 1 -->
-<div class="rounded bg-surface-container border border-outline-variant/70 p-space-md flex flex-col justify-between space-y-space-md">
-<div>
-<div class="flex items-center justify-between mb-2">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-[20px]">desktop_windows</span>
-<span class="font-headline-sm text-headline-sm text-on-surface">Workstation-PC</span>
-</div>
-<span class="w-2 h-2 rounded-full bg-secondary"></span>
-</div>
-<div class="space-y-1 font-code-sm text-code-sm text-outline">
-<div class="flex justify-between">
-<span>Target MAC:</span>
-<span class="text-on-surface font-code-md">AA-BB-CC-DD-EE-33</span>
-</div>
-<div class="flex justify-between">
-<span>Bound IP:</span>
-<span class="text-on-surface font-code-md">192.168.0.15</span>
-</div>
-</div>
-</div>
-<button class="w-full py-2 px-3 rounded bg-surface-container-highest hover:bg-surface-bright text-primary border border-primary/30 font-code-md text-code-md flex items-center justify-center gap-2 active:scale-95 transition-all group">
-<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">cell_tower</span>
-<span>Send Magic Packet</span>
-<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-</button>
-</div>
-<!-- Target 2 -->
-<div class="rounded bg-surface-container border border-outline-variant/70 p-space-md flex flex-col justify-between space-y-space-md">
-<div>
-<div class="flex items-center justify-between mb-2">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-[20px]">tv</span>
-<span class="font-headline-sm text-headline-sm text-on-surface">Media-Center</span>
-</div>
-<span class="w-2 h-2 rounded-full bg-outline"></span>
-</div>
-<div class="space-y-1 font-code-sm text-code-sm text-outline">
-<div class="flex justify-between">
-<span>Target MAC:</span>
-<span class="text-on-surface font-code-md">AA-BB-CC-DD-EE-77</span>
-</div>
-<div class="flex justify-between">
-<span>Bound IP:</span>
-<span class="text-on-surface font-code-md">192.168.0.42</span>
-</div>
-</div>
-</div>
-<button class="w-full py-2 px-3 rounded bg-surface-container-highest hover:bg-surface-bright text-primary border border-primary/30 font-code-md text-code-md flex items-center justify-center gap-2 active:scale-95 transition-all group">
-<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">cell_tower</span>
-<span>Send Magic Packet</span>
-<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-</button>
-</div>
+<div id="wol-targets-grid" class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+  <div class="rounded bg-surface-container border border-outline-variant/70 p-space-md text-center text-outline font-mono col-span-2 py-8">
+    Loading saved Wake-on-LAN targets from router...
+  </div>
 </div>
 <!-- Quick Manual Wake Input Section -->
 <div class="pt-space-md border-t border-outline-variant">
 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm">
 <span class="text-code-md font-code-md text-outline whitespace-nowrap">Manual Wake Target:</span>
-<input class="flex-1 bg-surface-container-lowest border border-outline-variant rounded px-3 py-1.5 text-code-md font-code-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="FF:EE:DD:CC:BB:AA" type="text"/>
-<button class="px-4 py-2 rounded bg-primary-container text-on-primary-container font-code-md text-code-md flex items-center justify-center gap-1.5 hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(0,167,225,0.3)] whitespace-nowrap">
-<span class="material-symbols-outlined text-[18px]">bolt</span>
-              Broadcast WoL
-            </button>
+<input id="manual-wol-input" class="flex-1 bg-surface-container-lowest border border-outline-variant rounded px-3 py-1.5 text-code-md font-code-md text-on-surface font-mono placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="FF:EE:DD:CC:BB:AA" type="text"/>
+<button onclick="broadcastManualWol()" class="px-4 py-2 rounded bg-primary-container text-on-primary-container font-code-md text-code-md flex items-center justify-center gap-1.5 hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(0,167,225,0.3)] whitespace-nowrap"><span class="material-symbols-outlined text-[18px]">bolt</span> Broadcast WoL</button>
 </div>
 </div>
 </section>
 </main>
 </div>
+
+
+
+
+<script>
+async function loadSecurityData() {
+  // 1. DHCP Static Reservations
+  try {
+    const res = await fetch('/network/dhcp/reservations');
+    const tbody = document.getElementById('dhcp-tbody');
+    if (res.ok && tbody) {
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-outline font-mono">No static DHCP reservations configured on router.</td></tr>';
+      } else {
+        tbody.innerHTML = data.map(r => `
+          <tr class="hover:bg-surface-container/60 transition-colors">
+            <td class="py-3 px-4 font-semibold text-on-surface">${r.name || '&lt;unnamed&gt;'}</td>
+            <td class="py-3 px-4 text-outline font-mono">${r.macaddr}</td>
+            <td class="py-3 px-4 text-primary font-mono">${r.ipaddr}</td>
+            <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] ${r.enable ? 'bg-secondary/20 text-secondary' : 'bg-surface-container-highest text-outline'} font-mono">${r.enable ? 'Enabled' : 'Disabled'}</span></td>
+            <td class="py-3 px-4 text-right"><button onclick="deleteDhcp('${r.macaddr}')" class="text-error hover:underline text-code-sm font-mono">Delete</button></td>
+          </tr>
+        `).join('');
+      }
+    }
+  } catch(e) { console.debug('DHCP load error:', e); }
+
+  // 2. Blocked Devices
+  try {
+    const res = await fetch('/access-control/blocked');
+    const tbody = document.getElementById('blocked-tbody');
+    const badge = document.getElementById('blocked-count-badge');
+    if (res.ok && tbody) {
+      const data = await res.json();
+      if (badge) badge.textContent = `Target Enforcements (${data.length} Listed)`;
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-outline font-mono">No devices currently blocked in Access Control list.</td></tr>';
+      } else {
+        tbody.innerHTML = data.map(d => `
+          <tr class="hover:bg-surface-container/60 transition-colors">
+            <td class="py-3 px-4 font-semibold text-on-surface">${d.name || '&lt;unknown&gt;'}</td>
+            <td class="py-3 px-4 text-outline font-mono">${d.macaddr}</td>
+            <td class="py-3 px-4 font-mono">${d.band || '--'}</td>
+            <td class="py-3 px-4 font-mono">${d.is_guest ? 'Guest' : 'Primary'}</td>
+            <td class="py-3 px-4 text-right"><button onclick="unblock('${d.macaddr}')" class="text-secondary hover:underline text-code-sm font-mono">Unblock</button></td>
+          </tr>
+        `).join('');
+      }
+    }
+  } catch(e) { console.debug('Blocked load error:', e); }
+
+  // 3. Virtual Servers / Port Forwarding
+  try {
+    const res = await fetch('/nat/virtual-servers');
+    const tbody = document.getElementById('nat-tbody');
+    if (res.ok && tbody) {
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-outline font-mono">No virtual server forwarding rules configured.</td></tr>';
+      } else {
+        tbody.innerHTML = data.map(r => `
+          <tr class="hover:bg-surface-container/60 transition-colors">
+            <td class="py-3 px-3 font-semibold text-on-surface">${r.name || '&lt;rule&gt;'}</td>
+            <td class="py-3 px-3 text-primary font-mono">${r.external_port}</td>
+            <td class="py-3 px-3 text-primary font-mono">${r.internal_port}</td>
+            <td class="py-3 px-3 font-mono"><span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-code-sm">${r.protocol}</span></td>
+            <td class="py-3 px-3 text-on-surface-variant font-mono">${r.internal_ip}</td>
+            <td class="py-3 px-3 text-right"><button onclick="deleteNatRule('${r.name}')" class="text-error hover:underline text-code-sm font-mono">Delete</button></td>
+          </tr>
+        `).join('');
+      }
+    }
+  } catch(e) { console.debug('NAT load error:', e); }
+
+  // 4. Saved Wake-on-LAN Targets
+  try {
+    const res = await fetch('/wol/devices');
+    const grid = document.getElementById('wol-targets-grid');
+    const badge = document.getElementById('wol-count-badge');
+    if (res.ok && grid) {
+      const data = await res.json();
+      if (badge) badge.textContent = `${data.length} entries saved`;
+      if (!Array.isArray(data) || data.length === 0) {
+        grid.innerHTML = '<div class="rounded bg-surface-container border border-outline-variant/70 p-space-md text-center text-outline font-mono col-span-2 py-8">No saved Wake-on-LAN targets on router.</div>';
+      } else {
+        grid.innerHTML = data.map(dev => `
+          <div class="rounded bg-surface-container border border-outline-variant/70 p-space-md flex flex-col justify-between space-y-space-md">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-[20px]">desktop_windows</span>
+                  <span class="font-headline-sm text-headline-sm text-on-surface font-semibold">${dev.name || '&lt;device&gt;'}</span>
+                </div>
+                <span class="w-2 h-2 rounded-full bg-secondary"></span>
+              </div>
+              <div class="space-y-1 font-code-sm text-code-sm text-outline">
+                <div class="flex justify-between">
+                  <span>Target MAC:</span>
+                  <span class="text-on-surface font-code-md font-mono">${dev.macaddr}</span>
+                </div>
+              </div>
+            </div>
+            <button onclick="wakeDevice('${dev.macaddr}', '${dev.name || ''}')" class="w-full py-2 px-3 rounded bg-surface-container-highest hover:bg-surface-bright text-primary border border-primary/30 font-code-md text-code-md flex items-center justify-center gap-2 active:scale-95 transition-all group font-mono">
+              <span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">cell_tower</span>
+              <span>Send Magic Packet</span>
+            </button>
+          </div>
+        `).join('');
+      }
+    }
+  } catch(e) { console.debug('WoL load error:', e); }
+
+  // 5. DMZ Host Status
+  try {
+    const res = await fetch('/nat/dmz');
+    const statusLabel = document.getElementById('dmz-status-label');
+    const ipInput = document.getElementById('dmz-ip-input');
+    if (res.ok) {
+      const data = await res.json();
+      if (statusLabel) statusLabel.textContent = data.enable ? 'Status: Active DMZ' : 'Status: Disabled';
+      if (ipInput && data.ipaddr) ipInput.value = data.ipaddr;
+    }
+  } catch(e) {}
+}
+
+async function unblock(mac) {
+  if (!confirm('Unblock device ' + mac + '?')) return;
+  try {
+    await fetch('/access-control/unblock', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ macaddr: mac })
+    });
+    loadSecurityData();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function deleteDhcp(mac) {
+  if (!confirm('Delete DHCP reservation for ' + mac + '?')) return;
+  try {
+    await fetch('/network/dhcp/reservations/' + mac, { method: 'DELETE' });
+    loadSecurityData();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function wakeDevice(mac, name) {
+  try {
+    const res = await fetch('/wol/wake', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ macaddr: mac, name: name })
+    });
+    alert('Magic packet broadcast sent to ' + mac);
+  } catch(e) { alert('WoL error: ' + e.message); }
+}
+
+async function broadcastManualWol() {
+  const input = document.getElementById('manual-wol-input');
+  if (!input || !input.value.trim()) return alert('Enter target MAC address');
+  wakeDevice(input.value.trim(), 'Manual Target');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadSecurityData();
+  setInterval(loadSecurityData, 10000);
+});
+</script>
+
 </body></html>
 

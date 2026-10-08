@@ -9,7 +9,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
+async function blockDevice(mac) {
+  if (!confirm('Block device ' + mac + ' via Access Control?')) return;
+  try {
+    const res = await fetch('/access-control/block', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ macaddr: mac })
+    });
+    const d = await res.json();
+    alert('Device blocked: ' + JSON.stringify(d));
+    updateLiveVitals();
+  } catch(e) {
+    alert('Block error: ' + e.message);
+  }
+}
+
+</script>
 <script id="tailwind-config">
     tailwind.config = {
       darkMode: "class",
@@ -112,7 +129,24 @@
         }
       }
     }
-  </script>
+  
+async function blockDevice(mac) {
+  if (!confirm('Block device ' + mac + ' via Access Control?')) return;
+  try {
+    const res = await fetch('/access-control/block', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ macaddr: mac })
+    });
+    const d = await res.json();
+    alert('Device blocked: ' + JSON.stringify(d));
+    updateLiveVitals();
+  } catch(e) {
+    alert('Block error: ' + e.message);
+  }
+}
+
+</script>
 <style>
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
@@ -487,7 +521,7 @@
 <div class="grid grid-cols-2 gap-2 text-code-sm font-code-sm pt-1">
 <div class="p-2 rounded bg-surface-container-lowest border border-outline-variant">
 <span class="text-[10px] font-label-caps text-outline block">SSID NAME</span>
-<span class="text-primary font-bold">Archer_AX12_2G</span>
+<span class="text-primary font-bold"><span id="wifi-2g-ssid">--</span></span>
 </div>
 <div class="p-2 rounded bg-surface-container-lowest border border-outline-variant">
 <span class="text-[10px] font-label-caps text-outline block">BROADCAST STATE</span>
@@ -508,7 +542,7 @@
 <span class="text-[10px] font-label-caps text-outline block">WPA PRE-SHARED KEY (PSK)</span>
 <span class="text-code-md font-code-md text-on-surface tracking-wider" id="pass2g">••••••••••••</span>
 </div>
-<button class="p-1.5 rounded hover:bg-surface-bright text-outline hover:text-primary transition-colors flex items-center" onclick="togglePassword('pass2g', 'ax12secure#2024')">
+<button class="p-1.5 rounded hover:bg-surface-bright text-outline hover:text-primary transition-colors flex items-center" onclick="togglePassword('pass2g')">
 <span class="material-symbols-outlined text-base" data-icon="visibility">visibility</span>
 </button>
 </div>
@@ -529,7 +563,7 @@
 <div class="grid grid-cols-2 gap-2 text-code-sm font-code-sm pt-1">
 <div class="p-2 rounded bg-surface-container-lowest border border-outline-variant">
 <span class="text-[10px] font-label-caps text-outline block">SSID NAME</span>
-<span class="text-primary font-bold">Archer_AX12_5G</span>
+<span class="text-primary font-bold"><span id="wifi-5g-ssid">--</span></span>
 </div>
 <div class="p-2 rounded bg-surface-container-lowest border border-outline-variant">
 <span class="text-[10px] font-label-caps text-outline block">MU-MIMO ENGINE</span>
@@ -550,7 +584,7 @@
 <span class="text-[10px] font-label-caps text-outline block">WPA PRE-SHARED KEY (PSK)</span>
 <span class="text-code-md font-code-md text-on-surface tracking-wider" id="pass5g">••••••••••••</span>
 </div>
-<button class="p-1.5 rounded hover:bg-surface-bright text-outline hover:text-primary transition-colors flex items-center" onclick="togglePassword('pass5g', 'ax12ultra#fast5g')">
+<button class="p-1.5 rounded hover:bg-surface-bright text-outline hover:text-primary transition-colors flex items-center" onclick="togglePassword('pass5g')">
 <span class="material-symbols-outlined text-base" data-icon="visibility">visibility</span>
 </button>
 </div>
@@ -622,132 +656,8 @@
 <th class="py-3 px-4 text-right">Actions</th>
 </tr>
 </thead>
-<tbody class="divide-y divide-outline-variant font-code-sm text-code-sm">
-<!-- Device 1 -->
-<tr class="hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-4">
-<div class="flex items-center gap-2.5">
-<span class="material-symbols-outlined text-primary text-lg" data-icon="laptop_mac">laptop_mac</span>
-<span class="font-semibold text-on-surface">MacBook-Pro-M2</span>
-</div>
-</td>
-<td class="py-3 px-4 text-primary font-medium">192.168.0.102</td>
-<td class="py-3 px-4 text-outline font-mono">AA:BB:CC:DD:EE:1A</td>
-<td class="py-3 px-4">
-<div class="flex items-center gap-2">
-<span class="px-2 py-0.5 rounded text-[10px] bg-primary/20 text-primary font-bold border border-primary/40">5G AX</span>
-<span class="text-secondary font-medium">-48 dBm</span>
-</div>
-</td>
-<td class="py-3 px-4">
-<span class="text-primary font-medium">↓ 3.2 MB/s</span>
-<span class="text-outline"> / </span>
-<span class="text-secondary font-medium">↑ 410 KB/s</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95">Block</button>
-</td>
-</tr>
-<!-- Device 2 -->
-<tr class="bg-surface-container-low/40 hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-4">
-<div class="flex items-center gap-2.5">
-<span class="material-symbols-outlined text-primary text-lg" data-icon="smartphone">smartphone</span>
-<span class="font-semibold text-on-surface">Pixel-8-Pro</span>
-</div>
-</td>
-<td class="py-3 px-4 text-primary font-medium">192.168.0.115</td>
-<td class="py-3 px-4 text-outline font-mono">AA:BB:CC:DD:EE:2B</td>
-<td class="py-3 px-4">
-<div class="flex items-center gap-2">
-<span class="px-2 py-0.5 rounded text-[10px] bg-primary/20 text-primary font-bold border border-primary/40">5G AX</span>
-<span class="text-secondary font-medium">-54 dBm</span>
-</div>
-</td>
-<td class="py-3 px-4">
-<span class="text-primary font-medium">↓ 850 KB/s</span>
-<span class="text-outline"> / </span>
-<span class="text-secondary font-medium">↑ 64 KB/s</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95">Block</button>
-</td>
-</tr>
-<!-- Device 3 -->
-<tr class="hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-4">
-<div class="flex items-center gap-2.5">
-<span class="material-symbols-outlined text-outline text-lg" data-icon="tv">tv</span>
-<span class="font-semibold text-on-surface">Smart-TV-OLED-65</span>
-</div>
-</td>
-<td class="py-3 px-4 text-primary font-medium">192.168.0.140</td>
-<td class="py-3 px-4 text-outline font-mono">AA:BB:CC:DD:EE:3C</td>
-<td class="py-3 px-4">
-<div class="flex items-center gap-2">
-<span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-highest text-outline font-semibold border border-outline-variant">2.4G N</span>
-<span class="text-tertiary font-medium">-62 dBm</span>
-</div>
-</td>
-<td class="py-3 px-4">
-<span class="text-primary font-medium">↓ 1.8 MB/s</span>
-<span class="text-outline"> / </span>
-<span class="text-secondary font-medium">↑ 12 KB/s</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95">Block</button>
-</td>
-</tr>
-<!-- Device 4 -->
-<tr class="bg-surface-container-low/40 hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-4">
-<div class="flex items-center gap-2.5">
-<span class="material-symbols-outlined text-secondary text-lg" data-icon="dns">dns</span>
-<span class="font-semibold text-on-surface">Home-Server-TrueNAS</span>
-</div>
-</td>
-<td class="py-3 px-4 text-primary font-medium">192.168.0.50</td>
-<td class="py-3 px-4 text-outline font-mono">AA:BB:CC:DD:EE:4D</td>
-<td class="py-3 px-4">
-<div class="flex items-center gap-2">
-<span class="px-2 py-0.5 rounded text-[10px] bg-secondary/20 text-secondary font-bold border border-secondary/40">LAN 1 (Wired)</span>
-<span class="text-outline">1 Gbps Full</span>
-</div>
-</td>
-<td class="py-3 px-4">
-<span class="text-primary font-medium">↓ 14.6 MB/s</span>
-<span class="text-outline"> / </span>
-<span class="text-secondary font-medium">↑ 28.1 MB/s</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95">Block</button>
-</td>
-</tr>
-<!-- Device 5 -->
-<tr class="hover:bg-surface-container/60 transition-colors">
-<td class="py-3 px-4">
-<div class="flex items-center gap-2.5">
-<span class="material-symbols-outlined text-primary text-lg" data-icon="tablet_mac">tablet_mac</span>
-<span class="font-semibold text-on-surface">iPad-Air-5</span>
-</div>
-</td>
-<td class="py-3 px-4 text-primary font-medium">192.168.0.120</td>
-<td class="py-3 px-4 text-outline font-mono">AA:BB:CC:DD:EE:5E</td>
-<td class="py-3 px-4">
-<div class="flex items-center gap-2">
-<span class="px-2 py-0.5 rounded text-[10px] bg-primary/20 text-primary font-bold border border-primary/40">5G AX</span>
-<span class="text-secondary font-medium">-51 dBm</span>
-</div>
-</td>
-<td class="py-3 px-4">
-<span class="text-primary font-medium">↓ 220 KB/s</span>
-<span class="text-outline"> / </span>
-<span class="text-secondary font-medium">↑ 18 KB/s</span>
-</td>
-<td class="py-3 px-4 text-right">
-<button class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95">Block</button>
-</td>
-</tr>
+<tbody id="live-devices-tbody" class="divide-y divide-outline-variant font-code-sm text-code-sm">
+<tr><td colspan="6" class="py-8 text-center text-outline font-mono">Connecting to router to load connected devices...</td></tr>
 </tbody>
 </table>
 </div>
@@ -908,7 +818,24 @@
         toast.classList.add('translate-y-20', 'opacity-0');
       }, 3200);
     }
-  </script>
+  
+async function blockDevice(mac) {
+  if (!confirm('Block device ' + mac + ' via Access Control?')) return;
+  try {
+    const res = await fetch('/access-control/block', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ macaddr: mac })
+    });
+    const d = await res.json();
+    alert('Device blocked: ' + JSON.stringify(d));
+    updateLiveVitals();
+  } catch(e) {
+    alert('Block error: ' + e.message);
+  }
+}
+
+</script>
 
 <script>
 // --- TP-Link Archer AX12 Live Overview Telemetry Client ---
@@ -1039,6 +966,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+async function blockDevice(mac) {
+  if (!confirm('Block device ' + mac + ' via Access Control?')) return;
+  try {
+    const res = await fetch('/access-control/block', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ macaddr: mac })
+    });
+    const d = await res.json();
+    alert('Device blocked: ' + JSON.stringify(d));
+    updateLiveVitals();
+  } catch(e) {
+    alert('Block error: ' + e.message);
+  }
+}
+
 </script>
 
 </body></html>
