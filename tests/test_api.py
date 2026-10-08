@@ -719,6 +719,9 @@ def test_openapi_documents_every_route(client):
         "/vpn/pptp",
         "/vpn/connections",
         "/reboot",
+        "/api/inventory/endpoints",
+        "/api/inventory/modules",
+        "/api/raw",
     }
 
 
@@ -747,3 +750,27 @@ def test_session_expires_mid_request(client, router_requests):
     assert any("login?form=keys" in u for u in reauth)
     assert any("login?form=login" in u for u in reauth)
     assert reauth[-1] == "/cgi-bin/luci/;stok=mocked_stok/admin/status?form=all"
+
+
+def test_inventory_endpoints(client):
+    res = client.get("/api/inventory/endpoints")
+    assert res.status_code == 200
+    endpoints = res.json()
+    assert len(endpoints) == 226
+    urls = {ep["url"] for ep in endpoints}
+    assert "admin/wireless?form=wireless_2g" in urls
+
+
+def test_inventory_modules(client):
+    res = client.get("/api/inventory/modules")
+    assert res.status_code == 200
+    modules = res.json()
+    assert len(modules) == 50
+    assert "admin/wireless" in modules
+
+
+def test_raw_api_dispatch(client, router_requests):
+    res = client.post("/api/raw", json={"module": "admin/wireless", "form": "wireless_2g", "operation": "read"})
+    assert res.status_code == 200
+    assert any("admin/wireless?form=wireless_2g" in url for url, _ in router_requests)
+

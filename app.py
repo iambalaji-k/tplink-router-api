@@ -5,10 +5,12 @@ from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Request, status
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
 from tplink_modern import ArcherAX12
+from tplink_modern.endpoints import ENDPOINTS
 from tplink_modern.exceptions import (
     APIError,
     AuthenticationError,
@@ -500,3 +502,60 @@ async def reboot():
     client = get_router()
     success = await client.system.reboot()
     return {"success": success}
+
+
+# --- API Inventory & Raw Endpoint Dispatcher for Dashboard ---
+
+class RawApiRequest(BaseModel):
+    module: str
+    form: str
+    operation: str = "read"
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+@app.get("/api/inventory/endpoints", summary="Get all 226 surveyed router endpoints")
+async def get_inventory_endpoints():
+    """Returns the complete 226-endpoint dictionary recovered from the firmware bundles."""
+    return [
+        {
+            "module": ep.module,
+            "form": ep.form,
+            "url": ep.url,
+            "status": ep.status,
+            "ui_operations": list(ep.ui_operations),
+            "read_verbs": list(ep.read_verbs),
+            "others_key": ep.others_key,
+            "row_fields": list(ep.row_fields),
+            "is_row_form": ep.is_row_form,
+            "in_bundles": ep.in_bundles,
+        }
+        for ep in ENDPOINTS
+    ]
+
+
+@app.get("/api/inventory/modules", summary="Get module groupings of surveyed endpoints")
+async def get_inventory_modules():
+    """Returns all 50 router modules grouped with their associated forms."""
+    modules: dict[str, list[str]] = {}
+    for ep in ENDPOINTS:
+        modules.setdefault(ep.module, []).append(ep.form)
+    return modules
+
+
+@app.post("/api/raw", summary="Low-level raw API dispatch")
+async def raw_api(req: RawApiRequest):
+    """Dispatch low-level calls to any module and form on the router using ArcherAX12.api()."""
+    client = get_router()
+    return await client.api(req.module, req.form, req.operation, **req.params)
+
+
+@app.get("/", include_in_schema=False)
+async def root_redirect():
+    """Redirect root access to the dashboard API explorer."""
+    return RedirectResponse(url="/dashboard/stitch_api_explorer.html")
+
+
+_ui_dir = os.path.join(os.path.dirname(__file__), "ui")
+if os.path.exists(_ui_dir):
+    app.mount("/dashboard", StaticFiles(directory=_ui_dir, html=True), name="dashboard")
+
