@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TP-Link Archer AX12 v1 | API Management Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-tint": "#7cd0ff",
+            "primary-container": "#00a7e1",
+            "tertiary-fixed-dim": "#ffb95f",
+            "primary-fixed": "#c4e7ff",
+            "surface-container": "#1c1f2a",
+            "on-error": "#690005",
+            "tertiary": "#ffb95f",
+            "on-primary-fixed-variant": "#004c69",
+            "surface-variant": "#313540",
+            "primary": "#7cd0ff",
+            "on-background": "#dfe2f1",
+            "inverse-primary": "#00658a",
+            "on-secondary-container": "#00311f",
+            "surface-container-low": "#171b26",
+            "surface-dim": "#0f131d",
+            "surface-container-highest": "#313540",
+            "on-error-container": "#ffdad6",
+            "on-surface-variant": "#bdc8d1",
+            "error-container": "#93000a",
+            "on-primary-fixed": "#001e2c",
+            "surface-container-lowest": "#0a0e18",
+            "secondary": "#4edea3",
+            "surface": "#0f131d",
+            "on-primary": "#00344a",
+            "on-secondary": "#003824",
+            "surface-bright": "#353944",
+            "inverse-surface": "#dfe2f1",
+            "outline": "#87929a",
+            "tertiary-fixed": "#ffddb8",
+            "on-tertiary": "#472a00",
+            "primary-fixed-dim": "#7cd0ff",
+            "tertiary-container": "#d98b00",
+            "surface-container-high": "#262a35",
+            "on-surface": "#dfe2f1",
+            "on-tertiary-container": "#4b2d00",
+            "error": "#ffb4ab",
+            "secondary-fixed": "#6ffbbe",
+            "on-primary-container": "#00384e",
+            "outline-variant": "#3e484f",
+            "on-tertiary-fixed": "#2a1700",
+            "on-secondary-fixed-variant": "#005236",
+            "secondary-fixed-dim": "#4edea3",
+            "on-secondary-fixed": "#002113",
+            "inverse-on-surface": "#2c303b",
+            "secondary-container": "#00a572",
+            "background": "#0f131d",
+            "on-tertiary-fixed-variant": "#653e00"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "gutter": "1.25rem",
+            "margin": "2rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "gutter-mobile": "0.75rem",
+            "space-md": "1rem",
+            "margin-mobile": "1rem",
+            "space-xl": "2rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "code-lg": ["JetBrains Mono"],
+            "code-sm": ["JetBrains Mono"],
+            "label-caps": ["Inter"],
+            "display-xl-mobile": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "code-md": ["JetBrains Mono"],
+            "headline-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "display-xl": ["Inter"]
+          },
+          "fontSize": {
+            "code-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "code-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700" }],
+            "display-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "code-md": ["13px", { "lineHeight": "18px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "display-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #0f131d;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #313540;
+      border-radius: 2px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #7cd0ff;
+    }
+    .cyan-glow {
+      box-shadow: 0 0 16px -2px rgba(0, 167, 225, 0.35);
+    }
+    .cyan-glow-button:hover {
+      box-shadow: 0 0 18px rgba(0, 167, 225, 0.55);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased flex flex-col h-screen overflow-hidden font-body-md select-none">
+<!-- TOP NAVIGATION BAR (Shared Component: TopNavBar) -->
+<header class="flex justify-between items-center w-full px-space-lg h-14 bg-surface-container dark:bg-surface-container border-b border-outline-variant dark:border-outline-variant shrink-0 z-30">
+<!-- Brand / Product Identity -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]" data-icon="router">router</span>
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary tracking-tight">Archer AX12 v1</span>
+</div>
+<span class="text-outline-variant font-code-md">/</span>
+<span class="text-body-md font-headline-sm text-on-surface-variant font-medium">API Management Console</span>
+<!-- Live Raw Dispatch Badge -->
+<div class="hidden xl:flex items-center gap-space-xs bg-surface-container-highest px-space-sm py-0.5 rounded-lg border border-outline-variant">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-code-sm font-code-sm text-secondary">POST /api/raw</span>
+<span class="text-label-caps font-label-caps text-on-surface-variant uppercase ml-1">Proxy Online</span>
+</div>
+</div>
+<!-- Center Host & Firmware Metadata -->
+<div class="hidden lg:flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs px-2.5 py-1 bg-surface-container-low rounded border border-outline-variant">
+<span class="text-label-caps font-label-caps text-outline uppercase">HOST:</span>
+<span class="text-primary dark:text-primary font-code-md border-b-2 border-primary pb-1">192.168.0.1</span>
+</div>
+<div class="flex items-center gap-space-xs px-2.5 py-1 bg-surface-container-low rounded border border-outline-variant">
+<span class="text-label-caps font-label-caps text-outline uppercase">FW:</span>
+<span class="text-on-surface-variant dark:text-on-surface-variant font-code-md">AX12v1_1.10.2</span>
+</div>
+<div class="flex items-center gap-space-xs px-2.5 py-1 bg-surface-container-low rounded border border-outline-variant">
+<span class="text-label-caps font-label-caps text-outline uppercase">STOK:</span>
+<span class="text-code-md font-code-md text-secondary">stok: active</span>
+<span class="text-code-sm font-code-sm text-outline-variant font-mono">ab12cd34...</span>
+</div>
+</div>
+<!-- Trailing Icon Actions & Global Polling CTA -->
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs bg-surface-container-high hover:bg-surface-bright text-on-surface px-space-sm py-1.5 rounded-lg border border-outline-variant active:scale-95 transition-all text-body-sm font-headline-sm" id="polling-btn">
+<span class="material-symbols-outlined text-secondary" data-icon="sync">sync</span>
+<span>Pause Polling</span>
+</button>
+<div class="h-5 w-[1px] bg-outline-variant mx-1 hidden sm:block"></div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-primary dark:hover:text-primary hover:bg-surface-bright dark:hover:bg-surface-bright transition-colors active:scale-95 duration-150" title="Wi-Fi Mesh Sync">
+<span class="material-symbols-outlined" data-icon="wifi_tethering">wifi_tethering</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-error hover:bg-surface-bright transition-colors active:scale-95 duration-150" title="Fast Soft Reboot">
+<span class="material-symbols-outlined" data-icon="restart_alt">restart_alt</span>
+</button>
+</div>
+</div>
+</header>
+<!-- APP SHELL CONTAINER -->
+<div class="flex flex-1 overflow-hidden">
+<!-- LEFT SIDEBAR NAVIGATION (Shared Component: SideNavBar) -->
+<aside class="w-64 bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant dark:border-outline-variant flex flex-col justify-between shrink-0 select-none">
+<!-- Device Header Profile -->
+<div class="p-space-md border-b border-outline-variant">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded bg-surface-container-highest border border-outline-variant flex items-center justify-center text-primary cyan-glow">
+<span class="material-symbols-outlined text-[20px]" data-icon="router">router</span>
+</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary leading-tight">TP-Link Archer</h1>
+<p class="text-body-sm font-body-sm text-outline">Wi-Fi 6 AX1500</p>
+</div>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 px-space-sm py-space-md space-y-1 overflow-y-auto custom-scroll">
+<!-- 1. Overview -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="router">router</span>
+<span>Overview</span>
+</a>
+<!-- 2. Clients -->
+<a class="flex items-center justify-between px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined" data-icon="devices">devices</span>
+<span>Clients</span>
+</div>
+<span class="text-code-sm font-code-sm bg-surface-container-highest text-primary px-2 py-0.5 rounded-full border border-outline-variant">14</span>
+</a>
+<!-- 3. Wireless Radios -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="wifi">wifi</span>
+<span>Wireless Radios</span>
+</a>
+<!-- 4. Security & DHCP -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<span class="material-symbols-outlined" data-icon="shield">shield</span>
+<span>Security &amp; DHCP</span>
+</a>
+<!-- 5. API Explorer (Active State per JSON style_active_navigation) -->
+<a class="flex items-center justify-between px-space-md py-space-sm text-primary dark:text-primary bg-surface-container-highest dark:bg-surface-container-highest rounded-lg border-l-2 border-primary font-headline-sm active:scale-98 transition-all" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary fill-icon" data-icon="terminal">terminal</span>
+<span>API Explorer</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-primary-container cyan-glow animate-ping"></span>
+</a>
+<!-- Endpoints Sub-meta Badge under Active Tab -->
+<div class="ml-9 mt-1 pr-2">
+<div class="text-code-sm font-code-sm text-outline bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant flex items-center justify-between">
+<span>226 Endpoints</span>
+<span class="text-primary-container">50 Modules</span>
+</div>
+</div>
+</nav>
+<!-- Sidebar Footer Tools & CTA -->
+<div class="p-space-sm border-t border-outline-variant bg-surface-container-lowest/50 space-y-1">
+<a class="flex items-center gap-space-sm px-space-md py-1.5 text-on-surface-variant rounded-lg font-body-md hover:text-on-surface hover:bg-surface-container transition-colors text-body-sm" href="#">
+<span class="material-symbols-outlined text-[17px]" data-icon="monitoring">monitoring</span>
+<span>Diagnostics</span>
+</a>
+<a class="flex items-center gap-space-sm px-space-md py-1.5 text-on-surface-variant rounded-lg font-body-md hover:text-on-surface hover:bg-surface-container transition-colors text-body-sm" href="#">
+<span class="material-symbols-outlined text-[17px]" data-icon="settings">settings</span>
+<span>System Tools</span>
+</a>
+<!-- CTA Reboot Router Button (from JSON) -->
+<div class="pt-2">
+<button class="w-full flex items-center justify-center gap-space-sm py-2 px-space-md bg-surface-container-high hover:bg-error-container hover:text-on-error-container text-error rounded-lg border border-outline-variant transition-all font-headline-sm text-body-sm active:scale-98">
+<span class="material-symbols-outlined text-[18px]" data-icon="restart_alt">restart_alt</span>
+<span>Reboot Router</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- MAIN CONSOLE SPLIT PANE -->
+<main class="flex-1 flex overflow-hidden bg-surface">
+<!-- PANE 1: Module & Form Directory (340px) -->
+<section class="w-[340px] border-r border-outline-variant flex flex-col bg-surface-container-low shrink-0">
+<!-- Search & Filter Cluster -->
+<div class="p-space-md border-b border-outline-variant space-y-space-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-2.5 text-outline text-[18px]" data-icon="search">search</span>
+<input class="w-full h-10 pl-9 pr-8 bg-surface-container-lowest text-on-surface placeholder:text-outline text-code-sm font-code-sm rounded border border-outline-variant focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-all" placeholder="Filter 226 endpoints or 50 modules..." type="text" value=""/>
+<button class="absolute right-2.5 top-2.5 text-outline hover:text-on-surface" title="Clear filter">
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+</button>
+</div>
+<!-- Status Filter Pills -->
+<div class="flex flex-wrap gap-1 pt-1">
+<button class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-primary text-on-primary font-semibold">All (226)</button>
+<button class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-secondary/15 text-secondary border border-secondary/30 hover:bg-secondary/25 transition-colors">Answered (179)</button>
+<button class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-purple-500/15 text-purple-400 border border-purple-500/30 hover:bg-purple-500/25 transition-colors">Not Implemented (18)</button>
+<button class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-tertiary/15 text-tertiary border border-tertiary/30 hover:bg-tertiary/25 transition-colors">Needs Params (4)</button>
+<button class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-surface-variant text-on-surface-variant border border-outline-variant hover:bg-surface-bright transition-colors">Action (13)</button>
+</div>
+</div>
+<!-- Directory Tree List -->
+<div class="flex-1 overflow-y-auto custom-scroll p-space-sm space-y-1 font-code-sm">
+<!-- Module 1: admin/wireless (EXPANDED) -->
+<div class="rounded border border-outline-variant/60 bg-surface-container-lowest/40 overflow-hidden">
+<div class="flex items-center justify-between px- space-sm py-1.5 px-2.5 bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors">
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[16px]" data-icon="expand_more">expand_more</span>
+<span class="font-semibold">admin/wireless</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">9 forms</span>
+</div>
+<!-- Sub-forms of wireless -->
+<div class="py-1 space-y-0.5 border-t border-outline-variant/40 bg-surface-container-low">
+<!-- Selected Item: wireless_2g -->
+<a class="flex items-center justify-between px-3 py-1.5 bg-surface-container-highest border-l-2 border-primary-container text-on-surface font-medium" href="#">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+<span class="text-primary-fixed">wireless_2g</span>
+</div>
+<span class="text-[10px] text-secondary font-mono">200 OK</span>
+</a>
+<a class="flex items-center justify-between px-3 py-1.5 text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+<span>wireless_5g</span>
+</div>
+<span class="text-[10px] text-secondary font-mono">200 OK</span>
+</a>
+<a class="flex items-center justify-between px-3 py-1.5 text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+<span>guest_2g</span>
+</div>
+<span class="text-[10px] text-secondary font-mono">200 OK</span>
+</a>
+<a class="flex items-center justify-between px-3 py-1.5 text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+<span>guest_5g</span>
+</div>
+<span class="text-[10px] text-secondary font-mono">200 OK</span>
+</a>
+<a class="flex items-center justify-between px-3 py-1.5 text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+<span>statistics</span>
+</div>
+<span class="text-[10px] text-outline bg-surface-container-highest px-1 rounded">in_bundles: false</span>
+</a>
+<a class="flex items-center justify-between px-3 py-1.5 text-on-surface-variant hover:bg-surface-container transition-colors" href="#">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-purple-400 inline-block"></span>
+<span>wps</span>
+</div>
+<span class="text-[10px] text-purple-400 font-mono">unimpl</span>
+</a>
+</div>
+</div>
+<!-- Module 2: admin/network -->
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="chevron_right">chevron_right</span>
+<span>admin/network</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">12 forms</span>
+</div>
+<!-- Module 3: admin/status -->
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="chevron_right">chevron_right</span>
+<span>admin/status</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">5 forms</span>
+</div>
+<!-- Module 4: admin/nat -->
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="chevron_right">chevron_right</span>
+<span>admin/nat</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">7 forms</span>
+</div>
+<!-- Module 5: admin/parentctrl -->
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="chevron_right">chevron_right</span>
+<span>admin/parentctrl</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">6 forms</span>
+</div>
+<!-- Module 6: admin/vpn -->
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="chevron_right">chevron_right</span>
+<span>admin/vpn</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">4 forms</span>
+</div>
+<!-- Module 7: admin/wol -->
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="chevron_right">chevron_right</span>
+<span>admin/wol</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">2 forms</span>
+</div>
+<!-- Module 8: admin/system -->
+<div class="flex items-center justify-between px-2.5 py-1.5 rounded bg-surface-container hover:bg-surface-container-high cursor-pointer transition-colors text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-outline" data-icon="chevron_right">chevron_right</span>
+<span>admin/system</span>
+</div>
+<span class="text-code-sm font-code-sm text-outline-variant">5 forms</span>
+</div>
+</div>
+<!-- Directory Summary Footer -->
+<div class="p-2 border-t border-outline-variant bg-surface-container-lowest text-center text-[11px] text-outline">
+          LuCI JSON-RPC Proxy Engine • Auto-Scraped Schema
+        </div>
+</section>
+<!-- PANE 2: Interactive Request Builder & Response Inspector -->
+<section class="flex-1 flex flex-col overflow-y-auto custom-scroll bg-surface">
+<!-- Endpoint Header Banner -->
+<div class="p-space-lg border-b border-outline-variant bg-surface-container-low/70 backdrop-blur">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="text-headline-md font-code-lg text-on-surface font-semibold">admin/wireless?form=wireless_2g</span>
+<span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-secondary/15 text-secondary border border-secondary/30 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> [ANSWERED]
+                </span>
+<span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-primary/15 text-primary border border-primary/30">[ROW_FORM: TRUE]</span>
+<span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-teal-500/15 text-teal-300 border border-teal-500/30">[BUNDLE_DISCOVERED: YES]</span>
+</div>
+<p class="text-body-sm text-outline mt-1 font-body-sm">Primary 2.4 GHz 802.11ax hardware interface configuration, SSID beaconing parameters, and security credentials.</p>
+</div>
+<!-- Endpoint Metric Indicator -->
+<div class="flex items-center gap-2 bg-surface-container-highest px-3 py-1.5 rounded border border-outline-variant self-start md:self-auto">
+<span class="text-label-caps font-label-caps text-outline">LAST DISPATCH:</span>
+<span class="text-code-sm font-code-sm text-secondary">34ms (Fast)</span>
+</div>
+</div>
+<!-- Known Schema Row Fields Pills -->
+<div class="mt-space-sm flex items-center gap-space-xs flex-wrap">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider text-[10px]">Row Fields:</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary-fixed text-code-sm font-code-sm border border-outline-variant">enable</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary-fixed text-code-sm font-code-sm border border-outline-variant">ssid</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary-fixed text-code-sm font-code-sm border border-outline-variant">channel</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary-fixed text-code-sm font-code-sm border border-outline-variant">htmode</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-tertiary-fixed text-code-sm font-code-sm border border-outline-variant">wpa2_psk_key</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-primary-fixed text-code-sm font-code-sm border border-outline-variant">isolate</span>
+</div>
+</div>
+<!-- 2-COL WORKSPACE: Request Builder (Left/Top) and Response Inspector (Right/Bottom) -->
+<div class="p-space-lg grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- LEFT / BUILDER SECTION (5 Cols on large) -->
+<div class="xl:col-span-5 flex flex-col gap-space-md">
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md shadow-lg flex flex-col gap-space-md">
+<div class="flex items-center justify-between pb-2 border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="send">send</span>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Request Builder</h2>
+</div>
+<span class="text-code-sm font-code-sm text-outline">HTTP POST</span>
+</div>
+<!-- Operation Selector & Target URL -->
+<div class="space-y-space-sm">
+<div>
+<label class="block text-label-caps font-label-caps text-outline mb-1 uppercase">Firmware Verb / Operation</label>
+<select class="w-full h-10 bg-surface-container-lowest text-on-surface text-code-md font-code-md rounded border border-outline-variant focus:border-primary-container focus:ring-1 focus:ring-primary-container">
+<option selected="" value="read">read (Inspect Form State)</option>
+<option value="write">write (Commit Key-Values)</option>
+<option value="load">load (Reload Module)</option>
+<option value="insert">insert (Add Row Entry)</option>
+<option value="remove">remove (Delete Row Entry)</option>
+<option value="list">list (Enumerate Instances)</option>
+</select>
+</div>
+<div>
+<label class="block text-label-caps font-label-caps text-outline mb-1 uppercase">Resolved Target URL</label>
+<div class="flex items-center justify-between p-2 bg-surface-container-lowest rounded border border-outline-variant text-code-sm font-code-sm text-on-surface-variant break-all">
+<span class="text-primary truncate">POST /cgi-bin/luci/;stok=ab12cd.../admin/wireless?form=wireless_2g</span>
+<button class="text-outline hover:text-primary shrink-0 ml-2" title="Copy Target URL">
+<span class="material-symbols-outlined text-[16px]" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Parameter Payload Editor -->
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="text-label-caps font-label-caps text-outline uppercase">JSON Payload Body</label>
+<span class="text-code-sm font-code-sm text-outline">application/json</span>
+</div>
+<div class="relative bg-surface-container-lowest rounded border border-outline-variant overflow-hidden font-code-md text-code-md p-3">
+<div class="text-outline-variant mb-1 font-mono text-[11px] select-none">// Query parameters parsed by Archer AX12 firmware</div>
+<pre class="text-on-surface leading-5 font-mono"><span class="text-outline">{</span>
+  <span class="text-primary">"operation"</span><span class="text-outline">:</span> <span class="text-secondary">"read"</span>
+<span class="text-outline">}</span></pre>
+</div>
+</div>
+<!-- Safety Switch Toggle -->
+<div class="p-space-sm rounded-lg bg-surface-container border border-outline-variant flex items-center justify-between">
+<div>
+<div class="text-body-sm font-headline-sm text-on-surface">Allow Destructive Operations</div>
+<div class="text-[11px] text-error font-body-sm">Blocks accidental flash writes or WPS deauth</div>
+</div>
+<!-- Toggle Switch (OFF) -->
+<div class="w-11 h-6 bg-surface-variant rounded-full relative cursor-pointer border border-outline-variant flex items-center px-0.5">
+<div class="w-4 h-4 rounded-full bg-outline shadow-md transform translate-x-0 transition-transform"></div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-space-sm pt-1">
+<button class="flex-1 flex items-center justify-center gap-2 py-2.5 px-space-md bg-primary-container text-on-primary-container font-code-lg font-semibold rounded-lg cyan-glow-button active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]" data-icon="play_arrow">play_arrow</span>
+<span>Execute Request</span>
+</button>
+<button class="py-2.5 px-space-md bg-surface-container hover:bg-surface-bright text-on-surface rounded-lg border border-outline-variant font-code-md text-code-md transition-colors active:scale-95">
+                  Reset Form
+                </button>
+</div>
+</div>
+<!-- Active Refusal Inspector Panel -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md">
+<div class="flex items-center gap-2 text-tertiary mb-1.5">
+<span class="material-symbols-outlined text-[18px]" data-icon="troubleshoot">troubleshoot</span>
+<h3 class="text-body-md font-headline-sm font-semibold">Router Refusal Normalization</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant leading-relaxed">
+                TP-Link Archer AX12 v1 returns 4 divergent casing variants on rejection: 
+                <span class="font-mono text-outline text-[11px]">errorcode</span>, 
+                <span class="font-mono text-outline text-[11px]">errorCode</span>, 
+                <span class="font-mono text-outline text-[11px]">error</span>, or 
+                <span class="font-mono text-outline text-[11px]">error_code</span>.
+                The proxy parses all 4 variants and synthesizes HTTP status mappings automatically.
+              </p>
+</div>
+</div>
+<!-- RIGHT / RESPONSE INSPECTOR SECTION (7 Cols on large) -->
+<div class="xl:col-span-7 flex flex-col gap-space-md">
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md shadow-lg flex flex-col h-full">
+<!-- Response Header Bar & Telemetry Status -->
+<div class="flex flex-wrap items-center justify-between pb-3 border-b border-outline-variant gap-2">
+<div class="flex items-center gap-space-sm">
+<span class="px-2.5 py-0.5 rounded text-code-sm font-code-sm font-bold bg-secondary/15 text-secondary border border-secondary/30 flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span> 200 OK
+                  </span>
+<div class="flex items-center gap-2 text-code-sm font-code-sm text-on-surface-variant">
+<span>Latency: <strong class="text-primary font-mono">34ms</strong></span>
+<span class="text-outline">•</span>
+<span>Size: <strong class="text-on-surface font-mono">1.4 KB</strong></span>
+<span class="text-outline">•</span>
+<span class="text-outline">Just now</span>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded text-outline hover:text-primary hover:bg-surface-container transition-colors" title="Re-run Request">
+<span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span>
+</button>
+<button class="p-1 rounded text-outline hover:text-primary hover:bg-surface-container transition-colors" title="Fullscreen Code">
+<span class="material-symbols-outlined text-[18px]" data-icon="fullscreen">fullscreen</span>
+</button>
+</div>
+</div>
+<!-- Response Navigation Tabs -->
+<div class="flex items-center gap-4 mt-2 border-b border-outline-variant text-body-sm font-headline-sm">
+<button class="text-primary border-b-2 border-primary pb-2 font-semibold">JSON Response</button>
+<button class="text-outline hover:text-on-surface pb-2 transition-colors">Raw HTTP</button>
+<button class="text-outline hover:text-on-surface pb-2 transition-colors">Headers (4)</button>
+<button class="text-outline hover:text-on-surface pb-2 transition-colors">Schema Definition</button>
+</div>
+<!-- Secret Notice Banner -->
+<div class="my-3 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg flex items-center gap-2 text-body-sm text-tertiary">
+<span class="material-symbols-outlined text-[18px] shrink-0" data-icon="lock">lock</span>
+<span>Wi-Fi PSK is masked by default with <code class="text-code-sm font-code-sm text-on-surface bg-surface-container px-1 py-0.5 rounded font-mono">***redacted***</code>. Pass <code class="text-code-sm font-code-sm text-secondary bg-surface-container px-1 py-0.5 rounded font-mono">?include_secrets=true</code> to reveal.</span>
+</div>
+<!-- Monospace Syntax-Highlighted JSON Viewer -->
+<div class="flex-1 bg-surface-container-lowest rounded-lg border border-outline-variant p-4 font-code-md text-code-md overflow-x-auto custom-scroll min-h-[300px]">
+<pre class="text-on-surface font-mono leading-relaxed"><span class="text-outline">{</span>
+  <span class="text-primary">"success"</span><span class="text-outline">:</span> <span class="text-secondary">true</span><span class="text-outline">,</span>
+  <span class="text-primary">"data"</span><span class="text-outline">: {</span>
+    <span class="text-primary">"enable"</span><span class="text-outline">:</span> <span class="text-tertiary">"on"</span><span class="text-outline">,</span>
+    <span class="text-primary">"ssid"</span><span class="text-outline">:</span> <span class="text-secondary">"Archer_AX12_2.4G"</span><span class="text-outline">,</span>
+    <span class="text-primary">"channel"</span><span class="text-outline">:</span> <span class="text-secondary-fixed">6</span><span class="text-outline">,</span>
+    <span class="text-primary">"htmode"</span><span class="text-outline">:</span> <span class="text-secondary">"40M"</span><span class="text-outline">,</span>
+    <span class="text-primary">"isolate"</span><span class="text-outline">:</span> <span class="text-tertiary">"off"</span><span class="text-outline">,</span>
+    <span class="text-primary">"wpa2_psk_key"</span><span class="text-outline">:</span> <span class="text-outline font-semibold">"***redacted***"</span><span class="text-outline">,</span>
+    <span class="text-primary">"raw_conn_type"</span><span class="text-outline">:</span> <span class="text-secondary">"2.4G"</span>
+  <span class="text-outline">}</span>
+<span class="text-outline">}</span></pre>
+</div>
+<!-- Quick Tools Response Footer -->
+<div class="pt-3 mt-3 border-t border-outline-variant flex flex-wrap items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-surface-container hover:bg-surface-bright text-on-surface text-code-sm font-code-sm border border-outline-variant transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[16px]" data-icon="content_copy">content_copy</span>
+<span>Copy JSON</span>
+</button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-surface-container hover:bg-surface-bright text-on-surface text-code-sm font-code-sm border border-outline-variant transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[16px]" data-icon="download">download</span>
+<span>Download Schema</span>
+</button>
+</div>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded bg-primary-container/10 hover:bg-primary-container/20 text-primary text-code-sm font-code-sm border border-primary/30 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[16px]" data-icon="code">code</span>
+<span>cURL Code Snippet</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<script>
+    // Lightweight atmospheric interaction for Pause Polling toggle
+    const pollingBtn = document.getElementById('polling-btn');
+    if (pollingBtn) {
+      let isPaused = false;
+      pollingBtn.addEventListener('click', () => {
+        isPaused = !isPaused;
+        const icon = pollingBtn.querySelector('.material-symbols-outlined');
+        const text = pollingBtn.querySelector('span:not(.material-symbols-outlined)');
+        if (isPaused) {
+          text.textContent = 'Resume Polling';
+          icon.textContent = 'play_circle';
+          icon.classList.remove('text-secondary');
+          icon.classList.add('text-tertiary');
+        } else {
+          text.textContent = 'Pause Polling';
+          icon.textContent = 'sync';
+          icon.classList.remove('text-tertiary');
+          icon.classList.add('text-secondary');
+        }
+      });
+    }
+  </script>
+</body></html>
+

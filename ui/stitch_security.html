@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TP-Link Archer AX12 v1 | Security &amp; Network Services</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with CDN Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-fixed-dim": "#7cd0ff",
+            "on-tertiary": "#472a00",
+            "surface-variant": "#313540",
+            "on-primary-fixed-variant": "#004c69",
+            "inverse-primary": "#00658a",
+            "on-primary-container": "#00384e",
+            "surface-dim": "#0f131d",
+            "on-error": "#690005",
+            "on-tertiary-container": "#4b2d00",
+            "tertiary-fixed-dim": "#ffb95f",
+            "inverse-on-surface": "#2c303b",
+            "outline-variant": "#3e484f",
+            "on-primary-fixed": "#001e2c",
+            "secondary-fixed": "#6ffbbe",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-fixed-variant": "#653e00",
+            "on-surface": "#dfe2f1",
+            "inverse-surface": "#dfe2f1",
+            "background": "#0f131d",
+            "surface-container-highest": "#313540",
+            "surface": "#0f131d",
+            "on-secondary": "#003824",
+            "secondary-container": "#00a572",
+            "secondary": "#4edea3",
+            "outline": "#87929a",
+            "secondary-fixed-dim": "#4edea3",
+            "tertiary-container": "#d98b00",
+            "surface-container-high": "#262a35",
+            "on-secondary-fixed-variant": "#005236",
+            "on-secondary-container": "#00311f",
+            "surface-container-low": "#171b26",
+            "on-secondary-fixed": "#002113",
+            "error-container": "#93000a",
+            "on-background": "#dfe2f1",
+            "surface-container-lowest": "#0a0e18",
+            "primary-fixed": "#c4e7ff",
+            "on-primary": "#00344a",
+            "error": "#ffb4ab",
+            "primary-container": "#00a7e1",
+            "tertiary": "#ffb95f",
+            "surface-container": "#1c1f2a",
+            "primary": "#7cd0ff",
+            "on-surface-variant": "#bdc8d1",
+            "surface-tint": "#7cd0ff",
+            "tertiary-fixed": "#ffddb8",
+            "on-tertiary-fixed": "#2a1700",
+            "surface-bright": "#353944"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2rem",
+            "gutter": "1.25rem",
+            "margin": "2rem",
+            "margin-mobile": "1rem",
+            "gutter-mobile": "0.75rem"
+          },
+          "fontFamily": {
+            "code-md": ["JetBrains Mono"],
+            "display-xl-mobile": ["Inter"],
+            "headline-lg": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "body-lg": ["Inter"],
+            "headline-sm": ["Inter"],
+            "body-sm": ["Inter"],
+            "headline-md": ["Inter"],
+            "body-md": ["Inter"],
+            "display-xl": ["Inter"],
+            "label-caps": ["Inter"],
+            "code-lg": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "code-md": ["13px", { "lineHeight": "18px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "display-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "code-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "display-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700" }],
+            "code-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-switch:checked {
+      background-color: #00a7e1;
+    }
+    .custom-switch:checked ~ .switch-dot {
+      transform: translateX(1.25rem);
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen flex flex-col font-body-md antialiased selection:bg-primary-container selection:text-surface-container-lowest">
+<!-- TopNavBar (JSON Anchor Execution) -->
+<header class="flex justify-between items-center w-full px-space-lg h-14 bg-surface-container dark:bg-surface-container border-b border-outline-variant dark:border-outline-variant fixed top-0 left-0 right-0 z-50">
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary tracking-tight">Archer AX12 v1</span>
+<span class="text-outline-variant font-code-md">/</span>
+<span class="text-on-surface-variant font-headline-sm text-headline-sm hidden sm:inline">Security &amp; Network Services</span>
+</div>
+<!-- Quick Network Anchors -->
+<div class="hidden lg:flex items-center gap-space-sm pl-space-md border-l border-outline-variant">
+<a class="text-primary dark:text-primary font-code-md border-b-2 border-primary pb-1 flex items-center gap-1" href="#gateway">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+          192.168.0.1
+        </a>
+<span class="text-on-surface-variant dark:text-on-surface-variant font-code-md px-2 py-0.5 rounded bg-surface-container-low border border-outline-variant/60">
+          AX12v1_1.10.2
+        </span>
+</div>
+</div>
+<!-- Trailing live telemetry and actions -->
+<div class="flex items-center gap-space-sm sm:gap-space-md">
+<!-- Shield Protected Host MAC pill -->
+<div class="hidden md:flex items-center gap-1.5 px-space-sm py-1 rounded bg-secondary-container/20 border border-secondary/40 text-secondary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="text-code-sm font-code-sm">AA-BB-CC-DD-EE-01</span>
+</div>
+<!-- stok pill -->
+<div class="flex items-center gap-1 px-2 py-1 rounded bg-surface-container-high border border-outline-variant text-on-surface-variant text-code-sm font-code-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>stok: active</span>
+<span class="text-outline hidden xl:inline">(ab12cd34...)</span>
+</div>
+<!-- JSON Primary Trailing Action -->
+<button class="hidden sm:inline-flex items-center gap-1 text-code-md font-code-md px-3 py-1.5 rounded bg-surface-container-high hover:bg-surface-bright text-on-surface border border-outline-variant active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px]">sync</span>
+<span>Pause Polling</span>
+</button>
+<!-- Trailing Icon Actions -->
+<div class="flex items-center gap-1">
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-bright rounded transition-colors active:scale-95" title="Wifi Status">
+<span class="material-symbols-outlined text-[20px]">wifi_tethering</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-surface-bright rounded transition-colors active:scale-95" title="Quick Reboot">
+<span class="material-symbols-outlined text-[20px]">restart_alt</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-14">
+<!-- SideNavBar (JSON Anchor Execution) -->
+<aside class="fixed top-0 left-0 h-full w-64 pt-14 bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant dark:border-outline-variant hidden md:block z-40">
+<div class="flex flex-col justify-between h-full p-space-md border-r border-outline-variant dark:border-outline-variant">
+<div>
+<!-- Header Branding Card -->
+<div class="flex items-center gap-space-sm p-space-sm mb-space-md rounded bg-surface-container border border-outline-variant/60">
+<div class="w-9 h-9 rounded bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">router</span>
+</div>
+<div>
+<div class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary">TP-Link Archer</div>
+<div class="text-label-caps font-label-caps text-outline">Wi-Fi 6 AX1500</div>
+</div>
+</div>
+<!-- Primary Navigation Tabs (5 Tabs - Active is Security & DHCP) -->
+<nav class="space-y-1">
+<!-- 1. Overview (Inactive) -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<span class="material-symbols-outlined text-[20px]">router</span>
+<span>Overview</span>
+</a>
+<!-- 2. Clients (Inactive with counter) -->
+<a class="flex items-center justify-between px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">devices</span>
+<span>Clients</span>
+</div>
+<span class="text-code-sm font-code-sm px-1.5 py-0.5 rounded bg-surface-container text-primary border border-outline-variant/50">14</span>
+</a>
+<!-- 3. Wireless Radios (Inactive) -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<span class="material-symbols-outlined text-[20px]">wifi</span>
+<span>Wireless Radios</span>
+</a>
+<!-- 4. Security & DHCP (ACTIVE TAB per hierarchy) -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-primary dark:text-primary bg-surface-container-highest dark:bg-surface-container-highest rounded-lg border-l-2 border-primary font-headline-sm shadow-[0_0_16px_-4px_rgba(0,167,225,0.3)]" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span>Security &amp; DHCP</span>
+</a>
+<!-- 5. API Explorer (Inactive with PRO badge) -->
+<a class="flex items-center justify-between px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+<span>API Explorer</span>
+</div>
+<span class="text-label-caps font-label-caps text-tertiary bg-tertiary-container/20 px-1 py-0.5 rounded">PRO</span>
+</a>
+</nav>
+</div>
+<!-- Footer Section (Diagnostics, System Tools & CTA) -->
+<div class="space-y-space-sm pt-space-md border-t border-outline-variant">
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<span class="material-symbols-outlined text-[20px]">monitoring</span>
+<span>Diagnostics</span>
+</a>
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span>System Tools</span>
+</a>
+<!-- JSON CTA: Reboot Router -->
+<button class="w-full mt-2 flex items-center justify-center gap-2 py-2 px-3 text-error bg-error-container/20 border border-error/30 hover:bg-error-container/30 hover:border-error rounded text-code-md font-code-md active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+<span>Reboot Router</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-space-md md:p-space-lg lg:p-margin space-y-space-lg bg-surface-container-lowest min-w-0">
+<!-- Page Breadcrumb / Status Banner -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap- space-sm border-b border-outline-variant pb-space-md">
+<div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+            Security &amp; Network Services
+          </h1>
+<p class="text-body-sm font-body-sm text-outline mt-0.5">
+            Mission-critical packet filtration, hardware-bound MAC restrictions, and port virtualization for Archer AX12.
+          </p>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary-container/10 border border-secondary/30 text-secondary text-code-sm font-code-sm">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+            SPI Firewall: ACTIVE
+          </div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container border border-outline-variant text-on-surface-variant text-code-sm font-code-sm">
+<span>NAT Loopback: ON</span>
+</div>
+</div>
+</div>
+<!-- 1. Access Control & MAC Filter Panel -->
+<section class="rounded-lg bg-surface-container-low border border-outline-variant p-space-md lg:p-space-lg shadow-sm space-y-space-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<!-- Master Toggle -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container shadow-[0_0_12px_rgba(0,167,225,0.3)]"></div>
+</label>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-headline-md font-headline-md text-on-surface">Access Control Service</h2>
+<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-secondary-container/20 text-secondary border border-secondary/30 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Active
+                </span>
+</div>
+<p class="text-body-sm font-body-sm text-outline">Restrict specific devices from communicating over local bands or accessing the WAN uplink.</p>
+</div>
+</div>
+<!-- Mode Selector (Segmented Switch) -->
+<div class="inline-flex p-1 bg-surface-container-highest rounded border border-outline-variant text-code-sm font-code-sm self-start md:self-center">
+<button class="px-3 py-1.5 rounded bg-primary-container text-on-primary-container font-semibold shadow-sm transition-all flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">block</span>
+              Blacklist (Block listed devices)
+            </button>
+<button class="px-3 py-1.5 rounded text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+              Whitelist (Allow only listed devices)
+            </button>
+</div>
+</div>
+<!-- Protected Host Callout Banner -->
+<div class="rounded border border-primary/40 bg-surface-container p-3 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[22px] flex-shrink-0" style="font-variation-settings: 'FILL' 1;">security</span>
+<div class="text-body-sm font-body-sm text-on-surface leading-relaxed">
+<span class="font-semibold text-primary">Host Protection Active:</span>
+            Device with MAC <span class="font-code-md text-code-md text-primary-fixed-dim bg-surface-container-highest px-1.5 py-0.5 rounded border border-outline-variant">AA-BB-CC-DD-EE-01</span> is permanently immune from blacklisting to prevent administrative lockout.
+          </div>
+</div>
+<!-- Blocked Devices Table -->
+<div class="space-y-space-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="text-label-caps font-label-caps text-outline uppercase">Target Enforcements (3 Listed)</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded bg-surface-container hover:bg-surface-bright text-on-surface-variant border border-outline-variant text-code-sm font-code-sm flex items-center gap-1 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+                Clear All Rules
+              </button>
+<button class="px-3 py-1.5 rounded bg-primary-container text-on-primary-container font-code-md text-code-md flex items-center gap-1 hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(0,167,225,0.3)]">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                + Add Device to Blocklist
+              </button>
+</div>
+</div>
+<!-- Responsive Data Table -->
+<div class="overflow-x-auto rounded border border-outline-variant">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant text-label-caps font-label-caps text-outline">
+<th class="py-2.5 px-4">Hostname</th>
+<th class="py-2.5 px-4">MAC Address</th>
+<th class="py-2.5 px-4">Band</th>
+<th class="py-2.5 px-4">Network Scope</th>
+<th class="py-2.5 px-4 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50 font-body-md text-body-md">
+<!-- Row 1 -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[18px]">phone_android</span>
+                    Unknown-Android-Guest
+                  </td>
+<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">BC:D1:19:44:A2:10</td>
+<td class="py-3 px-4">
+<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/60">2.4 GHz</span>
+</td>
+<td class="py-3 px-4">
+<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-tertiary-container/20 text-tertiary border border-tertiary/30">Guest Network</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-primary border border-primary/30 active:scale-95 transition-all">
+                      Unblock
+                    </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container/50 hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[18px]">power</span>
+                    Smart-Plug-Orphaned
+                  </td>
+<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">48:E7:DA:91:33:FF</td>
+<td class="py-3 px-4">
+<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/60">2.4 GHz</span>
+</td>
+<td class="py-3 px-4">
+<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-outline border border-outline-variant/40">Primary Network</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-primary border border-primary/30 active:scale-95 transition-all">
+                      Unblock
+                    </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[18px]">sensors</span>
+                    Rogue-Device-IoT
+                  </td>
+<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">60:01:94:8C:22:1B</td>
+<td class="py-3 px-4">
+<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-outline-variant/60">5 GHz</span>
+</td>
+<td class="py-3 px-4">
+<span class="text-code-sm font-code-sm px-2 py-0.5 rounded bg-surface-container-highest text-outline border border-outline-variant/40">Primary Network</span>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-primary border border-primary/30 active:scale-95 transition-all">
+                      Unblock
+                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- 2. DHCP Static Address Reservations Section -->
+<section class="rounded-lg bg-surface-container-low border border-outline-variant p-space-md lg:p-space-lg shadow-sm space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md">
+<div>
+<h2 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">dns</span>
+              DHCP Static Address Reservations
+            </h2>
+<p class="text-body-sm font-body-sm text-outline">Bind specific IP addresses to MAC hardware addresses for constant subnet mapping.</p>
+</div>
+<div class="flex items-center gap-2">
+<!-- Search Filter -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-2.5 text-outline text-[18px]">search</span>
+<input class="bg-surface-container-lowest border border-outline-variant rounded pl-8 pr-3 py-1.5 text-code-sm font-code-sm text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none w-48 lg:w-60" placeholder="Filter 3 reservations..." type="text"/>
+</div>
+<!-- + Add Reservation CTA -->
+<button class="px-3 py-1.5 rounded bg-primary-container text-on-primary-container font-code-md text-code-md flex items-center gap-1 hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(0,167,225,0.3)]">
+<span class="material-symbols-outlined text-[16px]">add_circle</span>
+              + Add Reservation
+            </button>
+</div>
+</div>
+<!-- Reservations Table -->
+<div class="overflow-x-auto rounded border border-outline-variant">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant text-label-caps font-label-caps text-outline">
+<th class="py-2.5 px-4">Device Name / Hostname</th>
+<th class="py-2.5 px-4">MAC Address</th>
+<th class="py-2.5 px-4">Assigned IP Address</th>
+<th class="py-2.5 px-4">Status</th>
+<th class="py-2.5 px-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50 font-body-md text-body-md">
+<!-- Row 1: NAS Storage -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">hard_drive</span>
+                  NAS-Storage
+                </td>
+<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">00:11:32:98:AA:10</td>
+<td class="py-3 px-4 font-code-md text-code-md text-primary">192.168.0.99</td>
+<td class="py-3 px-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 hover:text-primary text-outline rounded transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1 hover:text-error text-outline rounded transition-colors" title="Delete"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Home-Assistant -->
+<tr class="bg-surface-container/50 hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">home_iot_device</span>
+                  Home-Assistant
+                </td>
+<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">DC:A6:32:81:4C:55</td>
+<td class="py-3 px-4 font-code-md text-code-md text-primary">192.168.0.50</td>
+<td class="py-3 px-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 hover:text-primary text-outline rounded transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1 hover:text-error text-outline rounded transition-colors" title="Delete"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Print-Server -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-[20px]">print</span>
+                  Print-Server
+                </td>
+<td class="py-3 px-4 font-code-md text-code-md text-on-surface-variant">3C:2A:F4:12:88:9B</td>
+<td class="py-3 px-4 font-code-md text-code-md text-primary">192.168.0.80</td>
+<td class="py-3 px-4">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 hover:text-primary text-outline rounded transition-colors" title="Edit"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="p-1 hover:text-error text-outline rounded transition-colors" title="Delete"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-2.5 rounded bg-surface-container border border-outline-variant/60 flex items-center gap-2 text-body-sm font-body-sm text-outline">
+<span class="material-symbols-outlined text-[16px] text-tertiary">info</span>
+<span>Lease pool: <strong class="text-on-surface font-code-md">192.168.0.100</strong> - <strong class="text-on-surface font-code-md">192.168.0.249</strong>. Reserved addresses operate outside the dynamic DHCP allocation range.</span>
+</div>
+</section>
+<!-- 3. NAT Services & Port Forwarding (Two-Column Split Grid) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Column: DMZ Host Panel (5 cols) -->
+<div class="lg:col-span-5 rounded-lg bg-surface-container-low border border-outline-variant p-space-md lg:p-space-lg space-y-space-md flex flex-col justify-between">
+<div class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">DMZ Host</h3>
+<span class="text-label-caps font-label-caps text-outline">Demilitarized Zone Gateway</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container shadow-[0_0_12px_rgba(0,167,225,0.3)]"></div>
+</label>
+</div>
+<!-- Target Host Input -->
+<div class="space-y-1.5">
+<label class="text-label-caps font-label-caps text-on-surface-variant flex items-center justify-between">
+<span>Internal Target IP:</span>
+<span class="text-secondary font-code-sm">Home-Assistant linked</span>
+</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 text-code-md font-code-md text-primary font-bold focus:border-primary focus:ring-1 focus:ring-primary outline-none" type="text" value="192.168.0.50"/>
+<span class="absolute right-3 top-2.5 text-code-sm font-code-sm text-outline">LAN Host</span>
+</div>
+</div>
+<!-- Warning Notice -->
+<div class="p-3 rounded bg-surface-container border border-error/30 text-body-sm font-body-sm text-on-surface flex items-start gap-2.5">
+<span class="material-symbols-outlined text-error text-[20px] flex-shrink-0">warning</span>
+<p class="leading-relaxed text-outline">
+                Exposes all unsolicited inbound traffic to the specified LAN host. Ensure host firewall is active to prevent perimeter compromises.
+              </p>
+</div>
+</div>
+<div class="pt-space-md border-t border-outline-variant flex justify-end">
+<button class="px-4 py-2 rounded bg-primary-container text-on-primary-container font-code-md text-code-md hover:brightness-110 active:scale-95 transition-all shadow-[0_0_14px_rgba(0,167,225,0.4)]">
+              Save Changes
+            </button>
+</div>
+</div>
+<!-- Right Column: Virtual Servers / Port Forwarding (7 cols) -->
+<div class="lg:col-span-7 rounded-lg bg-surface-container-low border border-outline-variant p-space-md lg:p-space-lg space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">Virtual Servers / Port Forwarding</h3>
+<span class="text-label-caps font-label-caps text-outline">Inbound WAN routing to specific services</span>
+</div>
+<button class="px-3 py-1.5 rounded bg-surface-container hover:bg-surface-bright text-primary border border-primary/40 font-code-sm text-code-sm flex items-center gap-1 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[16px]">add</span>
+              + Add Custom Rule
+            </button>
+</div>
+<!-- Virtual Servers Table -->
+<div class="overflow-x-auto rounded border border-outline-variant">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant text-label-caps font-label-caps text-outline">
+<th class="py-2 px-3">Service Name</th>
+<th class="py-2 px-3">Ext. Port</th>
+<th class="py-2 px-3">Int. Port</th>
+<th class="py-2 px-3">Protocol</th>
+<th class="py-2 px-3">Internal IP</th>
+<th class="py-2 px-3 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50 text-code-md font-code-md">
+<!-- Rule 1 -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="py-2.5 px-3 text-on-surface font-body-md text-body-md font-medium">Web-Server-80</td>
+<td class="py-2.5 px-3 text-primary">80</td>
+<td class="py-2.5 px-3 text-primary">80</td>
+<td class="py-2.5 px-3"><span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-code-sm">TCP</span></td>
+<td class="py-2.5 px-3 text-on-surface-variant">192.168.0.50</td>
+<td class="py-2.5 px-3 text-right">
+<button class="text-outline hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</td>
+</tr>
+<!-- Rule 2 -->
+<tr class="bg-surface-container/50 hover:bg-surface-container transition-colors">
+<td class="py-2.5 px-3 text-on-surface font-body-md text-body-md font-medium">Minecraft-25565</td>
+<td class="py-2.5 px-3 text-primary">25565</td>
+<td class="py-2.5 px-3 text-primary">25565</td>
+<td class="py-2.5 px-3"><span class="px-1.5 py-0.5 rounded bg-secondary-container/20 text-secondary text-code-sm">TCP/UDP</span></td>
+<td class="py-2.5 px-3 text-on-surface-variant">192.168.0.99</td>
+<td class="py-2.5 px-3 text-right">
+<button class="text-outline hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</td>
+</tr>
+<!-- Rule 3 -->
+<tr class="bg-surface-container-low hover:bg-surface-container transition-colors">
+<td class="py-2.5 px-3 text-on-surface font-body-md text-body-md font-medium">WireGuard-VPN</td>
+<td class="py-2.5 px-3 text-primary">51820</td>
+<td class="py-2.5 px-3 text-primary">51820</td>
+<td class="py-2.5 px-3"><span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-code-sm">UDP</span></td>
+<td class="py-2.5 px-3 text-on-surface-variant">192.168.0.50</td>
+<td class="py-2.5 px-3 text-right">
+<button class="text-outline hover:text-error transition-colors p-1"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- 4. Wake-on-LAN (WoL) Network Service Card -->
+<section class="rounded-lg bg-surface-container-low border border-outline-variant p-space-md lg:p-space-lg shadow-sm space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm border-b border-outline-variant pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[24px]">power_settings_new</span>
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">Wake-on-LAN (Magic Packet Broadcast)</h3>
+<p class="text-body-sm font-body-sm text-outline">Wake offline systems remotely across the local subnet layer via UDP broadcast.</p>
+</div>
+</div>
+<span class="text-code-sm font-code-sm px-2.5 py-1 rounded bg-surface-container text-on-surface-variant border border-outline-variant self-start sm:self-auto">
+            2 / 8 entries used
+          </span>
+</div>
+<!-- Saved WoL targets list -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Target 1 -->
+<div class="rounded bg-surface-container border border-outline-variant/70 p-space-md flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">desktop_windows</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Workstation-PC</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<div class="space-y-1 font-code-sm text-code-sm text-outline">
+<div class="flex justify-between">
+<span>Target MAC:</span>
+<span class="text-on-surface font-code-md">AA-BB-CC-DD-EE-33</span>
+</div>
+<div class="flex justify-between">
+<span>Bound IP:</span>
+<span class="text-on-surface font-code-md">192.168.0.15</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 px-3 rounded bg-surface-container-highest hover:bg-surface-bright text-primary border border-primary/30 font-code-md text-code-md flex items-center justify-center gap-2 active:scale-95 transition-all group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">cell_tower</span>
+<span>Send Magic Packet</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+</button>
+</div>
+<!-- Target 2 -->
+<div class="rounded bg-surface-container border border-outline-variant/70 p-space-md flex flex-col justify-between space-y-space-md">
+<div>
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">tv</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Media-Center</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+</div>
+<div class="space-y-1 font-code-sm text-code-sm text-outline">
+<div class="flex justify-between">
+<span>Target MAC:</span>
+<span class="text-on-surface font-code-md">AA-BB-CC-DD-EE-77</span>
+</div>
+<div class="flex justify-between">
+<span>Bound IP:</span>
+<span class="text-on-surface font-code-md">192.168.0.42</span>
+</div>
+</div>
+</div>
+<button class="w-full py-2 px-3 rounded bg-surface-container-highest hover:bg-surface-bright text-primary border border-primary/30 font-code-md text-code-md flex items-center justify-center gap-2 active:scale-95 transition-all group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">cell_tower</span>
+<span>Send Magic Packet</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+</button>
+</div>
+</div>
+<!-- Quick Manual Wake Input Section -->
+<div class="pt-space-md border-t border-outline-variant">
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm">
+<span class="text-code-md font-code-md text-outline whitespace-nowrap">Manual Wake Target:</span>
+<input class="flex-1 bg-surface-container-lowest border border-outline-variant rounded px-3 py-1.5 text-code-md font-code-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="FF:EE:DD:CC:BB:AA" type="text"/>
+<button class="px-4 py-2 rounded bg-primary-container text-on-primary-container font-code-md text-code-md flex items-center justify-center gap-1.5 hover:brightness-110 active:scale-95 transition-all shadow-[0_0_12px_rgba(0,167,225,0.3)] whitespace-nowrap">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+              Broadcast WoL
+            </button>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>
+

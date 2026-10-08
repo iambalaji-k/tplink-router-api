@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TP-Link Archer AX12 v1 | Connected Clients &amp; Network Topology Manager</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#001e2c",
+            "surface-bright": "#353944",
+            "tertiary-fixed": "#ffddb8",
+            "on-surface-variant": "#bdc8d1",
+            "tertiary": "#ffb95f",
+            "on-tertiary-fixed": "#2a1700",
+            "tertiary-container": "#d98b00",
+            "secondary-container": "#00a572",
+            "surface": "#0f131d",
+            "primary-fixed-dim": "#7cd0ff",
+            "inverse-primary": "#00658a",
+            "surface-tint": "#7cd0ff",
+            "primary": "#7cd0ff",
+            "on-secondary-fixed": "#002113",
+            "surface-variant": "#313540",
+            "surface-dim": "#0f131d",
+            "primary-container": "#00a7e1",
+            "primary-fixed": "#c4e7ff",
+            "outline": "#87929a",
+            "on-primary": "#00344a",
+            "on-tertiary-fixed-variant": "#653e00",
+            "tertiary-fixed-dim": "#ffb95f",
+            "on-primary-fixed-variant": "#004c69",
+            "on-secondary-fixed-variant": "#005236",
+            "surface-container-highest": "#313540",
+            "on-error-container": "#ffdad6",
+            "inverse-surface": "#dfe2f1",
+            "error-container": "#93000a",
+            "on-primary-container": "#00384e",
+            "surface-container": "#1c1f2a",
+            "secondary-fixed": "#6ffbbe",
+            "error": "#ffb4ab",
+            "surface-container-lowest": "#0a0e18",
+            "on-secondary-container": "#00311f",
+            "outline-variant": "#3e484f",
+            "secondary": "#4edea3",
+            "on-surface": "#dfe2f1",
+            "on-error": "#690005",
+            "surface-container-low": "#171b26",
+            "on-tertiary": "#472a00",
+            "on-secondary": "#003824",
+            "secondary-fixed-dim": "#4edea3",
+            "surface-container-high": "#262a35",
+            "background": "#0f131d",
+            "inverse-on-surface": "#2c303b",
+            "on-tertiary-container": "#4b2d00",
+            "on-background": "#dfe2f1"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "margin-mobile": "1rem",
+            "margin": "2rem",
+            "space-xl": "2rem",
+            "space-sm": "0.5rem",
+            "gutter-mobile": "0.75rem",
+            "gutter": "1.25rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "headline-md": ["Inter"],
+            "display-xl-mobile": ["Inter"],
+            "display-xl": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "code-md": ["JetBrains Mono"],
+            "body-md": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-caps": ["Inter"],
+            "headline-sm": ["Inter"],
+            "headline-lg": ["Inter"],
+            "code-lg": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "display-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "display-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "code-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0em", "fontWeight": "500" }],
+            "code-md": ["13px", { "lineHeight": "18px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "code-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #0f131d;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #3e484f;
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #7cd0ff;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased flex flex-col min-h-screen selection:bg-primary selection:text-on-primary">
+<!-- TOP APP BAR (from Shared Component JSON: TopNavBar) -->
+<header class="flex justify-between items-center w-full px-space-lg h-14 bg-surface-container dark:bg-surface-container border-b border-outline-variant dark:border-outline-variant shrink-0 z-30">
+<!-- Left: Identity & Breadcrumbs -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary tracking-tight">Archer AX12 v1</span>
+<span class="text-outline-variant font-body-sm">/</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant font-medium">Connected Devices &amp; Topology</span>
+</div>
+<!-- Status Pills -->
+<div class="hidden lg:flex items-center gap-space-xs">
+<div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant text-code-sm font-code-sm text-secondary">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+<span>192.168.0.1</span>
+</div>
+<div class="px-2 py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant text-code-sm font-code-sm text-on-surface-variant">
+          AX12v1_1.10.2
+        </div>
+<div class="px-2 py-0.5 rounded-full bg-surface-container-lowest border border-outline-variant text-code-sm font-code-sm text-tertiary">
+          stok: active
+        </div>
+</div>
+</div>
+<!-- Center/Right: Telemetry Summary Pill -->
+<div class="hidden xl:flex items-center gap-2 px-3 py-1 bg-surface-container-low border border-outline-variant rounded-full text-code-sm font-code-sm text-on-surface">
+<span class="text-primary font-semibold">Total Connected: 14 Devices</span>
+<span class="text-outline">•</span>
+<span class="text-on-surface-variant">2 Wired</span>
+<span class="text-outline">•</span>
+<span class="text-primary-fixed-dim">9 5GHz Wi-Fi 6</span>
+<span class="text-outline">•</span>
+<span class="text-tertiary">3 2.4GHz</span>
+</div>
+<!-- Trailing Actions Cluster -->
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-1 bg-surface-container-highest hover:bg-surface-bright text-primary dark:text-primary text-label-caps font-label-caps uppercase tracking-wider rounded border border-outline-variant active:scale-95 transition-all">
+        Pause Polling
+      </button>
+<div class="h-5 w-px bg-outline-variant"></div>
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-bright rounded transition-colors active:scale-95" title="Force Sync">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-primary hover:bg-surface-bright rounded transition-colors active:scale-95" title="Mesh Tethering">
+<span class="material-symbols-outlined" data-icon="wifi_tethering">wifi_tethering</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-surface-bright rounded transition-colors active:scale-95" title="Quick Restart">
+<span class="material-symbols-outlined" data-icon="restart_alt">restart_alt</span>
+</button>
+</div>
+</header>
+<!-- APP WORKSPACE (Sidebar + Main Content Area) -->
+<div class="flex flex-1 overflow-hidden">
+<!-- SIDEBAR NAVIGATION (from Shared Component JSON: SideNavBar) -->
+<aside class="w-64 bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant dark:border-outline-variant flex flex-col justify-between shrink-0 select-none">
+<!-- Top Brand / Hardware Identification -->
+<div class="p-space-md border-b border-outline-variant/50">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container-highest border border-primary/30 flex items-center justify-center text-primary shadow-[0_0_12px_rgba(0,167,225,0.25)]">
+<span class="material-symbols-outlined text-xl" data-icon="router">router</span>
+</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-primary dark:text-primary leading-tight">TP-Link Archer</h1>
+<p class="text-label-caps font-label-caps text-on-surface-variant">Wi-Fi 6 AX1500</p>
+</div>
+</div>
+</div>
+<!-- Main Navigation Tabs -->
+<nav class="flex-1 p-space-md space-y-1 overflow-y-auto custom-scroll">
+<div class="text-label-caps font-label-caps text-outline uppercase tracking-wider px-2 py-1.5">Network Architecture</div>
+<!-- Tab: Overview -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-outline" data-icon="router">router</span>
+<span class="flex-1">Overview</span>
+</a>
+<!-- Tab: Clients (ACTIVE: Match against user intent & JSON) -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-primary dark:text-primary bg-surface-container-highest dark:bg-surface-container-highest rounded-lg border-l-2 border-primary font-headline-sm shadow-[0_0_16px_-4px_rgba(0,167,225,0.3)]" href="#">
+<span class="material-symbols-outlined text-primary" data-icon="devices" style="font-variation-settings: 'FILL' 1;">devices</span>
+<span class="flex-1">Clients</span>
+<span class="px-1.5 py-0.2 rounded bg-primary/20 text-primary text-code-sm font-code-sm font-bold">14</span>
+</a>
+<!-- Tab: Wireless Radios -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-outline" data-icon="wifi">wifi</span>
+<span class="flex-1">Wireless Radios</span>
+</a>
+<!-- Tab: Security & DHCP -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-outline" data-icon="shield">shield</span>
+<span class="flex-1">Security &amp; DHCP</span>
+</a>
+<!-- Tab: API Explorer -->
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-outline" data-icon="terminal">terminal</span>
+<span class="flex-1">API Explorer</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container text-tertiary text-code-sm font-code-sm font-bold border border-tertiary/30">PRO</span>
+</a>
+</nav>
+<!-- Sidebar Footer Submodules & System CTA -->
+<div class="p-space-md border-t border-outline-variant space-y-2 bg-surface-container-lowest/50">
+<a class="flex items-center gap-space-sm px-3 py-1.5 text-on-surface-variant hover:text-primary rounded text-body-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-outline" data-icon="monitoring">monitoring</span>
+<span>Diagnostics</span>
+</a>
+<a class="flex items-center gap-space-sm px-3 py-1.5 text-on-surface-variant hover:text-primary rounded text-body-sm transition-colors" href="#">
+<span class="material-symbols-outlined text-outline" data-icon="settings">settings</span>
+<span>System Tools</span>
+</a>
+<!-- CTA: Reboot Router from JSON -->
+<button class="w-full mt-2 flex items-center justify-center gap-2 py-2 px-3 rounded border border-error/50 bg-error/5 text-error hover:bg-error/15 hover:shadow-[0_0_14px_rgba(239,68,68,0.25)] text-code-md font-code-md transition-all active:scale-98">
+<span class="material-symbols-outlined text-error" data-icon="restart_alt">restart_alt</span>
+          Reboot Router
+        </button>
+</div>
+</aside>
+<!-- MAIN CONTENT VIEWPORT -->
+<main class="flex-1 flex flex-col min-w-0 overflow-y-auto custom-scroll bg-background p-space-lg lg:p-space-xl space-y-space-lg">
+<!-- Header Section: Title & Operational State -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb- space-sm border-b border-outline-variant/60">
+<div>
+<div class="flex items-center gap-space-sm">
+<h2 class="text-headline-lg font-headline-lg text-on-surface tracking-tight">Connected Clients &amp; Network Topology Manager</h2>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary/10 border border-secondary/30 text-secondary text-code-sm font-code-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+              Real-Time ARP Sync
+            </span>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant mt-1">
+            Active DHCP leases, wireless physical layer telemetry, traffic counters, and network policy enforcement.
+          </p>
+</div>
+<div class="flex items-center gap-2 self-start md:self-auto">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container border border-outline-variant text-on-surface hover:border-primary/50 text-code-md font-code-md transition-all">
+<span class="material-symbols-outlined text-primary" data-icon="refresh">refresh</span>
+            Refresh Client Table
+          </button>
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container border border-outline-variant text-on-surface hover:text-primary text-code-md font-code-md transition-all">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+            Export ARP Table
+          </button>
+</div>
+</div>
+<!-- 1. CLIENT MEDIUM SUMMARY METRICS BAR (4-Card Bento Row) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Card 1: Total Active Clients -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md backdrop-blur-md relative overflow-hidden flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider">Total Active Clients</span>
+<span class="material-symbols-outlined text-secondary" data-icon="hub">hub</span>
+</div>
+<div class="mt-2">
+<div class="flex items-baseline gap-2">
+<span class="text-display-xl font-display-xl text-on-surface font-mono">14</span>
+<span class="inline-flex items-center gap-1 text-code-sm font-code-sm text-secondary">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span> Online
+              </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-1">All bands &amp; wired ports</p>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full mt-3 overflow-hidden">
+<div class="h-full bg-secondary w-full"></div>
+</div>
+</div>
+<!-- Card 2: Gigabit Ethernet -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md backdrop-blur-md relative overflow-hidden flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider">Gigabit Ethernet</span>
+<span class="material-symbols-outlined text-primary-fixed-dim" data-icon="settings_ethernet">settings_ethernet</span>
+</div>
+<div class="mt-2">
+<div class="flex items-baseline gap-2">
+<span class="text-display-xl font-display-xl text-on-surface font-mono">2</span>
+<span class="text-body-md font-body-md text-on-surface-variant">devices</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-1.5 py-0.5 rounded bg-primary/10 border border-primary/30 text-primary text-code-sm font-code-sm">1000M Full Duplex</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 truncate">LAN 1 (TrueNAS), LAN 2 (Ubuntu)</p>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full mt-3 overflow-hidden">
+<div class="h-full bg-primary w-2/12"></div>
+</div>
+</div>
+<!-- Card 3: 5.0 GHz Wi-Fi 6 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md backdrop-blur-md relative overflow-hidden flex flex-col justify-between border-l-2 border-l-primary hover:border-primary/60 transition-colors shadow-[0_0_16px_-4px_rgba(0,167,225,0.15)]">
+<div class="flex justify-between items-start">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider">5.0 GHz Wi-Fi 6</span>
+<span class="material-symbols-outlined text-primary" data-icon="wifi">wifi</span>
+</div>
+<div class="mt-2">
+<div class="flex items-baseline gap-2">
+<span class="text-display-xl font-display-xl text-primary font-mono">9</span>
+<span class="text-body-md font-body-md text-on-surface-variant">devices</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-1.5 py-0.5 rounded bg-primary-container/20 border border-primary-container text-primary text-code-sm font-code-sm">802.11ax OFDMA active</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 truncate">Ch 36 (HT80) • 1201 Mbps PHY</p>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full mt-3 overflow-hidden">
+<div class="h-full bg-primary-container w-9/12"></div>
+</div>
+</div>
+<!-- Card 4: 2.4 GHz Legacy & IoT -->
+<div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md backdrop-blur-md relative overflow-hidden flex flex-col justify-between hover:border-primary/40 transition-colors">
+<div class="flex justify-between items-start">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider">2.4 GHz Legacy &amp; IoT</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="rss_feed">rss_feed</span>
+</div>
+<div class="mt-2">
+<div class="flex items-baseline gap-2">
+<span class="text-display-xl font-display-xl text-tertiary font-mono">3</span>
+<span class="text-body-md font-body-md text-on-surface-variant">devices</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-1.5 py-0.5 rounded bg-tertiary/10 border border-tertiary/30 text-tertiary text-code-sm font-code-sm">802.11n/ax</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-2 truncate">Ch 6 (HT40) • Includes 1 Guest</p>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full mt-3 overflow-hidden">
+<div class="h-full bg-tertiary w-3/12"></div>
+</div>
+</div>
+</section>
+<!-- 2. FILTER & REAL-TIME SEARCH CONTROL BAR -->
+<section class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md bg-surface-container-low border border-outline-variant p-3 rounded-lg">
+<!-- Search Input -->
+<div class="relative flex-1 max-w-xl">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</div>
+<input class="w-full h-10 pl-10 pr-4 bg-background border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded text-code-md font-code-md text-on-surface placeholder:text-outline-variant transition-colors" placeholder="Search by Hostname, IP address (192.168.0.x), or MAC address..." type="text"/>
+</div>
+<!-- Segmented Filter Pills -->
+<div class="flex items-center gap-1 overflow-x-auto py-1 custom-scroll">
+<button class="px-3 py-1.5 rounded-full text-code-sm font-code-sm bg-primary-container text-on-primary-fixed font-semibold shadow-[0_0_12px_rgba(0,167,225,0.4)] whitespace-nowrap">
+            All (14)
+          </button>
+<button class="px-3 py-1.5 rounded-full text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface border border-outline-variant whitespace-nowrap transition-colors">
+            Wired (2)
+          </button>
+<button class="px-3 py-1.5 rounded-full text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface border border-outline-variant whitespace-nowrap transition-colors">
+            5 GHz Wireless (9)
+          </button>
+<button class="px-3 py-1.5 rounded-full text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-on-surface border border-outline-variant whitespace-nowrap transition-colors">
+            2.4 GHz Wireless (3)
+          </button>
+<button class="px-3 py-1.5 rounded-full text-code-sm font-code-sm bg-surface-container hover:bg-surface-bright text-tertiary hover:text-tertiary-fixed border border-outline-variant whitespace-nowrap transition-colors">
+            Guest Network (1)
+          </button>
+</div>
+</section>
+<!-- 3. SPLIT WORKSPACE: CLIENTS DATA TABLE + INSPECTION DRAWER -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Left/Main Area: Interactive Connected Clients Table (8 Cols) -->
+<div class="lg:col-span-8 bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden shadow-2xl flex flex-col">
+<div class="px-space-md py-3 border-b border-outline-variant bg-surface-container flex justify-between items-center">
+<span class="text-label-caps font-label-caps text-on-surface font-semibold tracking-wider uppercase">Active Lease &amp; ARP Table</span>
+<span class="text-code-sm font-code-sm text-outline">Polling rate: 2000ms</span>
+</div>
+<div class="overflow-x-auto custom-scroll">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-lowest/60 text-label-caps font-label-caps text-outline uppercase tracking-wider">
+<th class="py-3 px-4">Device / Hostname</th>
+<th class="py-3 px-3">IP Address</th>
+<th class="py-3 px-3">MAC Address</th>
+<th class="py-3 px-3">Connection &amp; Band</th>
+<th class="py-3 px-3">Vendor / Type</th>
+<th class="py-3 px-3 text-right">Live Traffic (↓ / ↑)</th>
+<th class="py-3 px-4 text-center">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/40 text-body-sm font-body-sm">
+<!-- Row 1: MacBook-Pro-M2 (SELECTED ROW) -->
+<tr class="bg-primary-container/10 border-l-2 border-l-primary hover:bg-primary-container/15 transition-colors cursor-pointer">
+<td class="py-3.5 px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-headline-sm text-primary">MacBook-Pro-M2</span>
+</div>
+</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-on-surface">192.168.0.102</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-outline">AA-BB-CC-DD-EE-1A</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary-container/20 text-primary text-code-sm font-code-sm font-semibold border border-primary/30 w-max">
+                        5G (Wi-Fi 6)
+                      </span>
+<span class="text-code-sm font-code-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="signal_cellular_alt">signal_cellular_alt</span>
+                        -48 dBm
+                      </span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant">Laptop / PC (Apple M2)</td>
+<td class="py-3.5 px-3 text-right font-code-md text-code-md whitespace-nowrap">
+<span class="text-secondary font-medium">↓ 3.4 MB/s</span>
+<span class="text-outline mx-1">/</span>
+<span class="text-primary font-medium">↑ 410 KB/s</span>
+</td>
+<td class="py-3.5 px-4 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-primary text-primary hover:bg-primary/20 transition-all">Reserve IP</button>
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-error text-error hover:bg-error/20 transition-all">Block</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Pixel-8-Pro -->
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="py-3.5 px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Pixel-8-Pro</span>
+</div>
+</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-on-surface">192.168.0.115</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-outline">AA-BB-CC-DD-EE-2B</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary-container/20 text-primary text-code-sm font-code-sm font-semibold border border-primary/30 w-max">
+                        5G (Wi-Fi 6)
+                      </span>
+<span class="text-code-sm font-code-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="signal_cellular_alt">signal_cellular_alt</span>
+                        -54 dBm
+                      </span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant">Mobile (Google)</td>
+<td class="py-3.5 px-3 text-right font-code-md text-code-md whitespace-nowrap">
+<span class="text-secondary font-medium">↓ 850 KB/s</span>
+<span class="text-outline mx-1">/</span>
+<span class="text-primary font-medium">↑ 64 KB/s</span>
+</td>
+<td class="py-3.5 px-4 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-all">Reserve IP</button>
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-error hover:border-error transition-all">Block</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Home-Server-TrueNAS -->
+<tr class="bg-surface-container-lowest/30 hover:bg-surface-container-highest/30 transition-colors">
+<td class="py-3.5 px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-semibold text-primary-fixed-dim">Home-Server-TrueNAS</span>
+</div>
+</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-on-surface">192.168.0.50</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-outline">AA-BB-CC-DD-EE-4D</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/20 text-primary-fixed-dim text-code-sm font-code-sm font-semibold border border-primary/40 w-max">
+                        Wired (LAN 1)
+                      </span>
+<span class="text-code-sm font-code-sm text-outline">1 Gbps Full Duplex</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant">Server / NAS</td>
+<td class="py-3.5 px-3 text-right font-code-md text-code-md whitespace-nowrap">
+<span class="text-secondary font-medium">↓ 14.6 MB/s</span>
+<span class="text-outline mx-1">/</span>
+<span class="text-primary font-medium">↑ 28.1 MB/s</span>
+</td>
+<td class="py-3.5 px-4 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<span class="px-2 py-1 text-code-sm font-code-sm rounded bg-secondary/15 text-secondary border border-secondary/30 font-semibold">Reserved ✓</span>
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-error hover:border-error transition-all">Block</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Smart-TV-OLED-65 -->
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="py-3.5 px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Smart-TV-OLED-65</span>
+</div>
+</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-on-surface">192.168.0.140</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-outline">AA-BB-CC-DD-EE-3C</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-tertiary/20 text-tertiary text-code-sm font-code-sm font-semibold border border-tertiary/40 w-max">
+                        2.4G (Wi-Fi 4)
+                      </span>
+<span class="text-code-sm font-code-sm text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="signal_cellular_alt_2_bar">signal_cellular_alt_2_bar</span>
+                        -62 dBm
+                      </span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant">Smart Home / TV (LG WebOS)</td>
+<td class="py-3.5 px-3 text-right font-code-md text-code-md whitespace-nowrap">
+<span class="text-secondary font-medium">↓ 1.8 MB/s</span>
+<span class="text-outline mx-1">/</span>
+<span class="text-primary font-medium">↑ 12 KB/s</span>
+</td>
+<td class="py-3.5 px-4 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-all">Reserve IP</button>
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-error hover:border-error transition-all">Block</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Workstation-Ubuntu -->
+<tr class="bg-surface-container-lowest/30 hover:bg-surface-container-highest/30 transition-colors">
+<td class="py-3.5 px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>Workstation-Ubuntu</span>
+</div>
+</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-on-surface">192.168.0.15</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-outline">AA-BB-CC-DD-EE-33</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/20 text-primary-fixed-dim text-code-sm font-code-sm font-semibold border border-primary/40 w-max">
+                        Wired (LAN 2)
+                      </span>
+<span class="text-code-sm font-code-sm text-outline">1 Gbps</span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant">Desktop PC</td>
+<td class="py-3.5 px-3 text-right font-code-md text-code-md whitespace-nowrap">
+<span class="text-secondary font-medium">↓ 450 KB/s</span>
+<span class="text-outline mx-1">/</span>
+<span class="text-primary font-medium">↑ 120 KB/s</span>
+</td>
+<td class="py-3.5 px-4 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-primary text-primary hover:bg-primary/20 transition-all">Wake-on-LAN</button>
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-error hover:border-error transition-all">Block</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: iPad-Air-5 -->
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="py-3.5 px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span>iPad-Air-5</span>
+</div>
+</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-on-surface">192.168.0.120</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-outline">AA-BB-CC-DD-EE-5E</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary-container/20 text-primary text-code-sm font-code-sm font-semibold border border-primary/30 w-max">
+                        5G (Wi-Fi 6)
+                      </span>
+<span class="text-code-sm font-code-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="signal_cellular_alt">signal_cellular_alt</span>
+                        -51 dBm
+                      </span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant">Tablet (Apple)</td>
+<td class="py-3.5 px-3 text-right font-code-md text-code-md whitespace-nowrap">
+<span class="text-secondary font-medium">↓ 220 KB/s</span>
+<span class="text-outline mx-1">/</span>
+<span class="text-primary font-medium">↑ 18 KB/s</span>
+</td>
+<td class="py-3.5 px-4 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary transition-all">Reserve IP</button>
+<button class="px-2 py-1 text-code-sm font-code-sm rounded border border-outline-variant text-on-surface-variant hover:text-error hover:border-error transition-all">Block</button>
+</div>
+</td>
+</tr>
+<!-- Row 7: Guest-iPhone-13 -->
+<tr class="hover:bg-surface-container-highest/30 transition-colors">
+<td class="py-3.5 px-4 font-medium text-on-surface">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span>Guest-iPhone-13</span>
+</div>
+</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-on-surface">192.168.0.210</td>
+<td class="py-3.5 px-3 font-code-md text-code-md text-outline">AA-BB-CC-DD-EE-99</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-wrap items-center gap-1">
+<span class="px-1.5 py-0.5 rounded bg-tertiary/20 text-tertiary text-code-sm font-code-sm font-semibold border border-tertiary/40">
+                        2.4G Guest
+                      </span>
+<span class="px-1.5 py-0.5 rounded bg-error/15 text-error text-code-sm font-code-sm font-bold border border-error/30">
+                        Isolated
+                      </span>
+</div>
+</td>
+<td class="py-3.5 px-3 text-on-surface-variant">Mobile</td>
+<td class="py-3.5 px-3 text-right font-code-md text-code-md whitespace-nowrap">
+<span class="text-secondary font-medium">↓ 45 KB/s</span>
+<span class="text-outline mx-1">/</span>
+<span class="text-primary font-medium">↑ 4 KB/s</span>
+</td>
+<td class="py-3.5 px-4 text-center">
+<div class="flex items-center justify-center gap-1.5">
+<button class="px-2.5 py-1 text-code-sm font-code-sm rounded border border-error text-error hover:bg-error/20 transition-all">Block</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Pagination / Status -->
+<div class="px-space-md py-2.5 border-t border-outline-variant bg-surface-container-lowest flex items-center justify-between text-code-sm font-code-sm text-outline">
+<div>Showing 7 of 14 Active Leases</div>
+<div class="flex items-center gap-2">
+<span class="text-on-surface-variant">Subnet: 255.255.255.0</span>
+<span>•</span>
+<span class="text-primary">DHCP Pool: 192.168.0.100 - 192.168.0.249</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Dedicated Client Inspection Drawer (4 Cols) -->
+<div class="lg:col-span-4 bg-surface-container-low border border-primary/40 rounded-xl p-space-md shadow-[0_8px_32px_-4px_rgba(0,167,225,0.2)] flex flex-col space-y-space-md relative overflow-hidden backdrop-blur-xl">
+<!-- Ambient Glow Corner Indicator -->
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+<!-- Drawer Header -->
+<div class="border-b border-outline-variant pb-3 flex justify-between items-start">
+<div>
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider block">Telemetry Inspector</span>
+<h3 class="text-headline-sm font-headline-sm text-primary font-bold mt-0.5">MacBook-Pro-M2</h3>
+<p class="text-code-sm font-code-sm text-secondary flex items-center gap-1.5 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
+                Online • 5 GHz Radio 1
+              </p>
+</div>
+<div class="p-2 rounded bg-surface-container-highest text-primary">
+<span class="material-symbols-outlined" data-icon="laptop_mac">laptop_mac</span>
+</div>
+</div>
+<!-- Technical Parameter Cards -->
+<div class="space-y-2.5">
+<!-- Parameter 1: Lease Time -->
+<div class="bg-surface-container p-2.5 rounded-lg border border-outline-variant/60">
+<div class="flex justify-between items-center text-code-sm font-code-sm mb-1.5">
+<span class="text-outline">DHCP Lease Remaining</span>
+<span class="text-on-surface font-semibold">18h 42m</span>
+</div>
+<div class="w-full bg-background h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 78%;"></div>
+</div>
+</div>
+<!-- Parameter 2: Radio Specs -->
+<div class="bg-surface-container p-2.5 rounded-lg border border-outline-variant/60 flex justify-between items-center">
+<div>
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider block">Physical Radio Specs</span>
+<span class="text-code-md font-code-md text-on-surface">Wi-Fi 6 (802.11ax)</span>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/30 text-code-sm font-code-sm">
+                Channel 36 (HT80)
+              </span>
+</div>
+<!-- Parameter 3: Signal Telemetry -->
+<div class="bg-surface-container p-2.5 rounded-lg border border-outline-variant/60">
+<div class="flex justify-between items-center mb-1">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider">Signal Telemetry</span>
+<span class="text-code-sm font-code-sm text-secondary font-bold">-48 dBm</span>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-outline-variant/40 text-code-sm font-code-sm">
+<div>
+<span class="text-outline block">Link Quality:</span>
+<span class="text-on-surface font-semibold">92%</span>
+</div>
+<div>
+<span class="text-outline block">Signal-to-Noise:</span>
+<span class="text-on-surface font-semibold">SNR 44 dB</span>
+</div>
+</div>
+</div>
+<!-- Parameter 4: Cumulative Traffic -->
+<div class="bg-surface-container p-2.5 rounded-lg border border-outline-variant/60">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider block mb-1">Session Cumulative Traffic</span>
+<div class="flex items-center justify-between text-code-md font-code-md">
+<div class="flex items-center gap-1 text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="south">south</span>
+<span>4.8 GB</span>
+</div>
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" data-icon="north">north</span>
+<span>840 MB</span>
+</div>
+</div>
+</div>
+<!-- Parameter 5: Subnet Route -->
+<div class="bg-surface-container p-2.5 rounded-lg border border-outline-variant/60 text-code-sm font-code-sm">
+<span class="text-label-caps font-label-caps text-outline uppercase tracking-wider block mb-1">Target Subnet &amp; Gateway</span>
+<div class="text-on-surface-variant font-mono">192.168.0.0/24 • Gateway: 192.168.0.1</div>
+</div>
+</div>
+<!-- Quick Actions & Routing Control -->
+<div class="pt-2 border-t border-outline-variant space-y-2">
+<button class="w-full py-2 px-3 rounded bg-primary-container text-on-primary-fixed text-code-md font-code-md font-semibold hover:shadow-[0_0_18px_rgba(0,167,225,0.5)] active:scale-98 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="alt_route">alt_route</span>
+              Create Port Forwarding Rule
+            </button>
+<div class="grid grid-cols-2 gap-2">
+<button class="py-1.5 px-2 rounded bg-surface-container border border-outline-variant hover:border-primary/50 text-code-sm font-code-sm text-on-surface flex items-center justify-center gap-1.5 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="network_ping">network_ping</span>
+                Ping Device
+              </button>
+<button class="py-1.5 px-2 rounded bg-surface-container border border-outline-variant hover:border-primary/50 text-code-sm font-code-sm text-on-surface flex items-center justify-center gap-1.5 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="conversion_path">conversion_path</span>
+                Trace Route
+              </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>
+
