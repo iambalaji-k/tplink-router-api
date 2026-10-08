@@ -120,29 +120,29 @@
 <!-- Main Navigation Links -->
 <nav class="flex flex-col gap-1.5">
 <!-- Active Tab: Overview -->
-<a class="flex items-center gap-space-sm px-space-md py-space-sm text-primary dark:text-primary bg-surface-container-highest dark:bg-surface-container-highest rounded-lg border-l-2 border-primary font-headline-sm active:scale-98 transition-all duration-150 glow-cyan" href="#overview">
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-primary dark:text-primary bg-surface-container-highest dark:bg-surface-container-highest rounded-lg border-l-2 border-primary font-headline-sm active:scale-98 transition-all duration-150 glow-cyan" href="/dashboard/stitch_preview.html">
 <span class="material-symbols-outlined text-lg" data-icon="router">router</span>
 <span class="flex-1">Overview</span>
 <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
 </a>
 <!-- Clients -->
-<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#clients">
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="/dashboard/stitch_clients.html">
 <span class="material-symbols-outlined text-lg" data-icon="devices">devices</span>
 <span class="flex-1">Clients</span>
-<span class="px-1.5 py-0.5 rounded text-code-sm font-code-sm bg-surface-container-high text-primary border border-outline-variant">14</span>
+<span class="live-clients-count px-1.5 py-0.5 rounded text-code-sm font-code-sm bg-surface-container-high text-primary border border-outline-variant">--</span>
 </a>
 <!-- Wireless Radios -->
-<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#wireless">
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="/dashboard/stitch_wireless.html">
 <span class="material-symbols-outlined text-lg" data-icon="wifi">wifi</span>
 <span class="flex-1">Wireless Radios</span>
 </a>
 <!-- Security & DHCP -->
-<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#security">
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="/dashboard/stitch_security.html">
 <span class="material-symbols-outlined text-lg" data-icon="shield">shield</span>
 <span class="flex-1">Security &amp; DHCP</span>
 </a>
 <!-- API Explorer -->
-<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="#api">
+<a class="flex items-center gap-space-sm px-space-md py-space-sm text-on-surface-variant dark:text-on-surface-variant rounded-lg font-body-md hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors active:scale-98" href="/dashboard/stitch_api_explorer.html">
 <span class="material-symbols-outlined text-lg" data-icon="terminal">terminal</span>
 <span class="flex-1">API Explorer</span>
 <span class="px-1.5 py-0.2 rounded text-[10px] font-code-sm bg-tertiary-container/30 text-tertiary border border-tertiary-container/50">PRO</span>
@@ -152,11 +152,11 @@
 <!-- Footer Utilities & Quick Reboot CTA -->
 <div class="flex flex-col gap-space-sm border-t border-outline-variant pt-space-md">
 <nav class="flex flex-col gap-1">
-<a class="flex items-center gap-space-sm px-space-md py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg text-body-sm font-body-sm transition-colors" href="#diagnostics">
+<a class="flex items-center gap-space-sm px-space-md py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg text-body-sm font-body-sm transition-colors" href="/dashboard/stitch_api_explorer.html">
 <span class="material-symbols-outlined text-base" data-icon="monitoring">monitoring</span>
 <span>Diagnostics</span>
 </a>
-<a class="flex items-center gap-space-sm px-space-md py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg text-body-sm font-body-sm transition-colors" href="#system">
+<a class="flex items-center gap-space-sm px-space-md py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg text-body-sm font-body-sm transition-colors" href="/dashboard/stitch_security.html">
 <span class="material-symbols-outlined text-base" data-icon="settings">settings</span>
 <span>System Tools</span>
 </a>
@@ -168,9 +168,9 @@
 </div>
 </aside>
 <!-- MAIN DASHBOARD WORKSPACE -->
-<main class="md:ml-64 flex-1 p-4 md:p-space-xl flex flex-col gap-space-xl max-w-7xl">
+<main class="md:ml-64 flex-1 p-4 md:p-6 lg:p-8 flex flex-col gap-5 w-full">
 <!-- GREETING & UPTIME STATUS BANNER -->
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md bg-surface-container border border-outline-variant p-space-lg rounded-xl shadow-lg relative overflow-hidden backdrop-blur-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-surface-container border border-outline-variant p-4 rounded-xl shadow-lg relative overflow-hidden backdrop-blur-md">
 <div class="flex items-center gap-4 relative z-10">
 <div class="w-12 h-12 rounded-lg bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary glow-cyan">
 <span class="material-symbols-outlined text-2xl" data-icon="speed">speed</span>
@@ -204,7 +204,7 @@
 </div>
 </div>
 <!-- SECTION 1: SYSTEM VITALS & WAN/LAN TELEMETRY BENTO -->
-<section class="flex flex-col gap-space-md" id="overview">
+<section class="flex flex-col gap-3.5" id="overview">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary text-xl" data-icon="analytics">analytics</span>
@@ -212,7 +212,7 @@
 </div>
 <span id="telemetry-status-badge" class="text-code-sm font-code-sm text-outline">Connecting live...</span>
 </div>
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
 <!-- Dual Circular Gauges Card (CPU & RAM) -->
 <div class="lg:col-span-4 bg-surface-container-low border border-outline-variant rounded-xl p-space-md flex flex-col justify-between">
 <div class="flex items-center justify-between border-b border-outline-variant pb-2">
@@ -367,7 +367,7 @@
 </div>
 </section>
 <!-- SECTION 2: DUAL-BAND WI-FI 6 RADIOS -->
-<section class="flex flex-col gap-space-md" id="wireless">
+<section class="flex flex-col gap-3.5" id="wireless">
 <div class="flex items-center justify-between">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary text-xl" data-icon="wifi">wifi</span>
@@ -375,7 +375,7 @@
 </div>
 <span class="px-2 py-0.5 rounded text-code-sm font-code-sm bg-primary/10 text-primary border border-primary/30">OFDMA &amp; Beamforming ON</span>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <!-- 2.4 GHz Radio Card -->
 <div class="bg-surface-container-low border border-outline-variant rounded-xl p-space-md flex flex-col gap-3">
 <div class="flex items-center justify-between border-b border-outline-variant pb-2">
@@ -414,8 +414,7 @@
 </button>
 </div>
 <div class="flex items-center justify-between pt-1 text-code-sm font-code-sm">
-<span class="text-outline">Connected Wireless Clients:</span>
-<span class="text-primary font-bold">5 Devices active</span>
+<span class="text-outline">Connected Wireless Clients:</span> <span id="wifi-2g-clients-count" class="text-primary font-bold font-mono">--</span>
 </div>
 </div>
 <!-- 5.0 GHz Radio Card -->
@@ -456,8 +455,7 @@
 </button>
 </div>
 <div class="flex items-center justify-between pt-1 text-code-sm font-code-sm">
-<span class="text-outline">Connected Wireless Clients:</span>
-<span class="text-primary font-bold">9 Devices active (Wi-Fi 6)</span>
+<span class="text-outline">Connected Wireless Clients:</span> <span id="wifi-5g-clients-count" class="text-primary font-bold font-mono">--</span>
 </div>
 </div>
 </div>
@@ -485,7 +483,7 @@
 </div>
 </section>
 <!-- SECTION 3: CONNECTED CLIENTS TABLE -->
-<section class="flex flex-col gap-space-md" id="clients">
+<section class="flex flex-col gap-3.5" id="clients">
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-primary text-xl" data-icon="devices">devices</span>
@@ -496,15 +494,15 @@
 <div class="flex flex-wrap items-center gap-2">
 <div class="relative">
 <span class="material-symbols-outlined absolute left-2.5 top-2.5 text-sm text-outline" data-icon="search">search</span>
-<input class="h-9 pl-8 pr-3 text-code-sm font-code-sm bg-surface-container-lowest border border-outline-variant rounded focus:border-primary focus:ring-0 text-on-surface placeholder:text-outline w-52 sm:w-64" placeholder="Filter hostname or MAC..." type="text"/>
+<input id="client-search-input" oninput="applyClientFilters()" class="h-9 pl-8 pr-3 text-code-sm font-code-sm bg-surface-container-lowest border border-outline-variant rounded focus:border-primary focus:ring-0 text-on-surface placeholder:text-outline w-52 sm:w-64" placeholder="Filter hostname or MAC..." type="text"/>
 </div>
 <div class="flex items-center gap-1 bg-surface-container-low p-1 rounded border border-outline-variant">
-<button class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container-highest text-primary font-semibold">All: 14</button>
-<button class="px-2 py-1 rounded text-code-sm font-code-sm text-outline hover:text-on-surface">5G: 9</button>
-<button class="px-2 py-1 rounded text-code-sm font-code-sm text-outline hover:text-on-surface">2.4G: 3</button>
-<button class="px-2 py-1 rounded text-code-sm font-code-sm text-outline hover:text-on-surface">LAN: 2</button>
+<button onclick="setClientFilter('all')" id="filter-all-btn" class="px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container-highest text-primary font-semibold">All: <span class="live-clients-count">--</span></button>
+<button onclick="setClientFilter('5G')" id="filter-5g-btn" class="px-2.5 py-1 rounded text-code-sm font-code-sm text-outline hover:text-on-surface">5G: <span id="count-5g">--</span></button>
+<button onclick="setClientFilter('2.4G')" id="filter-2g-btn" class="px-2.5 py-1 rounded text-code-sm font-code-sm text-outline hover:text-on-surface">2.4G: <span id="count-2g">--</span></button>
+<button onclick="setClientFilter('wired')" id="filter-lan-btn" class="px-2.5 py-1 rounded text-code-sm font-code-sm text-outline hover:text-on-surface">LAN: <span id="count-lan">--</span></button>
 </div>
-<button class="h-9 px-3 bg-surface-container-low border border-outline-variant rounded hover:text-primary transition-colors flex items-center" onclick="flashSync(this)" title="Refresh Client Table">
+<button class="h-9 px-3 bg-surface-container-low border border-outline-variant rounded hover:text-primary transition-colors flex items-center" onclick="updateLiveVitals(); flashSync(this)" title="Refresh Client Table">
 <span class="material-symbols-outlined text-base" data-icon="refresh">refresh</span>
 </button>
 </div>
@@ -707,6 +705,8 @@ async function blockDevice(mac) {
 <script>
 // --- TP-Link Archer AX12 Live Overview Telemetry Client ---
 let isOverviewPollingPaused = false;
+let globalClientsList = [];
+let activeClientFilter = 'all';
 
 async function updateLiveVitals() {
   if (isOverviewPollingPaused) return;
@@ -761,7 +761,17 @@ async function updateLiveVitals() {
       }
     }
 
-    // 4. Clients Table & Count
+    // 4. Wireless SSIDs
+    if (data.wireless_2g && data.wireless_2g.ssid) {
+      const s2g = document.getElementById('wifi-2g-ssid');
+      if (s2g) s2g.textContent = data.wireless_2g.ssid;
+    }
+    if (data.wireless_5g && data.wireless_5g.ssid) {
+      const s5g = document.getElementById('wifi-5g-ssid');
+      if (s5g) s5g.textContent = data.wireless_5g.ssid;
+    }
+
+    // 5. Clients Table & Counts
     let clientsList = Array.isArray(data.clients) ? data.clients : [];
     if (clientsList.length === 0) {
       try {
@@ -777,44 +787,11 @@ async function updateLiveVitals() {
       }
     }
 
-    const countEls = document.querySelectorAll('.live-clients-count');
-    countEls.forEach(el => el.textContent = clientsList.length);
+    globalClientsList = clientsList;
+    updateClientCounts();
+    applyClientFilters();
 
-    const footerCount = document.getElementById('live-devices-footer-count');
-    if (footerCount) footerCount.textContent = `Showing ${clientsList.length} active connected devices`;
-
-    const tbody = document.getElementById('live-devices-tbody');
-    if (tbody) {
-      if (clientsList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-outline font-mono">No devices currently connected to router.</td></tr>';
-      } else {
-        tbody.innerHTML = clientsList.map(c => {
-          const wireBadge = c.wire_type === 'wired' ? '<span class="px-2 py-0.5 rounded text-[10px] bg-secondary/20 text-secondary font-bold border border-secondary/40 font-mono">Wired Ethernet</span>' :
-                            c.wire_type === '5G' ? '<span class="px-2 py-0.5 rounded text-[10px] bg-primary/20 text-primary font-bold border border-primary/40 font-mono">5 GHz Wi-Fi 6</span>' :
-                            '<span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-highest text-tertiary font-bold border border-outline-variant font-mono">2.4 GHz</span>';
-          const icon = c.wire_type === 'wired' ? 'lan' : 'devices';
-          return `
-            <tr class="hover:bg-surface-container/60 transition-colors">
-              <td class="py-3 px-4">
-                <div class="flex items-center gap-2.5">
-                  <span class="material-symbols-outlined text-primary text-lg" data-icon="${icon}">${icon}</span>
-                  <span class="font-semibold text-on-surface">${c.hostname || '&lt;unknown&gt;'}</span>
-                </div>
-              </td>
-              <td class="py-3 px-4 text-primary font-medium font-mono">${c.ipaddr || '--'}</td>
-              <td class="py-3 px-4 text-outline font-mono">${c.macaddr || '--'}</td>
-              <td class="py-3 px-4">${wireBadge}</td>
-              <td class="py-3 px-4 text-secondary font-mono">Active Link</td>
-              <td class="py-3 px-4 text-right">
-                <button onclick="blockDevice('${c.macaddr}')" class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95 font-mono">Block</button>
-              </td>
-            </tr>
-          `;
-        }).join('');
-      }
-    }
-
-    // 5. Live Badge
+    // 6. Live Badge
     const pollBadge = document.getElementById('telemetry-status-badge');
     if (pollBadge) {
       pollBadge.textContent = 'Live Connected • ' + new Date().toLocaleTimeString();
@@ -830,10 +807,95 @@ async function updateLiveVitals() {
   }
 }
 
+function updateClientCounts() {
+  const countEls = document.querySelectorAll('.live-clients-count');
+  countEls.forEach(el => el.textContent = globalClientsList.length);
+
+  const count5g = globalClientsList.filter(c => c.wire_type === '5G').length;
+  const count2g = globalClientsList.filter(c => c.wire_type === '2.4G' || c.wire_type === 'wireless').length;
+  const countLan = globalClientsList.filter(c => c.wire_type === 'wired').length;
+
+  const el5g = document.getElementById('count-5g');
+  if (el5g) el5g.textContent = count5g;
+  const el2g = document.getElementById('count-2g');
+  if (el2g) el2g.textContent = count2g;
+  const elLan = document.getElementById('count-lan');
+  if (elLan) elLan.textContent = countLan;
+
+  const wifi2gCountEl = document.getElementById('wifi-2g-clients-count');
+  if (wifi2gCountEl) wifi2gCountEl.textContent = `${count2g} Devices active`;
+  const wifi5gCountEl = document.getElementById('wifi-5g-clients-count');
+  if (wifi5gCountEl) wifi5gCountEl.textContent = `${count5g} Devices active (Wi-Fi 6)`;
+
+  const footerCount = document.getElementById('live-devices-footer-count');
+  if (footerCount) footerCount.textContent = `Showing ${globalClientsList.length} active connected devices`;
+}
+
+function setClientFilter(filter) {
+  activeClientFilter = filter;
+  ['all', '5g', '2g', 'lan'].forEach(k => {
+    const btn = document.getElementById(`filter-${k}-btn`);
+    if (btn) {
+      if ((filter === 'all' && k === 'all') || (filter.toLowerCase() === k)) {
+        btn.className = 'px-2.5 py-1 rounded text-code-sm font-code-sm bg-surface-container-highest text-primary font-semibold';
+      } else {
+        btn.className = 'px-2.5 py-1 rounded text-code-sm font-code-sm text-outline hover:text-on-surface';
+      }
+    }
+  });
+  applyClientFilters();
+}
+
+function applyClientFilters() {
+  const searchInput = document.getElementById('client-search-input');
+  const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  const tbody = document.getElementById('live-devices-tbody');
+  if (!tbody) return;
+
+  let filtered = globalClientsList.filter(c => {
+    const matchesQuery = !q || (c.hostname && c.hostname.toLowerCase().includes(q)) || (c.ipaddr && c.ipaddr.includes(q)) || (c.macaddr && c.macaddr.toLowerCase().includes(q));
+    if (!matchesQuery) return false;
+    if (activeClientFilter === 'all') return true;
+    if (activeClientFilter === '5G') return c.wire_type === '5G';
+    if (activeClientFilter === '2.4G') return c.wire_type === '2.4G' || c.wire_type === 'wireless';
+    if (activeClientFilter === 'wired') return c.wire_type === 'wired';
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-outline font-mono">No devices matching current filter.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(c => {
+    const wireBadge = c.wire_type === 'wired' ? '<span class="px-2 py-0.5 rounded text-[10px] bg-secondary/20 text-secondary font-bold border border-secondary/40 font-mono">Wired Ethernet</span>' :
+                      c.wire_type === '5G' ? '<span class="px-2 py-0.5 rounded text-[10px] bg-primary/20 text-primary font-bold border border-primary/40 font-mono">5 GHz Wi-Fi 6</span>' :
+                      '<span class="px-2 py-0.5 rounded text-[10px] bg-surface-container-highest text-tertiary font-bold border border-outline-variant font-mono">2.4 GHz</span>';
+    const icon = c.wire_type === 'wired' ? 'lan' : 'devices';
+    return `
+      <tr class="hover:bg-surface-container/60 transition-colors">
+        <td class="py-3 px-4">
+          <div class="flex items-center gap-2.5">
+            <span class="material-symbols-outlined text-primary text-lg" data-icon="${icon}">${icon}</span>
+            <span class="font-semibold text-on-surface">${c.hostname || '&lt;unknown&gt;'}</span>
+          </div>
+        </td>
+        <td class="py-3 px-4 text-primary font-medium font-mono">${c.ipaddr || '--'}</td>
+        <td class="py-3 px-4 text-outline font-mono">${c.macaddr || '--'}</td>
+        <td class="py-3 px-4">${wireBadge}</td>
+        <td class="py-3 px-4 text-secondary font-mono">Active Link</td>
+        <td class="py-3 px-4 text-right">
+          <button onclick="blockDevice('${c.macaddr}')" class="px-2.5 py-1 rounded border border-error/50 text-error hover:bg-error-container/20 text-[11px] font-semibold transition-colors active:scale-95 font-mono">Block</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
 // Initial fetch & interval
 document.addEventListener('DOMContentLoaded', () => {
   updateLiveVitals();
-  setInterval(updateLiveVitals, 3000); // Poll every 3 seconds for live responsiveness
+  setInterval(updateLiveVitals, 3000);
   
   // Pause Polling Button
   const pollBtn = document.getElementById('polling-btn');
@@ -896,8 +958,6 @@ async function blockDevice(mac) {
     alert('Block error: ' + e.message);
   }
 }
-
 </script>
-
 </body></html>
 
